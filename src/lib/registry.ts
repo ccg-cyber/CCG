@@ -10,7 +10,7 @@ import type { ModuleDefinition } from "./types";
  *   - "scaffolded"  has a route and placeholder screen
  *   - "planned"     registered so the shape of the OS is complete; not built
  *
- * 24 modules are wired up end-to-end so far, sharing one dataset
+ * 27 modules are wired up end-to-end so far, sharing one dataset
  * (src/lib/data.ts) rather than being isolated demos. The rest are
  * registered and navigable but not yet built — see MODULES.md for the
  * always-current live count and full breakdown by category.
@@ -120,7 +120,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-inventory", slug: "inventory", name: "CI Inventory", category: "business", status: "live",
     description: "SKUs, warehouses, stock movements, lot/serial, reorder points, valuation.",
     keywords: ["inventory", "warehouse", "stock"] },
-  { id: "ci-pos", slug: "pos", name: "CI POS", category: "business", status: "planned",
+  { id: "ci-pos", slug: "pos", name: "CI POS", category: "business", status: "live",
     description: "Retail sales, cash drawers, discounts, offline mode, branch sync.",
     keywords: ["pos", "point of sale", "retail"] },
   { id: "ci-manufacturing", slug: "manufacturing", name: "CI Manufacturing", category: "business", status: "live",
@@ -138,7 +138,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-attendance", slug: "attendance", name: "CI Attendance", category: "business", status: "live",
     description: "Clock-in/out, shifts, schedules, overtime, absence tracking.",
     keywords: ["attendance", "clock in", "shifts"] },
-  { id: "ci-recruit", slug: "recruit", name: "CI Recruit", category: "business", status: "planned",
+  { id: "ci-recruit", slug: "recruit", name: "CI Recruit", category: "business", status: "live",
     description: "Vacancies, applicants, CV parsing, interviews, offers, onboarding handoff.",
     keywords: ["recruiting", "hiring", "applicant"] },
   { id: "ci-maintenance", slug: "maintenance", name: "CI Maintenance", category: "business", status: "planned",
@@ -268,7 +268,7 @@ export const MODULES: ModuleDefinition[] = [
     keywords: ["voice", "speech"] },
 
   // ── Control ─────────────────────────────────────────────────────────
-  { id: "ci-legal", slug: "legal", name: "CI Legal / Compliance", category: "control", status: "planned",
+  { id: "ci-legal", slug: "legal", name: "CI Legal / Compliance", category: "control", status: "live",
     description: "Policies, regulatory documents, audit trails, risk registers, evidence.",
     keywords: ["legal", "compliance", "risk"] },
   { id: "ci-approval-center", slug: "approvals", name: "CI Approval Center", category: "control", status: "live",

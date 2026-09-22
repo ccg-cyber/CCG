@@ -172,7 +172,7 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Twenty-four modules are wired up end-to-end against the one shared dataset:
+Twenty-seven modules are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
@@ -198,10 +198,13 @@ Twenty-four modules are wired up end-to-end against the one shared dataset:
 | CI Manufacturing | Business | A real BOM: consumes N inputs, produces 1 output, blocks if short |
 | CI Attendance | Business | Second module reading/writing CI HR's Employee records |
 | CI Contracts | Business | Status computed from a date, not stored — recalculates live |
+| CI Recruit | Business | Hiring a candidate calls addEmployee() — a real CI HR record, not a status label |
+| CI POS | Business | Sells against real CI Inventory stock via a second, independent code path from CI Sales |
+| CI Legal | Control | Reads CI Contracts' at-risk list directly — zero duplicated logic |
 | CI Approval Center | Control | Real queue, now rendering two different payload kinds |
 | CI Audit | Control | Real timeline of every human, agent and system action |
 
-The other 66 are registered with real names, categories, descriptions and
+The other 63 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
@@ -292,12 +295,12 @@ trail doesn't change.
 4. **CI Autonomy Control** as an actual policy surface — today
    `needsApproval` is hardcoded per intent in `ask-ci.ts`; it should be a
    configurable rule a human sets, not a constant in the router.
-5. Promote the next handful of modules from `planned` to `live`. 24 of 90
-   are done. Natural next candidates: **CI Legal/Compliance** (CI
-   Contracts now tracks expiry; Legal would be the natural next layer —
-   policies and compliance checklists referencing those same contracts),
-   **CI Recruit** (CI HR has employees but nothing feeds new ones in
-   except the manual form; Recruit would be the pipeline that ends in
-   `addEmployee()`), and **CI POS** (CI Inventory now has real stock
-   levels; POS would be the first module to sell that same stock at the
-   register rather than through CI Sales' quote-to-deal path).
+5. Promote the next handful of modules from `planned` to `live`. 27 of 90
+   are done. Natural next candidates: **CI Logistics** (CI POS and CI
+   Manufacturing both move real stock now; nothing yet represents getting
+   it to a customer), **CI Assets** (CI Purchasing creates POs for
+   consumable inventory today; a capital purchase — a laptop, a vehicle —
+   wants a depreciating asset record instead), and **CI Knowledge** (every
+   module so far is transactional; Knowledge would be the first that
+   stores durable reference material — SOPs, runbooks — rather than
+   records that change state).

@@ -19,6 +19,9 @@ import type {
   Campaign,
   ProductionOrder,
   Contract,
+  CompliancePolicy,
+  Candidate,
+  Sale,
 } from "./types";
 
 /**
@@ -88,10 +91,12 @@ const QUOTES: Quote[] = [
 ];
 
 const INVENTORY: InventoryItem[] = [
-  { id: "item-widget-a", sku: "WA-100", name: "Widget A", quantityOnHand: 40, reorderPoint: 20 },
-  { id: "item-widget-b", sku: "WB-200", name: "Widget B", quantityOnHand: 15, reorderPoint: 20 },
-  { id: "item-assembled-kit", sku: "AK-300", name: "Assembled Kit", quantityOnHand: 0, reorderPoint: 5 },
+  { id: "item-widget-a", sku: "WA-100", name: "Widget A", quantityOnHand: 40, reorderPoint: 20, unitPrice: 12 },
+  { id: "item-widget-b", sku: "WB-200", name: "Widget B", quantityOnHand: 15, reorderPoint: 20, unitPrice: 18 },
+  { id: "item-assembled-kit", sku: "AK-300", name: "Assembled Kit", quantityOnHand: 0, reorderPoint: 5, unitPrice: 65 },
 ];
+
+const SALES: Sale[] = [];
 
 const PRODUCTION_ORDERS: ProductionOrder[] = [
   {
@@ -152,6 +157,16 @@ const CONTRACTS: Contract[] = [
   { id: "contract-northwind", customerId: "cust-northwind", title: "Vendor supply agreement", expiresOn: "2027-01-15" },
 ];
 
+const POLICIES: CompliancePolicy[] = [
+  { id: "policy-data-retention", name: "Data retention policy", status: "compliant", lastReviewed: "2026-06-01" },
+  { id: "policy-access-review", name: "Quarterly access review", status: "needs-review", lastReviewed: "2026-03-15" },
+];
+
+const CANDIDATES: Candidate[] = [
+  { id: "cand-1", name: "Morgan Blake", role: "Sales Development Rep", department: "Sales", offerSalary: 58000, stage: "interview" },
+  { id: "cand-2", name: "Iris Chen", role: "Support Engineer", department: "Customer Service", offerSalary: 64000, stage: "applied" },
+];
+
 const TARGETS: Record<string, number> = {
   "cust-acme": 40000,
   "cust-nord": 20000,
@@ -179,6 +194,9 @@ const SEED: AppState = {
   campaigns: CAMPAIGNS,
   productionOrders: PRODUCTION_ORDERS,
   contracts: CONTRACTS,
+  policies: POLICIES,
+  candidates: CANDIDATES,
+  sales: SALES,
   dismissedNotificationIds: [],
 };
 
@@ -599,6 +617,72 @@ export function decideQuote(id: string, decision: "sent" | "accepted" | "decline
 
 export function dismissNotification(id: string) {
   appStore.set((s) => ({ ...s, dismissedNotificationIds: [...s.dismissedNotificationIds, id] }));
+}
+
+export function reviewPolicy(id: string) {
+  const policy = appStore.get().policies.find((p) => p.id === id);
+  if (!policy) return;
+  appStore.set((s) => ({
+    ...s,
+    policies: s.policies.map((p) => (p.id === id ? { ...p, status: "compliant", lastReviewed: now().slice(0, 10) } : p)),
+  }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-legal", action: `Reviewed policy "${policy.name}" — marked compliant` });
+}
+
+const STAGE_ORDER: Candidate["stage"][] = ["applied", "interview", "offer", "hired"];
+
+export function advanceCandidate(id: string) {
+  const state = appStore.get();
+  const candidate = state.candidates.find((c) => c.id === id);
+  if (!candidate || candidate.stage === "hired" || candidate.stage === "rejected") return;
+  const next = STAGE_ORDER[Math.min(STAGE_ORDER.indexOf(candidate.stage) + 1, STAGE_ORDER.length - 1)];
+
+  appStore.set((s) => ({
+    ...s,
+    candidates: s.candidates.map((c) => (c.id === id ? { ...c, stage: next } : c)),
+  }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-recruit", action: `${candidate.name} moved to ${next}` });
+
+  // Hiring isn't just a label change — it's the real-world event that
+  // creates the employee record CI HR (and everything reading it, like
+  // CI Payroll and CI Attendance) will show from now on.
+  if (next === "hired") {
+    addEmployee(candidate.name, candidate.role, candidate.department, candidate.offerSalary);
+    addAuditEvent({
+      actor: "system",
+      actorName: "Ci Business OS",
+      moduleId: "ci-hr",
+      action: `Created employee record for ${candidate.name} from an accepted offer`,
+    });
+  }
+}
+
+export function rejectCandidate(id: string) {
+  const candidate = appStore.get().candidates.find((c) => c.id === id);
+  if (!candidate) return;
+  appStore.set((s) => ({
+    ...s,
+    candidates: s.candidates.map((c) => (c.id === id ? { ...c, stage: "rejected" } : c)),
+  }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-recruit", action: `${candidate.name} rejected` });
+}
+
+export function sellStock(itemId: string, quantity: number) {
+  const item = appStore.get().inventory.find((i) => i.id === itemId);
+  if (!item || item.quantityOnHand < quantity || quantity <= 0) return;
+  const total = item.unitPrice * quantity;
+
+  appStore.set((s) => ({
+    ...s,
+    inventory: s.inventory.map((i) => (i.id === itemId ? { ...i, quantityOnHand: i.quantityOnHand - quantity } : i)),
+    sales: [{ id: uid("sale"), itemId, quantity, total, timestamp: now() }, ...s.sales],
+  }));
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-pos",
+    action: `Sold ${quantity}x ${item.name} for $${total.toLocaleString()}`,
+  });
 }
 
 export function resetDemoData() {

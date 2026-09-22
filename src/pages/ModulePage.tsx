@@ -25,6 +25,9 @@ import Payroll from "@/modules/payroll/Payroll";
 import Manufacturing from "@/modules/manufacturing/Manufacturing";
 import Attendance from "@/modules/attendance/Attendance";
 import Contracts from "@/modules/contracts/Contracts";
+import Legal from "@/modules/legal/Legal";
+import Recruit from "@/modules/recruit/Recruit";
+import POS from "@/modules/pos/POS";
 
 /**
  * Registry module id -> its real component. This is the one place that
@@ -58,6 +61,9 @@ const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
   "ci-manufacturing": Manufacturing,
   "ci-attendance": Attendance,
   "ci-contracts": Contracts,
+  "ci-legal": Legal,
+  "ci-recruit": Recruit,
+  "ci-pos": POS,
 };
 
 export default function ModulePage() {

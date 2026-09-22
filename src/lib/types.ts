@@ -191,6 +191,15 @@ export interface InventoryItem {
   name: string;
   quantityOnHand: number;
   reorderPoint: number;
+  unitPrice: number;
+}
+
+export interface Sale {
+  id: string;
+  itemId: string;
+  quantity: number;
+  total: number;
+  timestamp: string;
 }
 
 export interface Campaign {
@@ -215,6 +224,22 @@ export interface Contract {
   customerId: string;
   title: string;
   expiresOn: string;
+}
+
+export interface CompliancePolicy {
+  id: string;
+  name: string;
+  status: "compliant" | "needs-review";
+  lastReviewed: string;
+}
+
+export interface Candidate {
+  id: string;
+  name: string;
+  role: string;
+  department: string;
+  offerSalary: number;
+  stage: "applied" | "interview" | "offer" | "hired" | "rejected";
 }
 
 export interface Meeting {
@@ -273,6 +298,9 @@ export interface AppState {
   campaigns: Campaign[];
   productionOrders: ProductionOrder[];
   contracts: Contract[];
+  policies: CompliancePolicy[];
+  candidates: Candidate[];
+  sales: Sale[];
   /** Notifications a user has dismissed — notifications themselves are computed, not stored, so read state is the only thing that needs persisting. */
   dismissedNotificationIds: string[];
 }

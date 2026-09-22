@@ -44,9 +44,12 @@ the code, always current).
 | CI Manufacturing | ✅ Live — a real BOM that consumes and produces real stock |
 | CI Attendance | ✅ Live — real PTO balances on top of CI HR's employees |
 | CI Contracts | ✅ Live — expiry-driven status, computed, not hardcoded |
-| 66 more modules | ⬜ Registered, searchable, not yet built |
+| CI Legal | ✅ Live — reads CI Contracts' at-risk list, real policy reviews |
+| CI Recruit | ✅ Live — hiring a candidate creates their real CI HR record |
+| CI POS | ✅ Live — sells against real CI Inventory, independent of CI Sales |
+| 63 more modules | ⬜ Registered, searchable, not yet built |
 
-All twenty-four live modules read and write **one shared, persisted dataset**
+All twenty-seven live modules read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four
