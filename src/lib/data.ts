@@ -15,6 +15,8 @@ import type {
   Quote,
   PurchaseOrder,
   Employee,
+  InventoryItem,
+  Campaign,
 } from "./types";
 
 /**
@@ -83,9 +85,16 @@ const QUOTES: Quote[] = [
   { id: "quote-blueharbor", customerId: "cust-blueharbor", dealId: "deal-blueharbor", description: "Standard tier — annual", amount: 7200, status: "draft" },
 ];
 
-const PURCHASE_ORDERS: PurchaseOrder[] = [
-  { id: "po-2201", supplierId: "cust-northwind", description: "Q4 inventory restock", amount: 4300, status: "pending" },
+const INVENTORY: InventoryItem[] = [
+  { id: "item-widget-a", sku: "WA-100", name: "Widget A", quantityOnHand: 40, reorderPoint: 20 },
+  { id: "item-widget-b", sku: "WB-200", name: "Widget B", quantityOnHand: 15, reorderPoint: 20 },
 ];
+
+const PURCHASE_ORDERS: PurchaseOrder[] = [
+  { id: "po-2201", supplierId: "cust-northwind", description: "Q4 inventory restock — Widget B", amount: 4300, status: "pending", itemId: "item-widget-b", quantity: 50 },
+];
+
+const CAMPAIGNS: Campaign[] = [];
 
 const APPROVALS: ApprovalRequest[] = [
   {
@@ -116,9 +125,9 @@ const TICKETS: SupportTicket[] = [
 ];
 
 const EMPLOYEES: Employee[] = [
-  { id: "emp-1", name: "Jordan Reyes", role: "Account Manager", department: "Sales", startDate: "2024-03-01", status: "active" },
-  { id: "emp-2", name: "Priya Nair", role: "Support Engineer", department: "Customer Service", startDate: "2023-11-15", status: "active" },
-  { id: "emp-3", name: "Sam Okafor", role: "Operations Analyst", department: "Operations", startDate: "2026-09-01", status: "onboarding" },
+  { id: "emp-1", name: "Jordan Reyes", role: "Account Manager", department: "Sales", startDate: "2024-03-01", status: "active", baseSalary: 72000 },
+  { id: "emp-2", name: "Priya Nair", role: "Support Engineer", department: "Customer Service", startDate: "2023-11-15", status: "active", baseSalary: 68000 },
+  { id: "emp-3", name: "Sam Okafor", role: "Operations Analyst", department: "Operations", startDate: "2026-09-01", status: "onboarding", baseSalary: 60000 },
 ];
 
 const TARGETS: Record<string, number> = {
@@ -144,6 +153,8 @@ const SEED: AppState = {
   quotes: QUOTES,
   purchaseOrders: PURCHASE_ORDERS,
   employees: EMPLOYEES,
+  inventory: INVENTORY,
+  campaigns: CAMPAIGNS,
   dismissedNotificationIds: [],
 };
 
@@ -242,9 +253,10 @@ export function decideApproval(id: string, decision: "approved" | "rejected") {
   if (approval.payload?.kind === "purchase-order") {
     const { purchaseOrderId } = approval.payload;
     const poStatus = decision === "approved" ? "approved" : "rejected";
+    const po = appStore.get().purchaseOrders.find((p) => p.id === purchaseOrderId);
     appStore.set((s) => ({
       ...s,
-      purchaseOrders: s.purchaseOrders.map((po) => (po.id === purchaseOrderId ? { ...po, status: poStatus } : po)),
+      purchaseOrders: s.purchaseOrders.map((p) => (p.id === purchaseOrderId ? { ...p, status: poStatus } : p)),
     }));
     addAuditEvent({
       actor: "system",
@@ -252,7 +264,79 @@ export function decideApproval(id: string, decision: "approved" | "rejected") {
       moduleId: "ci-purchasing",
       action: `Purchase order ${purchaseOrderId} marked ${poStatus} following approval decision`,
     });
+
+    // A PO tied to an inventory item isn't just paperwork — approving it
+    // is the real-world event that puts stock on the shelf. CI Inventory
+    // reflects that without anyone re-entering the receipt by hand.
+    if (decision === "approved" && po?.itemId && po.quantity) {
+      receiveStock(po.itemId, po.quantity);
+    }
   }
+}
+
+export function receiveStock(itemId: string, quantity: number) {
+  const item = appStore.get().inventory.find((i) => i.id === itemId);
+  if (!item) return;
+  appStore.set((s) => ({
+    ...s,
+    inventory: s.inventory.map((i) => (i.id === itemId ? { ...i, quantityOnHand: i.quantityOnHand + quantity } : i)),
+  }));
+  addAuditEvent({
+    actor: "system",
+    actorName: "Ci Business OS",
+    moduleId: "ci-inventory",
+    action: `Received ${quantity} unit(s) of ${item.name} (${item.sku}) from an approved purchase order`,
+  });
+}
+
+export function launchCampaign(name: string): Campaign {
+  const state = appStore.get();
+  const newLeadDeals = state.deals.filter((d) => d.stage === "New");
+  const audience = newLeadDeals
+    .map((d) => state.customers.find((c) => c.id === d.customerId))
+    .filter((c): c is Customer => Boolean(c));
+
+  const campaign: Campaign = { id: uid("camp"), name, status: "active", audienceCount: audience.length, launchedAt: now() };
+  appStore.set((s) => ({ ...s, campaigns: [campaign, ...s.campaigns] }));
+
+  const newEmails = audience.map((c) => ({
+    id: uid("em"),
+    customerId: c.id,
+    from: `You → ${c.email}`,
+    subject: name,
+    body: `Hi ${c.name} team,\n\nWe wanted to reach out with something we think is relevant to where you are today. Happy to set up time if useful.\n\nBest,\nCi Business OS`,
+    time: now(),
+    unread: false,
+  }));
+  if (newEmails.length > 0) {
+    appStore.set((s) => ({ ...s, emails: [...newEmails, ...s.emails] }));
+  }
+
+  addAuditEvent({
+    actor: "agent",
+    actorName: "CI Agent",
+    moduleId: "ci-marketing",
+    action: `Launched campaign "${name}" to ${audience.length} New-stage lead(s)`,
+    detail: audience.map((c) => c.name).join(", ") || undefined,
+  });
+
+  return campaign;
+}
+
+export function monthlyPay(employee: Employee): number {
+  return employee.baseSalary / 12;
+}
+
+export function runPayroll() {
+  const state = appStore.get();
+  const active = state.employees.filter((e) => e.status !== "offboarded");
+  const total = active.reduce((sum, e) => sum + monthlyPay(e), 0);
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-payroll",
+    action: `Ran payroll for ${active.length} employee(s): $${total.toLocaleString(undefined, { maximumFractionDigits: 0 })} total`,
+  });
 }
 
 export function createPurchaseOrder(supplierId: string, description: string, amount: number) {
@@ -267,7 +351,7 @@ export function createPurchaseOrder(supplierId: string, description: string, amo
   });
 }
 
-export function addEmployee(name: string, role: string, department: string) {
+export function addEmployee(name: string, role: string, department: string, baseSalary: number) {
   const employee: Employee = {
     id: uid("emp"),
     name,
@@ -275,6 +359,7 @@ export function addEmployee(name: string, role: string, department: string) {
     department,
     startDate: now().slice(0, 10),
     status: "onboarding",
+    baseSalary,
   };
   appStore.set((s) => ({ ...s, employees: [...s.employees, employee] }));
   addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-hr", action: `Added employee ${name} (${role})` });

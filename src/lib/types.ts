@@ -168,6 +168,9 @@ export interface PurchaseOrder {
   description: string;
   amount: number;
   status: "pending" | "approved" | "rejected" | "ordered";
+  /** When set, approving this PO restocks the linked inventory item automatically. */
+  itemId?: string;
+  quantity?: number;
 }
 
 export interface Employee {
@@ -177,6 +180,24 @@ export interface Employee {
   department: string;
   startDate: string;
   status: "active" | "onboarding" | "offboarded";
+  /** Annual base salary — the simplest real slice of "payroll". */
+  baseSalary: number;
+}
+
+export interface InventoryItem {
+  id: string;
+  sku: string;
+  name: string;
+  quantityOnHand: number;
+  reorderPoint: number;
+}
+
+export interface Campaign {
+  id: string;
+  name: string;
+  status: "draft" | "active" | "completed";
+  audienceCount: number;
+  launchedAt?: string;
 }
 
 export interface Meeting {
@@ -231,6 +252,8 @@ export interface AppState {
   quotes: Quote[];
   purchaseOrders: PurchaseOrder[];
   employees: Employee[];
+  inventory: InventoryItem[];
+  campaigns: Campaign[];
   /** Notifications a user has dismissed — notifications themselves are computed, not stored, so read state is the only thing that needs persisting. */
   dismissedNotificationIds: string[];
 }

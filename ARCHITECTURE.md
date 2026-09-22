@@ -158,7 +158,7 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Eighteen modules are wired up end-to-end against the one shared dataset:
+Twenty-one modules are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
@@ -166,7 +166,7 @@ Eighteen modules are wired up end-to-end against the one shared dataset:
 | CI Docs | Work | Editable document surface |
 | CI Sheets | Work | Cross-module live formula (Actual = sum of paid invoices) |
 | CI Tasks | Work | Stateful CRUD, persisted |
-| CI Mail | Communicate | List/detail pattern; receives agent-sent mail |
+| CI Mail | Communicate | List/detail pattern; receives agent- and campaign-sent mail |
 | CI Calendar | Communicate | Real schedule; closes Ask CI's "no meetings" gap |
 | CI Contacts | Communicate | The shared customer list itself, editable |
 | CI Notifications | Communicate | Same computed list Home reads, with persisted dismissal |
@@ -178,13 +178,32 @@ Eighteen modules are wired up end-to-end against the one shared dataset:
 | CI Sales | Business | Accepting a quote auto-advances its linked CRM deal |
 | CI Purchasing | Business | Reused the existing generic approval flow for a second payload kind |
 | CI HR | Business | First entity with no customer relationship — tests the pattern |
+| CI Inventory | Business | Stock moves as a side effect of an approved PO, two hops from the click |
+| CI Marketing | Business | Reads CRM deal stage, writes real CI Mail sends — no fake counts |
+| CI Payroll | Business | Reads CI HR's employees — the "two layers deep" test, passed |
 | CI Approval Center | Control | Real queue, now rendering two different payload kinds |
 | CI Audit | Control | Real timeline of every human, agent and system action |
 
-The other 72 are registered with real names, categories, descriptions and
+The other 69 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
+
+## Effects now chain two hops deep
+
+CI Inventory extends the "system" actor pattern (see above) one link
+further: `decideApproval()` approving a purchase-order payload doesn't
+just flip the PO's own status — when that PO names a linked
+`InventoryItem` and quantity, it also calls `receiveStock()` directly. One
+click in CI Approval Center produces three audit entries at three
+different layers (`"You"` approved it, `"Ci Business OS"` marked the PO
+approved, `"Ci Business OS"` received the stock), each attributed
+correctly, because each mutation function logs its own consequence rather
+than the caller trying to describe effects it doesn't own. That's the
+scaling property that matters: a chain of five hops through five modules
+would still produce five honest audit entries, because the pattern is
+"each function logs what it did," not "the top of the call stack
+summarizes everything."
 
 ## The approval flow generalizes without touching Approval Center's core
 
@@ -256,12 +275,12 @@ trail doesn't change.
 4. **CI Autonomy Control** as an actual policy surface — today
    `needsApproval` is hardcoded per intent in `ask-ci.ts`; it should be a
    configurable rule a human sets, not a constant in the router.
-5. Promote the next handful of modules from `planned` to `live`. Sheets,
-   Calendar, Customer Service, Contacts, Projects, Sales, Notifications,
-   Purchasing and HR are done — 18 of 90. Natural next candidates:
-   **CI Inventory** (Purchasing creates POs but nothing tracks the stock
-   they bring in), **CI Marketing** (the natural home for turning a CI CRM
-   "New"-stage deal into an outbound sequence), and **CI Payroll** (the
-   first module that would read CI HR's employee data the way Sheets reads
-   Invoicing's — another test of the shared-dataset pattern holding up
-   two layers deep).
+5. Promote the next handful of modules from `planned` to `live`. 21 of 90
+   are done. Natural next candidates: **CI Manufacturing** (Inventory now
+   tracks raw stock; Manufacturing would be the first module to consume
+   it — a BOM turning N units of Widget A + Widget B into 1 finished
+   good, decrementing Inventory the same way Purchasing increments it),
+   **CI Attendance/Recruit** (extend CI HR's employee data rather than
+   introduce a new entity family), and **CI Legal/Compliance** (nothing
+   in the dataset yet represents a contract or a compliance deadline —
+   CI Contracts and CI Legal would be a natural pair to build together).

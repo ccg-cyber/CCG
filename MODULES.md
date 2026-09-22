@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 18
+- ✅ Live: 21
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 72
+- ⬜ Planned: 69
 
 ---
 
@@ -70,17 +70,17 @@ CRM, ERP, finance, sales, HR, inventory, projects, operations.
 | **CI Projects** | ✅ Live | — | Kanban, timeline/Gantt, milestones, workload, budgets, time tracking. |
 | **CI Sales** | ✅ Live | — | Quotations, price lists, orders, commissions, sales targets. |
 | **CI Customer Service** | ✅ Live | — | Tickets, SLAs, canned responses, knowledge base, AI support agents. |
-| **CI Marketing** | ⬜ Planned | — | Campaigns, contact lists, landing pages, segmentation, automation. |
+| **CI Marketing** | ✅ Live | — | Campaigns, contact lists, landing pages, segmentation, automation. |
 | **CI ERP Core** | ⬜ Planned | — | Companies, branches, currencies, taxes, fiscal periods, master data. |
 | **CI Accounting & Finance** | ⬜ Planned | — | General ledger, receivables/payables, banking, budgets, AI anomaly detection. |
 | **CI Invoicing** | ✅ Live | — | Estimates, invoices, credit notes, recurring billing, payment links. |
 | **CI Purchasing** | ✅ Live | — | Purchase requests, RFQs, supplier comparison, approvals, POs. |
-| **CI Inventory** | ⬜ Planned | — | SKUs, warehouses, stock movements, lot/serial, reorder points, valuation. |
+| **CI Inventory** | ✅ Live | — | SKUs, warehouses, stock movements, lot/serial, reorder points, valuation. |
 | **CI POS** | ⬜ Planned | — | Retail sales, cash drawers, discounts, offline mode, branch sync. |
 | **CI Manufacturing** | ⬜ Planned | — | BOMs, production orders, routing, capacity planning, quality checks. |
 | **CI Logistics** | ⬜ Planned | — | Deliveries, routes, drivers, proof of delivery, dispatch planning. |
 | **CI HR** | ✅ Live | — | Employee profiles, org chart, onboarding, leave, evaluations, self-service. |
-| **CI Payroll** | ⬜ Planned | — | Salaries, deductions, bonuses, payroll runs, payslips, accounting sync. |
+| **CI Payroll** | ✅ Live | — | Salaries, deductions, bonuses, payroll runs, payslips, accounting sync. |
 | **CI Attendance** | ⬜ Planned | — | Clock-in/out, shifts, schedules, overtime, absence tracking. |
 | **CI Recruit** | ⬜ Planned | — | Vacancies, applicants, CV parsing, interviews, offers, onboarding handoff. |
 | **CI Maintenance** | ⬜ Planned | — | Preventive maintenance, work orders, equipment history, spare parts. |

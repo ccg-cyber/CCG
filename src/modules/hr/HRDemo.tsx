@@ -14,13 +14,15 @@ export default function HRDemo() {
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [department, setDepartment] = useState("");
+  const [salary, setSalary] = useState("");
 
   function handleAdd() {
-    if (!name.trim() || !role.trim() || !department.trim()) return;
-    addEmployee(name.trim(), role.trim(), department.trim());
+    if (!name.trim() || !role.trim() || !department.trim() || !salary) return;
+    addEmployee(name.trim(), role.trim(), department.trim(), Number(salary));
     setName("");
     setRole("");
     setDepartment("");
+    setSalary("");
     setOpen(false);
   }
 
@@ -41,6 +43,7 @@ export default function HRDemo() {
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" className="rounded-md border border-ci-border bg-ci-panel2 px-3 py-1.5 text-sm" />
             <input value={role} onChange={(e) => setRole(e.target.value)} placeholder="Role" className="rounded-md border border-ci-border bg-ci-panel2 px-3 py-1.5 text-sm" />
             <input value={department} onChange={(e) => setDepartment(e.target.value)} placeholder="Department" className="rounded-md border border-ci-border bg-ci-panel2 px-3 py-1.5 text-sm" />
+            <input type="number" value={salary} onChange={(e) => setSalary(e.target.value)} placeholder="Annual salary" className="w-32 rounded-md border border-ci-border bg-ci-panel2 px-3 py-1.5 text-sm" />
             <button onClick={handleAdd} className="rounded-md bg-ci-accent px-3 py-1.5 text-xs font-medium text-white">Save</button>
             <button onClick={() => setOpen(false)} className="rounded-md border border-ci-border px-3 py-1.5 text-xs text-ci-muted">Cancel</button>
           </div>

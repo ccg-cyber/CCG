@@ -38,9 +38,12 @@ the code, always current).
 | CI Notifications | ✅ Live — shared, dismissible, same data Home reads |
 | CI Purchasing | ✅ Live — real POs, wired to the existing approval flow |
 | CI HR | ✅ Live — employees by department; not customer-centric data |
-| 72 more modules | ⬜ Registered, searchable, not yet built |
+| CI Inventory | ✅ Live — stock restocks itself when a PO is approved |
+| CI Marketing | ✅ Live — launches real emails to real CRM leads |
+| CI Payroll | ✅ Live — reads CI HR's employee data, computes real pay |
+| 69 more modules | ⬜ Registered, searchable, not yet built |
 
-All eighteen live modules read and write **one shared, persisted dataset**
+All twenty-one live modules read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four
@@ -80,6 +83,12 @@ npm run build     # typecheck + production build
   "Ci Business OS" (the system actor) logged the automatic deal advance
   separately — the audit trail distinguishes a human action from its
   automated consequence.
+- Approve the PO-2201 purchase order in **CI Approval Center**, then open
+  **CI Inventory** — Widget B's stock goes from 15 to 65 and its "low
+  stock" flag clears, with no manual stock entry.
+- Launch a campaign in **CI Marketing** — it reads CI CRM's "New"-stage
+  deals as the audience and actually adds a sent email per lead to CI
+  Mail, so the recipient count you see is real, not a placeholder.
 - Use the top search bar or the sidebar to jump into any of the 90
   modules — live ones show a working screen, everything else shows what
   it's scoped to become.
