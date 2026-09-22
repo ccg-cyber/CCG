@@ -1,5 +1,13 @@
 import { MODULES, searchModules } from "./registry";
 import type { ModuleDefinition } from "./types";
+import {
+  appStore,
+  findCustomerByName,
+  getCustomerBundle,
+  addDriveFile,
+  addApproval,
+  addAuditEvent,
+} from "./data";
 
 /**
  * CI ORCHESTRATOR (#85), in miniature.
@@ -7,8 +15,11 @@ import type { ModuleDefinition } from "./types";
  * The real orchestrator takes a business objective and decides which
  * modules and agents must cooperate — reading the module registry,
  * checking permissions, and either acting or routing to CI APPROVAL
- * CENTER. This is a deterministic stand-in for that reasoning step so the
- * "type instead of navigate" experience is real, not just described.
+ * CENTER. This version is deterministic (pattern matching, not an LLM)
+ * but it is NOT a mock: it reads the same shared store every module
+ * reads, and when it acts (drafting a statement, filing it in Drive,
+ * opening an approval) those are real writes — visible immediately in
+ * CI Drive and CI Approval Center, not just described in this panel.
  */
 
 export interface AskCiPlan {
@@ -17,6 +28,7 @@ export interface AskCiPlan {
   modules: ModuleDefinition[];
   steps: string[];
   needsApproval: boolean;
+  approvalId?: string;
 }
 
 function findModule(id: string): ModuleDefinition {
@@ -25,48 +37,131 @@ function findModule(id: string): ModuleDefinition {
   return m;
 }
 
+const KNOWN_CUSTOMERS_HINT =
+  "Try naming a real account: Acme Ltd., Nord Retail Group, Northwind Supplies, or Blue Harbor Logistics.";
+
 export function planFor(query: string): AskCiPlan {
   const q = query.toLowerCase();
+  const state = appStore.get();
+  const customer = findCustomerByName(state, q);
 
-  // Canned scenario 1 — "show me everything happening with Customer X"
-  if (/(show|everything|find).*(customer|client)/.test(q) || /customer .* (info|status|history)/.test(q)) {
-    const modules = ["ci-crm", "ci-mail", "ci-accounting", "ci-drive", "ci-customer-service", "ci-calendar"].map(findModule);
+  const wantsOverview = /(show|everything|find).*(happening|going on)|customer .* (info|status|history)|what.?s going on with/.test(q);
+  const wantsUnpaidChase = /(hasn.?t paid|overdue|unpaid|outstanding|chase)/.test(q);
+
+  // ── Scenario 1: cross-module customer overview (read-only) ─────────
+  if (wantsOverview) {
+    if (!customer) {
+      return {
+        query,
+        summary: `Couldn't match a customer in that query. ${KNOWN_CUSTOMERS_HINT}`,
+        modules: [],
+        steps: [],
+        needsApproval: false,
+      };
+    }
+    const bundle = getCustomerBundle(state, customer.id);
+    const modules = ["ci-crm", "ci-mail", "ci-invoicing", "ci-drive", "ci-customer-service", "ci-calendar"].map(findModule);
+    const overdueTotal = bundle.invoices.filter((i) => i.status === "overdue").reduce((sum, i) => sum + i.amount, 0);
+
+    addAuditEvent({
+      actor: "agent",
+      actorName: "CI Assistant",
+      moduleId: "ci-orchestrator",
+      action: `Answered "show me everything about ${customer.name}"`,
+      detail: `Read ${bundle.deals.length} deal(s), ${bundle.invoices.length} invoice(s), ${bundle.emails.length} email(s), ${bundle.files.length} file(s)`,
+    });
+
     return {
       query,
-      summary: "Pulling every record tied to this customer across the modules that hold a piece of the relationship.",
+      summary: `${customer.name}: ${bundle.deals.length} deal(s), ${bundle.invoices.length} invoice(s)${
+        overdueTotal > 0 ? ` ($${overdueTotal.toLocaleString()} overdue)` : ""
+      }, ${bundle.emails.length} email thread(s), ${bundle.files.length} file(s) on record.`,
       modules,
       steps: [
-        "CI CRM — pull opportunity stage, owner, last activity",
-        "CI Mail — surface the last 20 messages in the thread",
-        "CI Accounting & Finance — outstanding invoices and payment history",
-        "CI Drive — contracts and shared documents",
-        "CI Customer Service — open or recent support tickets",
-        "CI Calendar — upcoming and past meetings",
+        `CI CRM — ${bundle.deals.map((d) => `${d.name} (${d.stage}, $${d.value.toLocaleString()})`).join("; ") || "no open deals"}`,
+        `CI Mail — ${bundle.emails.length} message(s), ${bundle.emails.filter((e) => e.unread).length} unread`,
+        `CI Invoicing — ${bundle.invoices.length} invoice(s), $${overdueTotal.toLocaleString()} overdue`,
+        `CI Drive — ${bundle.files.length} file(s) in their folder`,
+        `CI Customer Service — no open tickets on record`,
+        `CI Calendar — no upcoming meetings on record`,
       ],
       needsApproval: false,
     };
   }
 
-  // Canned scenario 2 — unpaid customer, prepare statement + email, ask before sending
-  if (/(hasn.?t paid|overdue|unpaid|outstanding)/.test(q)) {
+  // ── Scenario 2: chase unpaid invoices — draft, file, hold for approval ──
+  if (wantsUnpaidChase) {
+    if (!customer) {
+      return {
+        query,
+        summary: `Couldn't match a customer in that query. ${KNOWN_CUSTOMERS_HINT}`,
+        modules: [],
+        steps: [],
+        needsApproval: false,
+      };
+    }
+    const overdue = state.invoices.filter((i) => i.customerId === customer.id && i.status === "overdue");
+    if (overdue.length === 0) {
+      return {
+        query,
+        summary: `${customer.name} has no overdue invoices on record — nothing to chase.`,
+        modules: [findModule("ci-invoicing")],
+        steps: [],
+        needsApproval: false,
+      };
+    }
+    const total = overdue.reduce((sum, i) => sum + i.amount, 0);
+    const invoiceLines = overdue.map((i) => `  Invoice #${i.number}   $${i.amount.toLocaleString()}   ${i.overdueDays ?? "?"} days overdue`).join("\n");
+    const statementText = `Statement of Account — ${customer.name}\n\nDear ${customer.name},\n\nAs of today, the following invoices remain outstanding on your account:\n\n${invoiceLines}\n\nTotal outstanding: $${total.toLocaleString()}\n\nPlease let us know if you have any questions, or if a payment is already in transit.\n\nKind regards,\nAccounts Receivable`;
+    const emailBody = `Hi ${customer.name} team,\n\nJust a friendly note that ${overdue.length} invoice(s) totaling $${total.toLocaleString()} are past due. I've attached a full statement — let us know if anything looks off, or if payment is already on its way.\n\nThanks,\nAccounts Receivable`;
+
+    const file = addDriveFile({
+      customerId: customer.id,
+      name: `Statement — ${customer.name}.pdf`,
+      type: "pdf",
+      owner: "CI Agent",
+    });
+
+    const approval = addApproval({
+      title: `Send statement + follow-up to ${customer.name}`,
+      description: `Drafted from ${overdue.length} overdue invoice(s) totaling $${total.toLocaleString()}. Filed as "${file.name}" in CI Drive.`,
+      moduleId: "ci-approval-center",
+      createdBy: "agent",
+      payload: {
+        kind: "send-email",
+        to: customer.email,
+        subject: `Statement of Account — ${customer.name}`,
+        body: emailBody,
+        attachment: file.name,
+      },
+    });
+
+    addAuditEvent({
+      actor: "agent",
+      actorName: "CI Agent",
+      moduleId: "ci-accounting",
+      action: `Drafted statement for ${customer.name}, filed in CI Drive, opened approval`,
+      detail: statementText.slice(0, 120) + "…",
+    });
+
     const modules = ["ci-accounting", "ci-docs", "ci-pdf", "ci-drive", "ci-mail", "ci-approval-center"].map(findModule);
     return {
       query,
-      summary: "Preparing a statement and a draft follow-up email — nothing sends until you approve it.",
+      summary: `Drafted a statement for $${total.toLocaleString()} across ${overdue.length} overdue invoice(s), filed it in CI Drive, and drafted a follow-up email. Nothing sends until you approve it.`,
       modules,
       steps: [
-        "CI Accounting & Finance — gather unpaid invoices and balance",
-        "CI Docs — draft a professional statement of account",
-        "CI PDF — attach the unpaid invoices as PDF",
-        "CI Drive — file the statement in the customer's folder",
-        "CI Mail — draft a polite follow-up email with attachments",
-        "CI Approval Center — hold for your sign-off before sending",
+        `CI Accounting & Finance — gathered ${overdue.length} overdue invoice(s), $${total.toLocaleString()} total`,
+        "CI Docs — drafted the statement of account",
+        `CI Drive — filed "${file.name}" in ${customer.name}'s folder`,
+        `CI Mail — drafted follow-up to ${customer.email}`,
+        "CI Approval Center — holding for your sign-off before sending",
       ],
       needsApproval: true,
+      approvalId: approval.id,
     };
   }
 
-  // Generic fallback — keyword search across the registry
+  // ── Fallback: keyword search across the module registry ────────────
   const hits = searchModules(q).slice(0, 6);
   if (hits.length > 0) {
     return {

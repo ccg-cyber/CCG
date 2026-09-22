@@ -72,26 +72,72 @@ its own login screen. That's what makes cross-module answers possible —
 `CURRENT_USER`, and (as real modules replace demos) the same underlying
 data store.
 
-## Ask CI = a thin orchestrator, built to be replaced
+## One shared dataset, not nine mocks that share names
 
-`src/lib/ask-ci.ts` is a deliberately small, deterministic stand-in for
-`CI ORCHESTRATOR` (#85): given free text, it decides which modules are
-relevant and returns a plan (which modules, what steps, whether it needs
-approval). It implements the two worked examples from the product spec:
+`src/lib/data.ts` holds the one dataset every live module reads and
+writes: `Customer`, `Invoice`, `Deal`, `EmailMessage`, `DriveFile`,
+`TaskItem`, `ApprovalRequest`, `AuditEvent` — joined by `customerId`. It's
+backed by `src/lib/store.ts`, a ~50-line reactive store (React's
+`useSyncExternalStore` + `localStorage`, no external dependency) standing
+in for `CI DATABASE` / `CI DATA HUB`.
 
-- **"Show me everything happening with Customer X"** → fans out to CRM,
-  Mail, Accounting, Drive, Customer Service, Calendar and summarizes.
-- **"Customer X hasn't paid, prepare a statement and email, ask before
-  sending"** → drafts through Accounting → Docs → PDF → Drive → Mail, then
-  stops at `CI Approval Center` instead of sending.
+This is the difference between a demo and a system: "Acme Ltd." in CI CRM
+is the exact same record as "Acme Ltd." in CI Mail, CI Drive, and CI
+Invoicing — not four components that each hardcode the string "Acme Ltd."
+Mutations go through named functions (`decideApproval`, `addDriveFile`,
+`toggleTask`, `moveDealStage`, `markInvoicePaid`...) rather than components
+poking at shared state directly, so the seam where a real backend
+replaces `localStorage` is one file, not forty call sites.
 
-The point isn't the keyword matching (that gets replaced by a real LLM
-router calling into `CI INTELLIGENCE CORE`). The point is the **seam**:
-every module is already reachable by name from one router, and every
-action that touches the outside world (sending an email, executing a
-payment) already has an approval gate in the loop rather than an
-afterthought bolted on later. `needsApproval` on the plan type is that
-gate; `CI AUTONOMY CONTROL` (#86) is where its real policy will live.
+## Ask CI is a real orchestrator, not a description of one
+
+`src/lib/ask-ci.ts` is a deliberately deterministic (pattern-matched, not
+LLM-backed) stand-in for `CI ORCHESTRATOR` (#85) — but it is **not a
+mock**. It reads the same `appStore` every module reads, and when it acts,
+those are real writes other modules immediately show:
+
+- **"Show me everything happening with Acme Ltd."** → looks up the real
+  customer, pulls their actual deals/invoices/emails/files out of the
+  shared store, and reports real counts and dollar amounts across CRM,
+  Mail, Invoicing, Drive, Customer Service, Calendar.
+- **"Acme Ltd. hasn't paid, prepare a statement and email, ask before
+  sending"** → reads their real overdue invoices, computes the real total,
+  calls `addDriveFile()` to actually file a statement in CI Drive, calls
+  `addApproval()` to actually open a request in CI Approval Center (visible
+  immediately on the Home dashboard, no refresh needed — it's the same
+  store), and logs both steps via `addAuditEvent()`. Approving the request
+  in the Approval Center calls `decideApproval()`, which actually appends
+  the drafted email to CI Mail's inbox. Nothing here is narrated; every
+  noun in the plan's step list is something you can click through to and
+  verify.
+
+The point of keeping the matching deterministic isn't the regex — it's
+proving the **seam** before wiring up a real model: every module is
+reachable by name from one router, every write goes through the same
+mutation functions a UI button would call, and every action that touches
+the outside world is gated by `needsApproval` / `CI Approval Center`
+rather than that gate being an afterthought bolted on after an incident.
+Swapping the regex matcher for an LLM call into `CI INTELLIGENCE CORE`
+means replacing `planFor()`'s body — the data layer, the approval gate,
+and every module underneath are unaffected. `CI AUTONOMY CONTROL` (#86) is
+where the real policy for that gate will live.
+
+## CI Approval Center and CI Audit close the loop
+
+Both are real, not placeholders:
+
+- **CI Approval Center** (`src/modules/approvals`) reads pending
+  `ApprovalRequest`s from the shared store and renders the actual drafted
+  payload (to/subject/body/attachment) so a human can judge it, not just a
+  one-line description. Approve/Reject call `decideApproval()`, which logs
+  to audit and, for a `send-email` payload, actually delivers it into CI
+  Mail's inbox.
+- **CI Audit** (`src/modules/audit`) renders `AppState.audit` — every
+  entry any module or the Ask CI router has logged — newest first, with
+  the actor (`user` / `agent` / `system`) visually distinct. This is
+  `CI AUDIT` (#79) and a first pass at `CI ACTIVITY / TRACE` (#87)
+  simultaneously: a readable "who did what and why" timeline, not a raw
+  log dump.
 
 ## Permissions and audit as first-class, not bolted on
 
@@ -112,19 +158,21 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Six modules are wired up end-to-end with real interactive state, chosen to
-cover one from each side of the platform rather than one whole category:
+Nine modules are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
-| CI Home | Home | Registry-driven nav, dashboard, Ask CI |
+| CI Home | Home | Registry-driven nav, live dashboard, Ask CI |
 | CI Docs | Work | Editable document surface |
-| CI Mail | Communicate | List/detail pattern, multi-account-shaped |
-| CI Drive | Files | File/folder browser pattern |
-| CI CRM | Business | Pipeline/kanban pattern |
-| CI Tasks | Work | Stateful CRUD pattern |
+| CI Mail | Communicate | List/detail pattern; receives agent-sent mail |
+| CI Drive | Files | File/folder browser; receives agent-filed documents |
+| CI CRM | Business | Pipeline/kanban with real stage transitions |
+| CI Tasks | Work | Stateful CRUD, persisted |
+| CI Invoicing | Business | Real invoices/overdue totals feeding Ask CI |
+| CI Approval Center | Control | Real queue with consequential approve/reject |
+| CI Audit | Control | Real timeline of every human + agent action |
 
-The other 84 are registered with real names, categories, descriptions and
+The other 81 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
@@ -148,17 +196,23 @@ should exist and be navigable before every room has furniture in it.
 
 ## Where this goes next (not built yet, in priority order)
 
-1. **Persistence** — a real data layer so CRM records, tasks, and mail
-   aren't reset on refresh, and so cross-module lookups (the Ask CI
-   examples) query real joined data instead of hand-written scenarios.
+1. **A real backend** — `src/lib/store.ts` is `localStorage`-backed, so
+   data lives in one browser only and doesn't survive across devices or
+   users. The mutation-function seam in `data.ts` is designed so a real
+   API/database swaps in without touching any module component — but that
+   swap hasn't happened yet.
 2. **Real auth** (`CI IDENTITY`) replacing the single hardcoded
-   `CURRENT_USER`.
-3. **A real LLM-backed Ask CI** replacing the regex router, calling actual
-   module actions instead of returning canned steps.
-4. **CI Approval Center** as a real queue, not a static list on the
-   dashboard — so `needsApproval` plans actually land somewhere and can be
-   approved or rejected.
-5. Promote the next handful of modules from `planned` to `live` based on
-   what a real pilot customer actually needs first — likely Sheets,
-   Calendar, Invoicing, and Approvals, since Docs/Mail/CRM/Drive/Tasks
-   already prove the pattern.
+   `CURRENT_USER` and the `"*"` role grant in `permissions.ts` with actual
+   per-user, per-module RBAC.
+3. **A real LLM-backed Ask CI** replacing the pattern-matched `planFor()`
+   with a model call into `CI INTELLIGENCE CORE` — the data layer, the
+   approval gate, and every module it calls into are already real and
+   don't need to change.
+4. **CI Autonomy Control** as an actual policy surface — today
+   `needsApproval` is hardcoded per intent in `ask-ci.ts`; it should be a
+   configurable rule a human sets, not a constant in the router.
+5. Promote the next handful of modules from `planned` to `live` — Sheets,
+   Calendar, and Customer Service are the natural next three: Calendar
+   completes the "everything about Acme Ltd." answer (it currently reports
+   "no meetings on record" because there's no calendar data yet), and
+   Customer Service closes the same gap for support tickets.

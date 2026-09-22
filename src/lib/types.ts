@@ -74,3 +74,95 @@ export interface AuditEvent {
   timestamp: string;
   detail?: string;
 }
+
+/**
+ * Shared business entities.
+ *
+ * These are the "one company database" the architecture doc talks about,
+ * in miniature: a customer connects to deals, invoices, mail, and files
+ * without any module owning a private copy of the truth. Real CI CRM /
+ * ERP / Accounting modules replace this with a real database; the shape
+ * (entities joined by customerId, read through src/lib/data.ts) carries
+ * forward.
+ */
+export interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  company: string;
+  tags: string[];
+}
+
+export interface Invoice {
+  id: string;
+  customerId: string;
+  number: string;
+  amount: number;
+  issuedDate: string;
+  dueDate: string;
+  status: "paid" | "overdue" | "pending";
+  overdueDays?: number;
+}
+
+export interface EmailMessage {
+  id: string;
+  customerId?: string;
+  from: string;
+  subject: string;
+  body: string;
+  time: string;
+  unread: boolean;
+}
+
+export interface DriveFile {
+  id: string;
+  customerId?: string;
+  name: string;
+  type: "folder" | "doc" | "pdf" | "sheet";
+  modified: string;
+  owner: string;
+}
+
+export interface Deal {
+  id: string;
+  customerId: string;
+  name: string;
+  value: number;
+  stage: "New" | "Qualified" | "Proposal" | "Won";
+}
+
+export interface TaskItem {
+  id: string;
+  title: string;
+  done: boolean;
+  priority: "low" | "medium" | "high";
+  customerId?: string;
+}
+
+export interface ApprovalRequest {
+  id: string;
+  title: string;
+  description: string;
+  moduleId: string;
+  createdBy: "agent" | "user";
+  status: "pending" | "approved" | "rejected";
+  createdAt: string;
+  payload?: {
+    kind: "send-email";
+    to: string;
+    subject: string;
+    body: string;
+    attachment?: string;
+  };
+}
+
+export interface AppState {
+  customers: Customer[];
+  invoices: Invoice[];
+  emails: EmailMessage[];
+  files: DriveFile[];
+  deals: Deal[];
+  tasks: TaskItem[];
+  approvals: ApprovalRequest[];
+  audit: AuditEvent[];
+}

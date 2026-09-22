@@ -7,6 +7,9 @@ import MailDemo from "@/modules/mail/MailDemo";
 import DriveDemo from "@/modules/drive/DriveDemo";
 import CrmDemo from "@/modules/crm/CrmDemo";
 import TasksDemo from "@/modules/tasks/TasksDemo";
+import InvoicingDemo from "@/modules/invoicing/InvoicingDemo";
+import ApprovalCenterDemo from "@/modules/approvals/ApprovalCenterDemo";
+import AuditDemo from "@/modules/audit/AuditDemo";
 
 const DEMOS: Record<string, React.ComponentType> = {
   "ci-docs": DocsDemo,
@@ -14,6 +17,9 @@ const DEMOS: Record<string, React.ComponentType> = {
   "ci-drive": DriveDemo,
   "ci-crm": CrmDemo,
   "ci-tasks": TasksDemo,
+  "ci-invoicing": InvoicingDemo,
+  "ci-approval-center": ApprovalCenterDemo,
+  "ci-audit": AuditDemo,
 };
 
 export default function ModulePage() {

@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 6
+- ✅ Live: 9
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 84
+- ⬜ Planned: 81
 
 ---
 
@@ -73,7 +73,7 @@ CRM, ERP, finance, sales, HR, inventory, projects, operations.
 | **CI Marketing** | ⬜ Planned | — | Campaigns, contact lists, landing pages, segmentation, automation. |
 | **CI ERP Core** | ⬜ Planned | — | Companies, branches, currencies, taxes, fiscal periods, master data. |
 | **CI Accounting & Finance** | ⬜ Planned | — | General ledger, receivables/payables, banking, budgets, AI anomaly detection. |
-| **CI Invoicing** | ⬜ Planned | — | Estimates, invoices, credit notes, recurring billing, payment links. |
+| **CI Invoicing** | ✅ Live | — | Estimates, invoices, credit notes, recurring billing, payment links. |
 | **CI Purchasing** | ⬜ Planned | — | Purchase requests, RFQs, supplier comparison, approvals, POs. |
 | **CI Inventory** | ⬜ Planned | — | SKUs, warehouses, stock movements, lot/serial, reorder points, valuation. |
 | **CI POS** | ⬜ Planned | — | Retail sales, cash drawers, discounts, offline mode, branch sync. |
@@ -158,12 +158,12 @@ Admin, approvals, permissions, audit, governance.
 | Module | Status | Replaces | Description |
 |---|---|---|---|
 | **CI Legal / Compliance** | ⬜ Planned | — | Policies, regulatory documents, audit trails, risk registers, evidence. |
-| **CI Approval Center** | ⬜ Planned | — | One place for every approval: invoices, purchases, contracts, leave, agent actions. |
+| **CI Approval Center** | ✅ Live | — | One place for every approval: invoices, purchases, contracts, leave, agent actions. |
 | **CI Identity** | ⬜ Planned | — | Users, groups, roles, SSO, MFA, passkeys, sessions, auth policies. |
 | **CI Vault** | ⬜ Planned | — | Passwords, API keys, certificates, secure notes, controlled agent access. |
 | **CI Permissions** | ⬜ Planned | — | Fine-grained RBAC/ABAC across every module, including agent actions. |
 | **CI Admin Center** | ⬜ Planned | — | Company setup, branches, subscriptions, branding, policies, integrations. |
-| **CI Audit** | ⬜ Planned | — | Immutable history of who did what, when, and whether it was human or agent. |
+| **CI Audit** | ✅ Live | — | Immutable history of who did what, when, and whether it was human or agent. |
 | **CI Governance** | ⬜ Planned | — | Data classification, retention, AI policy, privacy, org-wide rules. |
 | **CI Autonomy Control** | ⬜ Planned | — | What CI may do automatically, what needs approval, what it must never do. |
 | **CI Activity / Trace** | ⬜ Planned | — | Readable timeline of every step CI and its agents took to reach a result. |

@@ -6,9 +6,11 @@ account, one permission model, one search index, one audit trail — with AI
 agents doing the cross-application work a person used to do by hand.
 
 This repository is the first slice of that: a working shell with the full
-90-module architecture registered and navigable, six modules built
-end-to-end to prove the pattern, and an "Ask CI" command bar that
-demonstrates cross-module orchestration.
+90-module architecture registered and navigable, nine modules built
+end-to-end against **one real shared dataset** (not nine disconnected
+demos), and an "Ask CI" command bar that actually drafts documents, files
+them in Drive, and opens a real approval — not a description of what it
+would do.
 
 Read [`ARCHITECTURE.md`](./ARCHITECTURE.md) for why it's built this way,
 and [`MODULES.md`](./MODULES.md) for the full module map (generated from
@@ -20,14 +22,23 @@ the code, always current).
 |---|---|
 | CI Home | ✅ Live — dashboard, notifications, approvals, Ask CI |
 | CI Docs | ✅ Live — editable document surface |
-| CI Mail | ✅ Live — inbox, message detail |
-| CI Drive | ✅ Live — file/folder browser |
-| CI CRM | ✅ Live — pipeline board |
-| CI Tasks | ✅ Live — to-do list with priorities |
-| 84 more modules | ⬜ Registered, searchable, not yet built |
+| CI Mail | ✅ Live — inbox wired to shared customer data |
+| CI Drive | ✅ Live — file/folder browser, shows agent-filed documents |
+| CI CRM | ✅ Live — pipeline board, deals advance stages |
+| CI Tasks | ✅ Live — to-do list, add/complete, persisted |
+| CI Invoicing | ✅ Live — real invoices, overdue totals |
+| CI Approval Center | ✅ Live — real queue, approve/reject with consequences |
+| CI Audit | ✅ Live — immutable log of every human and agent action |
+| 81 more modules | ⬜ Registered, searchable, not yet built |
+
+All nine live modules read and write **one shared, persisted dataset**
+(`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
+records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
+a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four
+separate mocks that happen to share a name.
 
 Every other module in the master map — Sheets, ERP, HR, Payroll, Agents,
-Approval Center, Security Center, and 78 more — is registered in
+Security Center, and 78 more — is registered in
 [`src/lib/registry.ts`](./src/lib/registry.ts), appears in the sidebar and
 in search, and opens to a page that says exactly what it is and what
 category it belongs to. Nothing is hidden; nothing is faked as "done."
@@ -43,11 +54,16 @@ npm run build     # typecheck + production build
 ## Try it
 
 - Open the app and type into **Ask CI** on the home page:
-  - _"Customer X hasn't paid, prepare a statement and draft a follow-up
-    email"_ — routes through Accounting → Docs → PDF → Drive → Mail, then
-    stops at Approval Center instead of sending anything.
-  - _"Show me everything happening with Customer X"_ — fans out across
-    CRM, Mail, Accounting, Drive, Support and Calendar.
+  - _"Acme Ltd. hasn't paid, prepare a statement and draft a follow-up
+    email"_ — reads Acme Ltd.'s real overdue invoices, drafts a statement,
+    **actually files it in CI Drive**, drafts the follow-up, and **actually
+    opens a pending request in CI Approval Center** — watch the Home
+    dashboard's "Pending your approval" panel update live. Approve it and
+    the email really appears at the top of CI Mail's inbox; every step is
+    logged in CI Audit.
+  - _"Show me everything happening with Acme Ltd."_ — fans out across CRM,
+    Mail, Invoicing, Drive, Support and Calendar using the same shared
+    data, with real counts and dollar amounts.
 - Use the top search bar or the sidebar to jump into any of the 90
   modules — live ones show a working screen, everything else shows what
   it's scoped to become.
@@ -57,14 +73,20 @@ npm run build     # typecheck + production build
 ```
 src/
   lib/
-    types.ts        Core types: ModuleDefinition, Role, Permission, AuditEvent
+    types.ts        Core + entity types: ModuleDefinition, Customer, Invoice,
+                     Deal, ApprovalRequest, AuditEvent, AppState...
     categories.ts    The 10 top-level categories (+ Home)
-    registry.ts      All 90 modules — the single source of truth
+    registry.ts      All 90 modules — the single source of truth for nav/search
+    store.ts         Tiny reactive, localStorage-backed store (no dependency)
+    data.ts          The shared dataset every live module reads/writes,
+                     plus selectors (getCustomerBundle) and mutations
+                     (decideApproval, addDriveFile, toggleTask...)
     permissions.ts   Minimal RBAC stub (CI Identity / CI Permissions)
-    ask-ci.ts        Orchestration stub (CI Orchestrator)
+    ask-ci.ts        Orchestrator: reads real data, performs real writes,
+                     gates outbound actions behind an approval
   components/        Shell chrome: Sidebar, TopBar, ModuleCard, AskCiBar
   pages/             Home (dashboard) and ModulePage (generic module shell)
-  modules/           Real implementations for the six live modules
+  modules/           Real implementations for the nine live modules
 scripts/
   gen-modules-doc.mjs  Regenerates MODULES.md from the registry
 ```

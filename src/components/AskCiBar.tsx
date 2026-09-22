@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { planFor, type AskCiPlan } from "@/lib/ask-ci";
 
 const EXAMPLES = [
-  "Customer X hasn't paid, prepare a statement and draft a follow-up email",
-  "Show me everything happening with Customer X",
+  "Acme Ltd. hasn't paid, prepare a statement and draft a follow-up email",
+  "Show me everything happening with Acme Ltd.",
   "I need a video editor",
 ];
 
@@ -88,9 +88,12 @@ export default function AskCiBar() {
             </div>
           )}
           {plan.needsApproval && (
-            <div className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[11px] text-amber-400">
-              Routed to CI Approval Center — nothing happens without your sign-off
-            </div>
+            <Link
+              to="/modules/approvals"
+              className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[11px] text-amber-400 hover:bg-amber-500/20"
+            >
+              Routed to CI Approval Center — review and approve →
+            </Link>
           )}
           <button
             onClick={() => {

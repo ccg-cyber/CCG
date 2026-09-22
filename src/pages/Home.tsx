@@ -1,23 +1,20 @@
+import { Link } from "react-router-dom";
 import { CATEGORIES } from "@/lib/categories";
 import { MODULES, modulesByCategory } from "@/lib/registry";
+import { useAppState, customerName } from "@/lib/data";
 import ModuleCard from "@/components/ModuleCard";
 import AskCiBar from "@/components/AskCiBar";
 
 const liveCount = MODULES.filter((m) => m.status === "live").length;
 const plannedCount = MODULES.filter((m) => m.status !== "live").length;
 
-const NOTIFICATIONS = [
-  { id: 1, text: "Invoice #1042 is 12 days overdue — Acme Ltd.", module: "CI Accounting" },
-  { id: 2, text: "3 tasks due today in the Q3 Rollout project.", module: "CI Tasks" },
-  { id: 3, text: "New lead assigned to you: Nord Retail Group.", module: "CI CRM" },
-];
-
-const APPROVALS = [
-  { id: 1, text: "Purchase order PO-2201 — $4,300 to Northwind Supplies", module: "CI Purchasing" },
-  { id: 2, text: "Statement + follow-up email for Acme Ltd. (agent-prepared)", module: "CI Approval Center" },
-];
-
 export default function Home() {
+  const state = useAppState();
+  const overdueInvoices = state.invoices.filter((i) => i.status === "overdue");
+  const openHighPriorityTasks = state.tasks.filter((t) => !t.done && t.priority === "high");
+  const unreadEmails = state.emails.filter((e) => e.unread);
+  const pendingApprovals = state.approvals.filter((a) => a.status === "pending");
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 space-y-8">
       <div>
@@ -34,23 +31,56 @@ export default function Home() {
         <div className="rounded-xl border border-ci-border bg-ci-panel p-4">
           <h2 className="text-sm font-medium mb-3">Notifications</h2>
           <ul className="space-y-2.5">
-            {NOTIFICATIONS.map((n) => (
-              <li key={n.id} className="flex items-start justify-between gap-3 text-sm">
-                <span>{n.text}</span>
-                <span className="shrink-0 text-[11px] text-ci-muted">{n.module}</span>
+            {overdueInvoices.map((inv) => (
+              <li key={inv.id} className="flex items-start justify-between gap-3 text-sm">
+                <span>
+                  Invoice #{inv.number} is {inv.overdueDays} days overdue — {customerName(state, inv.customerId)}.
+                </span>
+                <Link to="/modules/invoicing" className="shrink-0 text-[11px] text-ci-accent">
+                  CI Invoicing
+                </Link>
               </li>
             ))}
+            {openHighPriorityTasks.map((t) => (
+              <li key={t.id} className="flex items-start justify-between gap-3 text-sm">
+                <span>{t.title}</span>
+                <Link to="/modules/tasks" className="shrink-0 text-[11px] text-ci-accent">
+                  CI Tasks
+                </Link>
+              </li>
+            ))}
+            {unreadEmails.length > 0 && (
+              <li className="flex items-start justify-between gap-3 text-sm">
+                <span>{unreadEmails.length} unread message(s) in your inbox.</span>
+                <Link to="/modules/mail" className="shrink-0 text-[11px] text-ci-accent">
+                  CI Mail
+                </Link>
+              </li>
+            )}
+            {overdueInvoices.length === 0 && openHighPriorityTasks.length === 0 && unreadEmails.length === 0 && (
+              <li className="text-sm text-ci-muted">Nothing needs your attention.</li>
+            )}
           </ul>
         </div>
         <div className="rounded-xl border border-ci-border bg-ci-panel p-4">
-          <h2 className="text-sm font-medium mb-3">Pending your approval</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-medium">Pending your approval</h2>
+            {pendingApprovals.length > 0 && (
+              <Link to="/modules/approvals" className="text-[11px] text-ci-accent">
+                View all →
+              </Link>
+            )}
+          </div>
           <ul className="space-y-2.5">
-            {APPROVALS.map((a) => (
+            {pendingApprovals.map((a) => (
               <li key={a.id} className="flex items-start justify-between gap-3 text-sm">
-                <span>{a.text}</span>
-                <span className="shrink-0 text-[11px] text-ci-muted">{a.module}</span>
+                <span>{a.title}</span>
+                <span className="shrink-0 text-[11px] text-ci-muted">
+                  {a.createdBy === "agent" ? "CI Agent" : "You"}
+                </span>
               </li>
             ))}
+            {pendingApprovals.length === 0 && <li className="text-sm text-ci-muted">Nothing waiting on you.</li>}
           </ul>
         </div>
       </div>
