@@ -156,6 +156,25 @@ export interface ApprovalRequest {
   };
 }
 
+export interface Meeting {
+  id: string;
+  customerId?: string;
+  title: string;
+  start: string;
+  end: string;
+  attendees: string[];
+}
+
+export interface SupportTicket {
+  id: string;
+  customerId: string;
+  subject: string;
+  status: "open" | "pending" | "closed";
+  priority: "low" | "medium" | "high";
+  createdAt: string;
+  lastUpdate: string;
+}
+
 export interface AppState {
   customers: Customer[];
   invoices: Invoice[];
@@ -165,4 +184,8 @@ export interface AppState {
   tasks: TaskItem[];
   approvals: ApprovalRequest[];
   audit: AuditEvent[];
+  meetings: Meeting[];
+  tickets: SupportTicket[];
+  /** CI Sheets — revenue forecast targets by customer, the simplest real slice of "forecasting". */
+  targets: Record<string, number>;
 }

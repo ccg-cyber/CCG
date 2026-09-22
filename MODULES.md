@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 9
+- ✅ Live: 13
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 81
+- ⬜ Planned: 77
 
 ---
 
@@ -27,7 +27,7 @@ Documents, spreadsheets, presentations, PDFs, notes, forms, tasks.
 | Module | Status | Replaces | Description |
 |---|---|---|---|
 | **CI Docs** | ✅ Live | Word | Documents, templates, track changes, versioning, AI rewriting, DOCX/PDF import-export. |
-| **CI Sheets** | ⬜ Planned | Excel | Spreadsheets, formulas, pivot tables, forecasting, AI formula creation. |
+| **CI Sheets** | ✅ Live | Excel | Spreadsheets, formulas, pivot tables, forecasting, AI formula creation. |
 | **CI Present** | ⬜ Planned | PowerPoint | Presentations, themes, automatic slide generation, brand enforcement. |
 | **CI PDF** | ⬜ Planned | Acrobat | View, convert, merge, split, OCR, redact, sign and extract from PDFs. |
 | **CI Notes** | ⬜ Planned | — | Quick notes, notebooks, clippings, voice-to-note, handwriting OCR. |
@@ -41,8 +41,8 @@ Mail, calendar, chat, meetings, contacts, notifications.
 | Module | Status | Replaces | Description |
 |---|---|---|---|
 | **CI Mail** | ✅ Live | Outlook | Multi-account mail, rules, shared mailboxes, smart replies, phishing detection. |
-| **CI Calendar** | ⬜ Planned | — | Scheduling, rooms/resources, availability, booking links, meeting prep. |
-| **CI Contacts** | ⬜ Planned | — | People, companies, relationship history, dedupe, customer/supplier links. |
+| **CI Calendar** | ✅ Live | — | Scheduling, rooms/resources, availability, booking links, meeting prep. |
+| **CI Contacts** | ✅ Live | — | People, companies, relationship history, dedupe, customer/supplier links. |
 | **CI Chat** | ⬜ Planned | Teams / Slack | DMs, channels, threads, mentions, searchable history, AI summaries. |
 | **CI Meet** | ⬜ Planned | — | Video meetings, captions, transcription, action items, auto summaries. |
 | **CI Communications** | ⬜ Planned | — | SMS, business messaging, notifications, unified conversation history. |
@@ -69,7 +69,7 @@ CRM, ERP, finance, sales, HR, inventory, projects, operations.
 | **CI CRM** | ✅ Live | — | Leads, pipelines, opportunities, customer timeline, AI sales assistance. |
 | **CI Projects** | ⬜ Planned | — | Kanban, timeline/Gantt, milestones, workload, budgets, time tracking. |
 | **CI Sales** | ⬜ Planned | — | Quotations, price lists, orders, commissions, sales targets. |
-| **CI Customer Service** | ⬜ Planned | — | Tickets, SLAs, canned responses, knowledge base, AI support agents. |
+| **CI Customer Service** | ✅ Live | — | Tickets, SLAs, canned responses, knowledge base, AI support agents. |
 | **CI Marketing** | ⬜ Planned | — | Campaigns, contact lists, landing pages, segmentation, automation. |
 | **CI ERP Core** | ⬜ Planned | — | Companies, branches, currencies, taxes, fiscal periods, master data. |
 | **CI Accounting & Finance** | ⬜ Planned | — | General ledger, receivables/payables, banking, budgets, AI anomaly detection. |

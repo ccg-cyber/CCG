@@ -22,16 +22,20 @@ the code, always current).
 |---|---|
 | CI Home | ✅ Live — dashboard, notifications, approvals, Ask CI |
 | CI Docs | ✅ Live — editable document surface |
+| CI Sheets | ✅ Live — revenue forecast with a live cross-module formula |
 | CI Mail | ✅ Live — inbox wired to shared customer data |
+| CI Calendar | ✅ Live — real meetings, schedule new ones |
+| CI Contacts | ✅ Live — the shared customer list, add new contacts |
 | CI Drive | ✅ Live — file/folder browser, shows agent-filed documents |
 | CI CRM | ✅ Live — pipeline board, deals advance stages |
+| CI Customer Service | ✅ Live — real tickets, advance their status |
 | CI Tasks | ✅ Live — to-do list, add/complete, persisted |
 | CI Invoicing | ✅ Live — real invoices, overdue totals |
 | CI Approval Center | ✅ Live — real queue, approve/reject with consequences |
 | CI Audit | ✅ Live — immutable log of every human and agent action |
-| 81 more modules | ⬜ Registered, searchable, not yet built |
+| 77 more modules | ⬜ Registered, searchable, not yet built |
 
-All nine live modules read and write **one shared, persisted dataset**
+All thirteen live modules read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four
@@ -62,8 +66,9 @@ npm run build     # typecheck + production build
     the email really appears at the top of CI Mail's inbox; every step is
     logged in CI Audit.
   - _"Show me everything happening with Acme Ltd."_ — fans out across CRM,
-    Mail, Invoicing, Drive, Support and Calendar using the same shared
-    data, with real counts and dollar amounts.
+    Mail, Invoicing, Drive, Customer Service and Calendar using the same
+    shared data: real deal stage, real overdue total, the real open ticket
+    count, and the real next meeting date — nothing hardcoded per query.
 - Use the top search bar or the sidebar to jump into any of the 90
   modules — live ones show a working screen, everything else shows what
   it's scoped to become.

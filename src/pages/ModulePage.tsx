@@ -10,6 +10,10 @@ import TasksDemo from "@/modules/tasks/TasksDemo";
 import InvoicingDemo from "@/modules/invoicing/InvoicingDemo";
 import ApprovalCenterDemo from "@/modules/approvals/ApprovalCenterDemo";
 import AuditDemo from "@/modules/audit/AuditDemo";
+import CalendarDemo from "@/modules/calendar/CalendarDemo";
+import CustomerServiceDemo from "@/modules/customer-service/CustomerServiceDemo";
+import ContactsDemo from "@/modules/contacts/ContactsDemo";
+import SheetsDemo from "@/modules/sheets/SheetsDemo";
 
 const DEMOS: Record<string, React.ComponentType> = {
   "ci-docs": DocsDemo,
@@ -20,6 +24,10 @@ const DEMOS: Record<string, React.ComponentType> = {
   "ci-invoicing": InvoicingDemo,
   "ci-approval-center": ApprovalCenterDemo,
   "ci-audit": AuditDemo,
+  "ci-calendar": CalendarDemo,
+  "ci-customer-service": CustomerServiceDemo,
+  "ci-contacts": ContactsDemo,
+  "ci-sheets": SheetsDemo,
 };
 
 export default function ModulePage() {

@@ -10,10 +10,11 @@ import type { ModuleDefinition } from "./types";
  *   - "scaffolded"  has a route and placeholder screen
  *   - "planned"     registered so the shape of the OS is complete; not built
  *
- * Six modules are wired up end-to-end in this first slice — one from each
- * side of the platform (system, work, communicate, files, business) — to
- * prove the pattern before the other 84 are filled in: Home, Docs, Mail,
- * Drive, CRM, Tasks.
+ * 13 modules are wired up end-to-end so far, sharing one dataset
+ * (src/lib/data.ts) rather than being isolated demos: Home, Docs, Mail,
+ * Drive, CRM, Tasks, Invoicing, Approval Center, Audit, Calendar,
+ * Customer Service, Contacts, Sheets. The rest are registered and
+ * navigable but not yet built — see MODULES.md for the live count.
  */
 export const MODULES: ModuleDefinition[] = [
   { id: "ci-home", slug: "home", name: "CI Home", category: "home", status: "live",
@@ -30,7 +31,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-docs", slug: "docs", name: "CI Docs", replaces: "Word", category: "work", status: "live",
     description: "Documents, templates, track changes, versioning, AI rewriting, DOCX/PDF import-export.",
     keywords: ["document", "word", "writing", "template"] },
-  { id: "ci-sheets", slug: "sheets", name: "CI Sheets", replaces: "Excel", category: "work", status: "planned",
+  { id: "ci-sheets", slug: "sheets", name: "CI Sheets", replaces: "Excel", category: "work", status: "live",
     description: "Spreadsheets, formulas, pivot tables, forecasting, AI formula creation.",
     keywords: ["spreadsheet", "excel", "formula", "pivot"] },
   { id: "ci-present", slug: "present", name: "CI Present", replaces: "PowerPoint", category: "work", status: "planned",
@@ -53,10 +54,10 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-mail", slug: "mail", name: "CI Mail", replaces: "Outlook", category: "communicate", status: "live",
     description: "Multi-account mail, rules, shared mailboxes, smart replies, phishing detection.",
     keywords: ["email", "outlook", "inbox", "mail"] },
-  { id: "ci-calendar", slug: "calendar", name: "CI Calendar", category: "communicate", status: "planned",
+  { id: "ci-calendar", slug: "calendar", name: "CI Calendar", category: "communicate", status: "live",
     description: "Scheduling, rooms/resources, availability, booking links, meeting prep.",
     keywords: ["calendar", "schedule", "meeting", "booking"] },
-  { id: "ci-contacts", slug: "contacts", name: "CI Contacts", category: "communicate", status: "planned",
+  { id: "ci-contacts", slug: "contacts", name: "CI Contacts", category: "communicate", status: "live",
     description: "People, companies, relationship history, dedupe, customer/supplier links.",
     keywords: ["contacts", "people", "address book"] },
   { id: "ci-chat", slug: "chat", name: "CI Chat", replaces: "Teams / Slack", category: "communicate", status: "planned",
@@ -99,7 +100,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-sales", slug: "sales", name: "CI Sales", category: "business", status: "planned",
     description: "Quotations, price lists, orders, commissions, sales targets.",
     keywords: ["sales", "quotation", "orders"] },
-  { id: "ci-customer-service", slug: "customer-service", name: "CI Customer Service", category: "business", status: "planned",
+  { id: "ci-customer-service", slug: "customer-service", name: "CI Customer Service", category: "business", status: "live",
     description: "Tickets, SLAs, canned responses, knowledge base, AI support agents.",
     keywords: ["help desk", "support", "tickets", "sla"] },
   { id: "ci-marketing", slug: "marketing", name: "CI Marketing", category: "business", status: "planned",

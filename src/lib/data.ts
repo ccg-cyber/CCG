@@ -9,6 +9,8 @@ import type {
   TaskItem,
   ApprovalRequest,
   AuditEvent,
+  Meeting,
+  SupportTicket,
 } from "./types";
 
 /**
@@ -82,6 +84,24 @@ const AUDIT: AuditEvent[] = [
   { id: uid("audit"), actor: "system", actorName: "Ci Business OS", moduleId: "ci-home", action: "Workspace initialized with seed data", timestamp: now() },
 ];
 
+const MEETINGS: Meeting[] = [
+  { id: "meet-rollout", title: "Internal — Q3 rollout sync", start: "2026-09-23T16:00:00Z", end: "2026-09-23T16:30:00Z", attendees: ["You", "Ops team"] },
+  { id: "meet-nord", customerId: "cust-nord", title: "Pricing call — Nord Retail Group", start: "2026-09-24T15:00:00Z", end: "2026-09-24T15:30:00Z", attendees: ["You", "Nord Retail Group"] },
+  { id: "meet-acme", customerId: "cust-acme", title: "Quarterly review — Acme Ltd.", start: "2026-09-25T18:00:00Z", end: "2026-09-25T19:00:00Z", attendees: ["You", "Acme Ltd."] },
+];
+
+const TICKETS: SupportTicket[] = [
+  { id: "tick-acme-login", customerId: "cust-acme", subject: "Login issue after last update", status: "open", priority: "medium", createdAt: "2026-09-20T10:00:00Z", lastUpdate: "2026-09-21T09:00:00Z" },
+  { id: "tick-northwind-delivery", customerId: "cust-northwind", subject: "Delivery delay question", status: "closed", priority: "low", createdAt: "2026-09-10T10:00:00Z", lastUpdate: "2026-09-12T10:00:00Z" },
+];
+
+const TARGETS: Record<string, number> = {
+  "cust-acme": 40000,
+  "cust-nord": 20000,
+  "cust-northwind": 6000,
+  "cust-blueharbor": 10000,
+};
+
 const SEED: AppState = {
   customers: CUSTOMERS,
   invoices: INVOICES,
@@ -91,6 +111,9 @@ const SEED: AppState = {
   tasks: TASKS,
   approvals: APPROVALS,
   audit: AUDIT,
+  meetings: MEETINGS,
+  tickets: TICKETS,
+  targets: TARGETS,
 };
 
 export const appStore = createStore<AppState>("ci-os-app-state-v1", SEED);
@@ -114,7 +137,15 @@ export function getCustomerBundle(state: AppState, customerId: string) {
     emails: state.emails.filter((e) => e.customerId === customerId),
     files: state.files.filter((f) => f.customerId === customerId),
     tasks: state.tasks.filter((t) => t.customerId === customerId),
+    meetings: state.meetings.filter((m) => m.customerId === customerId),
+    tickets: state.tickets.filter((t) => t.customerId === customerId),
   };
+}
+
+export function paidTotalForCustomer(state: AppState, customerId: string): number {
+  return state.invoices
+    .filter((i) => i.customerId === customerId && i.status === "paid")
+    .reduce((sum, i) => sum + i.amount, 0);
 }
 
 export function customerName(state: AppState, customerId?: string): string {
@@ -219,6 +250,49 @@ export function markInvoicePaid(id: string) {
       action: `Marked invoice #${invoice.number} as paid`,
     });
   }
+}
+
+export function scheduleMeeting(title: string, startISO: string, customerId?: string) {
+  const start = new Date(startISO);
+  const end = new Date(start.getTime() + 30 * 60 * 1000);
+  const meeting: Meeting = {
+    id: uid("meet"),
+    customerId,
+    title,
+    start: start.toISOString(),
+    end: end.toISOString(),
+    attendees: ["You"],
+  };
+  appStore.set((s) => ({ ...s, meetings: [...s.meetings, meeting] }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-calendar", action: `Scheduled "${title}"` });
+}
+
+export function advanceTicketStatus(id: string) {
+  const order: SupportTicket["status"][] = ["open", "pending", "closed"];
+  const state = appStore.get();
+  const ticket = state.tickets.find((t) => t.id === id);
+  if (!ticket) return;
+  const next = order[Math.min(order.indexOf(ticket.status) + 1, order.length - 1)];
+  appStore.set((s) => ({
+    ...s,
+    tickets: s.tickets.map((t) => (t.id === id ? { ...t, status: next, lastUpdate: now() } : t)),
+  }));
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-customer-service",
+    action: `Ticket "${ticket.subject}" moved to ${next}`,
+  });
+}
+
+export function addCustomer(name: string, email: string, company: string) {
+  const customer: Customer = { id: uid("cust"), name, email, company, tags: [] };
+  appStore.set((s) => ({ ...s, customers: [...s.customers, customer] }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-contacts", action: `Added contact ${name}` });
+}
+
+export function setTarget(customerId: string, value: number) {
+  appStore.set((s) => ({ ...s, targets: { ...s.targets, [customerId]: value } }));
 }
 
 export function resetDemoData() {

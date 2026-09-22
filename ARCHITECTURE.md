@@ -158,21 +158,25 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Nine modules are wired up end-to-end against the one shared dataset:
+Thirteen modules are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
 | CI Home | Home | Registry-driven nav, live dashboard, Ask CI |
 | CI Docs | Work | Editable document surface |
+| CI Sheets | Work | Cross-module live formula (Actual = sum of paid invoices) |
 | CI Mail | Communicate | List/detail pattern; receives agent-sent mail |
+| CI Calendar | Communicate | Real schedule; closes Ask CI's "no meetings" gap |
+| CI Contacts | Communicate | The shared customer list itself, editable |
 | CI Drive | Files | File/folder browser; receives agent-filed documents |
 | CI CRM | Business | Pipeline/kanban with real stage transitions |
+| CI Customer Service | Business | Real tickets; closes Ask CI's "no tickets" gap |
 | CI Tasks | Work | Stateful CRUD, persisted |
-| CI Invoicing | Business | Real invoices/overdue totals feeding Ask CI |
+| CI Invoicing | Business | Real invoices/overdue totals feeding Ask CI and Sheets |
 | CI Approval Center | Control | Real queue with consequential approve/reject |
 | CI Audit | Control | Real timeline of every human + agent action |
 
-The other 81 are registered with real names, categories, descriptions and
+The other 77 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
@@ -211,8 +215,12 @@ should exist and be navigable before every room has furniture in it.
 4. **CI Autonomy Control** as an actual policy surface — today
    `needsApproval` is hardcoded per intent in `ask-ci.ts`; it should be a
    configurable rule a human sets, not a constant in the router.
-5. Promote the next handful of modules from `planned` to `live` — Sheets,
-   Calendar, and Customer Service are the natural next three: Calendar
-   completes the "everything about Acme Ltd." answer (it currently reports
-   "no meetings on record" because there's no calendar data yet), and
-   Customer Service closes the same gap for support tickets.
+5. Promote the next handful of modules from `planned` to `live`. Sheets,
+   Calendar, Customer Service and Contacts are done (this closed the
+   "everything about Acme Ltd." answer's remaining gaps). Natural next
+   candidates: **CI Projects** (Tasks already exist; Projects groups them),
+   **CI Sales** (quotations, feeding the same customer/deal data CRM and
+   Invoicing already share), and **CI Notifications** (Home's notification
+   panel is currently derived inline in `Home.tsx`; promoting it means
+   giving notifications their own module and read/unread state, the same
+   way Mail's unread state works today).

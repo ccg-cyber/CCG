@@ -82,8 +82,8 @@ export function planFor(query: string): AskCiPlan {
         `CI Mail — ${bundle.emails.length} message(s), ${bundle.emails.filter((e) => e.unread).length} unread`,
         `CI Invoicing — ${bundle.invoices.length} invoice(s), $${overdueTotal.toLocaleString()} overdue`,
         `CI Drive — ${bundle.files.length} file(s) in their folder`,
-        `CI Customer Service — no open tickets on record`,
-        `CI Calendar — no upcoming meetings on record`,
+        `CI Customer Service — ${bundle.tickets.filter((t) => t.status !== "closed").length} open ticket(s) of ${bundle.tickets.length} total`,
+        `CI Calendar — ${bundle.meetings.map((m) => `${m.title} (${new Date(m.start).toLocaleString()})`).join("; ") || "no upcoming meetings on record"}`,
       ],
       needsApproval: false,
     };
