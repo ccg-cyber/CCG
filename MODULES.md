@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 27
+- ✅ Live: 30
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 63
+- ⬜ Planned: 60
 
 ---
 
@@ -78,7 +78,7 @@ CRM, ERP, finance, sales, HR, inventory, projects, operations.
 | **CI Inventory** | ✅ Live | — | SKUs, warehouses, stock movements, lot/serial, reorder points, valuation. |
 | **CI POS** | ✅ Live | — | Retail sales, cash drawers, discounts, offline mode, branch sync. |
 | **CI Manufacturing** | ✅ Live | — | BOMs, production orders, routing, capacity planning, quality checks. |
-| **CI Logistics** | ⬜ Planned | — | Deliveries, routes, drivers, proof of delivery, dispatch planning. |
+| **CI Logistics** | ✅ Live | — | Deliveries, routes, drivers, proof of delivery, dispatch planning. |
 | **CI HR** | ✅ Live | — | Employee profiles, org chart, onboarding, leave, evaluations, self-service. |
 | **CI Payroll** | ✅ Live | — | Salaries, deductions, bonuses, payroll runs, payslips, accounting sync. |
 | **CI Attendance** | ✅ Live | — | Clock-in/out, shifts, schedules, overtime, absence tracking. |
@@ -116,7 +116,7 @@ Devices, remote support, security, backup, software distribution.
 | **CI Print** | ⬜ Planned | — | Printer management, queues, templates, label and barcode printing. |
 | **CI Browser** | ⬜ Planned | — | Secure company browser/workspace with AI page understanding and capture. |
 | **CI Offline** | ⬜ Planned | — | Local cache, offline documents, queued changes, sync on reconnect. |
-| **CI Assets** | ⬜ Planned | — | PCs, phones, vehicles, machinery, licenses, warranties, depreciation links. |
+| **CI Assets** | ✅ Live | — | PCs, phones, vehicles, machinery, licenses, warranties, depreciation links. |
 
 ## Build
 
@@ -144,7 +144,7 @@ Assistant, agents, agent studio, knowledge, reasoning.
 | **CI Assistant** | ⬜ Planned | — | The universal conversational interface, available everywhere in the OS. |
 | **CI Agents** | ⬜ Planned | — | Specialized agents: GM, HR, Sales, Accounting, Procurement, Support, Legal. |
 | **CI Agent Studio** | ⬜ Planned | — | Build an agent: instructions, knowledge, tools, permissions, thresholds. |
-| **CI Knowledge** | ⬜ Planned | — | Internal wiki, procedures, manuals, FAQs, SOPs, knowledge graph. |
+| **CI Knowledge** | ✅ Live | — | Internal wiki, procedures, manuals, FAQs, SOPs, knowledge graph. |
 | **CI OCR / Document Intelligence** | ⬜ Planned | — | Extract structured records from invoices, receipts, IDs, contracts, forms. |
 | **CI Intelligence Core** | ⬜ Planned | — | The reasoning substrate: context, retrieval, multimodal understanding, model routing. |
 | **CI Memory / Knowledge Graph** | ⬜ Planned | — | Relationships between customers, suppliers, employees, documents, events. |

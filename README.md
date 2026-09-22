@@ -47,9 +47,12 @@ the code, always current).
 | CI Legal | ✅ Live — reads CI Contracts' at-risk list, real policy reviews |
 | CI Recruit | ✅ Live — hiring a candidate creates their real CI HR record |
 | CI POS | ✅ Live — sells against real CI Inventory, independent of CI Sales |
-| 63 more modules | ⬜ Registered, searchable, not yet built |
+| CI Logistics | ✅ Live — real dispatch/delivery status ladder |
+| CI Assets | ✅ Live — live depreciation formula, assignable to CI HR employees |
+| CI Knowledge | ✅ Live — the first non-transactional module: durable content |
+| 60 more modules | ⬜ Registered, searchable, not yet built |
 
-All twenty-seven live modules read and write **one shared, persisted dataset**
+All thirty live modules (a third of the full map) read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four

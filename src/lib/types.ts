@@ -242,6 +242,35 @@ export interface Candidate {
   stage: "applied" | "interview" | "offer" | "hired" | "rejected";
 }
 
+export interface Shipment {
+  id: string;
+  customerId: string;
+  description: string;
+  carrier?: string;
+  status: "pending" | "in-transit" | "delivered";
+  dispatchedAt?: string;
+  deliveredAt?: string;
+}
+
+export interface Asset {
+  id: string;
+  name: string;
+  type: "laptop" | "phone" | "vehicle" | "furniture" | "license";
+  purchaseDate: string;
+  purchaseCost: number;
+  usefulLifeYears: number;
+  assignedToEmployeeId?: string;
+  status: "in-use" | "in-storage" | "retired";
+}
+
+export interface Article {
+  id: string;
+  title: string;
+  body: string;
+  tags: string[];
+  updatedAt: string;
+}
+
 export interface Meeting {
   id: string;
   customerId?: string;
@@ -301,6 +330,9 @@ export interface AppState {
   policies: CompliancePolicy[];
   candidates: Candidate[];
   sales: Sale[];
+  shipments: Shipment[];
+  assets: Asset[];
+  articles: Article[];
   /** Notifications a user has dismissed — notifications themselves are computed, not stored, so read state is the only thing that needs persisting. */
   dismissedNotificationIds: string[];
 }

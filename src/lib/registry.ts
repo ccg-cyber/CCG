@@ -10,7 +10,7 @@ import type { ModuleDefinition } from "./types";
  *   - "scaffolded"  has a route and placeholder screen
  *   - "planned"     registered so the shape of the OS is complete; not built
  *
- * 27 modules are wired up end-to-end so far, sharing one dataset
+ * 30 modules are wired up end-to-end so far, sharing one dataset
  * (src/lib/data.ts) rather than being isolated demos. The rest are
  * registered and navigable but not yet built — see MODULES.md for the
  * always-current live count and full breakdown by category.
@@ -126,7 +126,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-manufacturing", slug: "manufacturing", name: "CI Manufacturing", category: "business", status: "live",
     description: "BOMs, production orders, routing, capacity planning, quality checks.",
     keywords: ["manufacturing", "bom", "production"] },
-  { id: "ci-logistics", slug: "logistics", name: "CI Logistics", category: "business", status: "planned",
+  { id: "ci-logistics", slug: "logistics", name: "CI Logistics", category: "business", status: "live",
     description: "Deliveries, routes, drivers, proof of delivery, dispatch planning.",
     keywords: ["logistics", "delivery", "fleet", "dispatch"] },
   { id: "ci-hr", slug: "hr", name: "CI HR", category: "business", status: "live",
@@ -202,7 +202,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-offline", slug: "offline", name: "CI Offline", category: "it", status: "planned",
     description: "Local cache, offline documents, queued changes, sync on reconnect.",
     keywords: ["offline", "sync"] },
-  { id: "ci-assets", slug: "assets", name: "CI Assets", category: "it", status: "planned",
+  { id: "ci-assets", slug: "assets", name: "CI Assets", category: "it", status: "live",
     description: "PCs, phones, vehicles, machinery, licenses, warranties, depreciation links.",
     keywords: ["asset management", "equipment"] },
 
@@ -248,7 +248,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-agent-studio", slug: "agent-studio", name: "CI Agent Studio", category: "intelligence", status: "planned",
     description: "Build an agent: instructions, knowledge, tools, permissions, thresholds.",
     keywords: ["agent builder", "agent studio"] },
-  { id: "ci-knowledge", slug: "knowledge", name: "CI Knowledge", category: "intelligence", status: "planned",
+  { id: "ci-knowledge", slug: "knowledge", name: "CI Knowledge", category: "intelligence", status: "live",
     description: "Internal wiki, procedures, manuals, FAQs, SOPs, knowledge graph.",
     keywords: ["wiki", "knowledge base", "sop"] },
   { id: "ci-ocr", slug: "ocr", name: "CI OCR / Document Intelligence", category: "intelligence", status: "planned",

@@ -172,7 +172,7 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Twenty-seven modules are wired up end-to-end against the one shared dataset:
+Thirty modules — a third of the full map — are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
@@ -203,8 +203,11 @@ Twenty-seven modules are wired up end-to-end against the one shared dataset:
 | CI Legal | Control | Reads CI Contracts' at-risk list directly — zero duplicated logic |
 | CI Approval Center | Control | Real queue, now rendering two different payload kinds |
 | CI Audit | Control | Real timeline of every human, agent and system action |
+| CI Logistics | Business | Real dispatch → in-transit → delivered ladder against real customers |
+| CI Assets | IT | Live depreciation formula; assignable to real CI HR employees |
+| CI Knowledge | Intelligence | First non-transactional module — durable content, not a status ladder |
 
-The other 63 are registered with real names, categories, descriptions and
+The other 60 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
@@ -233,7 +236,7 @@ scenario and never reused. Adding a second payload kind
 (`"purchase-order"`) meant: a new variant on the `payload` union type, one
 new branch in `decideApproval()` (flip the linked `PurchaseOrder`'s status
 instead of sending mail), and one new rendering block in
-`ApprovalCenterDemo.tsx`. The pending-queue logic, the approve/reject
+`src/modules/approvals/Approvals.tsx`. The pending-queue logic, the approve/reject
 buttons, the history section, and every other module that opens an
 approval were untouched. A third kind (a contract needing signature, a
 refund needing sign-off) follows the same three-step recipe — this is the
@@ -295,12 +298,13 @@ trail doesn't change.
 4. **CI Autonomy Control** as an actual policy surface — today
    `needsApproval` is hardcoded per intent in `ask-ci.ts`; it should be a
    configurable rule a human sets, not a constant in the router.
-5. Promote the next handful of modules from `planned` to `live`. 27 of 90
-   are done. Natural next candidates: **CI Logistics** (CI POS and CI
-   Manufacturing both move real stock now; nothing yet represents getting
-   it to a customer), **CI Assets** (CI Purchasing creates POs for
-   consumable inventory today; a capital purchase — a laptop, a vehicle —
-   wants a depreciating asset record instead), and **CI Knowledge** (every
-   module so far is transactional; Knowledge would be the first that
-   stores durable reference material — SOPs, runbooks — rather than
-   records that change state).
+5. Promote the next handful of modules from `planned` to `live`. 30 of 90
+   are done — a third of the map. Natural next candidates: **CI Chat**
+   (every module so far assumes async communication — mail, notifications,
+   comments on a ticket; nothing is synchronous), **CI Forms** (would be
+   the first module other modules *consume*: a form submission could
+   create a CI Customer Service ticket or a CI Recruit candidate, the way
+   CI Recruit already creates a CI HR employee), and **CI Search** (with
+   30 modules and a real dataset behind them, a single search across
+   customers/invoices/tickets/articles is now worth building instead of
+   the per-module list views each module already has).

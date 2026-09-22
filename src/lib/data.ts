@@ -22,6 +22,9 @@ import type {
   CompliancePolicy,
   Candidate,
   Sale,
+  Shipment,
+  Asset,
+  Article,
 } from "./types";
 
 /**
@@ -167,6 +170,34 @@ const CANDIDATES: Candidate[] = [
   { id: "cand-2", name: "Iris Chen", role: "Support Engineer", department: "Customer Service", offerSalary: 64000, stage: "applied" },
 ];
 
+const SHIPMENTS: Shipment[] = [
+  { id: "ship-acme-1", customerId: "cust-acme", description: "Replacement parts — 3 units", status: "pending" },
+  { id: "ship-nord-1", customerId: "cust-nord", description: "Initial order — enterprise tier hardware", status: "delivered", carrier: "FastFreight", dispatchedAt: "2026-09-15T09:00:00Z", deliveredAt: "2026-09-18T14:00:00Z" },
+];
+
+const ASSETS: Asset[] = [
+  { id: "asset-laptop-1", name: "MacBook Pro 16\"", type: "laptop", purchaseDate: "2024-03-01", purchaseCost: 2800, usefulLifeYears: 4, assignedToEmployeeId: "emp-1", status: "in-use" },
+  { id: "asset-laptop-2", name: "ThinkPad X1", type: "laptop", purchaseDate: "2023-11-15", purchaseCost: 1900, usefulLifeYears: 4, assignedToEmployeeId: "emp-2", status: "in-use" },
+  { id: "asset-phone-1", name: "iPhone 15", type: "phone", purchaseDate: "2025-01-10", purchaseCost: 999, usefulLifeYears: 3, status: "in-storage" },
+];
+
+const ARTICLES: Article[] = [
+  {
+    id: "article-onboarding",
+    title: "Employee onboarding checklist",
+    body: "1. Add the employee in CI HR.\n2. Assign a laptop and phone in CI Assets.\n3. Grant system access via CI Identity.\n4. Schedule a first-week check-in in CI Calendar.",
+    tags: ["hr", "onboarding"],
+    updatedAt: "2026-08-01",
+  },
+  {
+    id: "article-overdue",
+    title: "How to handle an overdue invoice",
+    body: "Ask CI to draft a statement: \"<Customer> hasn't paid, prepare a statement and draft a follow-up email.\" It files the statement in CI Drive and opens a request in CI Approval Center — review the draft before approving, since approving sends it immediately.",
+    tags: ["finance", "process"],
+    updatedAt: "2026-09-10",
+  },
+];
+
 const TARGETS: Record<string, number> = {
   "cust-acme": 40000,
   "cust-nord": 20000,
@@ -197,6 +228,9 @@ const SEED: AppState = {
   policies: POLICIES,
   candidates: CANDIDATES,
   sales: SALES,
+  shipments: SHIPMENTS,
+  assets: ASSETS,
+  articles: ARTICLES,
   dismissedNotificationIds: [],
 };
 
@@ -683,6 +717,62 @@ export function sellStock(itemId: string, quantity: number) {
     moduleId: "ci-pos",
     action: `Sold ${quantity}x ${item.name} for $${total.toLocaleString()}`,
   });
+}
+
+export function dispatchShipment(id: string, carrier: string) {
+  const shipment = appStore.get().shipments.find((s) => s.id === id);
+  if (!shipment || shipment.status !== "pending") return;
+  appStore.set((s) => ({
+    ...s,
+    shipments: s.shipments.map((sh) => (sh.id === id ? { ...sh, status: "in-transit", carrier, dispatchedAt: now() } : sh)),
+  }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-logistics", action: `Dispatched "${shipment.description}" via ${carrier}` });
+}
+
+export function deliverShipment(id: string) {
+  const shipment = appStore.get().shipments.find((s) => s.id === id);
+  if (!shipment || shipment.status !== "in-transit") return;
+  appStore.set((s) => ({
+    ...s,
+    shipments: s.shipments.map((sh) => (sh.id === id ? { ...sh, status: "delivered", deliveredAt: now() } : sh)),
+  }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-logistics", action: `Marked "${shipment.description}" delivered` });
+}
+
+export function assetCurrentValue(asset: Asset, referenceDate = new Date()): number {
+  const ageYears = (referenceDate.getTime() - new Date(asset.purchaseDate).getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+  const remaining = Math.max(0, 1 - ageYears / asset.usefulLifeYears);
+  return Math.round(asset.purchaseCost * remaining);
+}
+
+export function assignAsset(assetId: string, employeeId: string) {
+  const state = appStore.get();
+  const asset = state.assets.find((a) => a.id === assetId);
+  const employee = state.employees.find((e) => e.id === employeeId);
+  if (!asset || !employee) return;
+  appStore.set((s) => ({
+    ...s,
+    assets: s.assets.map((a) => (a.id === assetId ? { ...a, assignedToEmployeeId: employeeId, status: "in-use" } : a)),
+  }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-assets", action: `Assigned "${asset.name}" to ${employee.name}` });
+}
+
+export function unassignAsset(assetId: string) {
+  const asset = appStore.get().assets.find((a) => a.id === assetId);
+  if (!asset) return;
+  appStore.set((s) => ({
+    ...s,
+    assets: s.assets.map((a) => (a.id === assetId ? { ...a, assignedToEmployeeId: undefined, status: "in-storage" } : a)),
+  }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-assets", action: `Returned "${asset.name}" to storage` });
+}
+
+export function saveArticle(id: string, title: string, body: string) {
+  appStore.set((s) => ({
+    ...s,
+    articles: s.articles.map((a) => (a.id === id ? { ...a, title, body, updatedAt: now().slice(0, 10) } : a)),
+  }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-knowledge", action: `Updated article "${title}"` });
 }
 
 export function resetDemoData() {
