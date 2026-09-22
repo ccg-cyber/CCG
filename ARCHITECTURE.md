@@ -158,28 +158,52 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Thirteen modules are wired up end-to-end against the one shared dataset:
+Sixteen modules are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
 | CI Home | Home | Registry-driven nav, live dashboard, Ask CI |
 | CI Docs | Work | Editable document surface |
 | CI Sheets | Work | Cross-module live formula (Actual = sum of paid invoices) |
+| CI Tasks | Work | Stateful CRUD, persisted |
 | CI Mail | Communicate | List/detail pattern; receives agent-sent mail |
 | CI Calendar | Communicate | Real schedule; closes Ask CI's "no meetings" gap |
 | CI Contacts | Communicate | The shared customer list itself, editable |
+| CI Notifications | Communicate | Same computed list Home reads, with persisted dismissal |
 | CI Drive | Files | File/folder browser; receives agent-filed documents |
-| CI CRM | Business | Pipeline/kanban with real stage transitions |
+| CI CRM | Business | Pipeline/kanban; deals move as a side effect of Sales |
 | CI Customer Service | Business | Real tickets; closes Ask CI's "no tickets" gap |
-| CI Tasks | Work | Stateful CRUD, persisted |
 | CI Invoicing | Business | Real invoices/overdue totals feeding Ask CI and Sheets |
+| CI Projects | Business | Groups CI Tasks; real progress bars from shared task state |
+| CI Sales | Business | Accepting a quote auto-advances its linked CRM deal |
 | CI Approval Center | Control | Real queue with consequential approve/reject |
-| CI Audit | Control | Real timeline of every human + agent action |
+| CI Audit | Control | Real timeline of every human, agent and system action |
 
-The other 77 are registered with real names, categories, descriptions and
+The other 74 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
+
+## Modules trigger each other — a third actor besides "user" and "agent"
+
+`AuditEvent.actor` has three values: `"user"`, `"agent"`, `"system"`. The
+first two are self-explanatory; `"system"` exists for the case CI Sales
+demonstrates: accepting a quote (`decideQuote()` in `data.ts`) doesn't just
+change the quote's own status — it calls `moveDealStage(dealId, "Won")`
+directly, so the linked CI CRM deal updates with no human re-entering the
+same fact in a second module, and no LLM in the loop deciding to do it.
+The audit trail then shows two distinct entries for one user click: "You
+marked the quote accepted" (`actor: "user"`) and "Deal auto-advanced to
+Won" (`actor: "system"`) — because those genuinely are two different
+facts a business needs to be able to tell apart later ("did a person move
+this deal, or did something else move it for them").
+
+This is the pattern `CI WORKFLOW ENGINE` (#47) generalizes: today the
+cross-module rule ("accepted quote → won deal") is a hardcoded function
+call; the real module replaces it with a configurable rule a human
+authors ("when X in module A, do Y in module B"), but the requirement
+that the consequence is distinguishable from the action in the audit
+trail doesn't change.
 
 ## Stack
 
@@ -216,11 +240,11 @@ should exist and be navigable before every room has furniture in it.
    `needsApproval` is hardcoded per intent in `ask-ci.ts`; it should be a
    configurable rule a human sets, not a constant in the router.
 5. Promote the next handful of modules from `planned` to `live`. Sheets,
-   Calendar, Customer Service and Contacts are done (this closed the
-   "everything about Acme Ltd." answer's remaining gaps). Natural next
-   candidates: **CI Projects** (Tasks already exist; Projects groups them),
-   **CI Sales** (quotations, feeding the same customer/deal data CRM and
-   Invoicing already share), and **CI Notifications** (Home's notification
-   panel is currently derived inline in `Home.tsx`; promoting it means
-   giving notifications their own module and read/unread state, the same
-   way Mail's unread state works today).
+   Calendar, Customer Service, Contacts, Projects, Sales and Notifications
+   are done. Natural next candidates: **CI Purchasing** (there's already a
+   seeded PO approval sitting in CI Approval Center with nowhere to live),
+   **CI Marketing** (the natural home for turning a CI CRM "New" stage
+   deal into an outbound sequence), and **CI HR** (no employee data exists
+   yet at all — it would be the first module outside the customer-centric
+   half of the dataset, a useful test of whether the `data.ts` pattern
+   holds up for a non-customer entity).

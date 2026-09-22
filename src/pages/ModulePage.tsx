@@ -14,6 +14,9 @@ import CalendarDemo from "@/modules/calendar/CalendarDemo";
 import CustomerServiceDemo from "@/modules/customer-service/CustomerServiceDemo";
 import ContactsDemo from "@/modules/contacts/ContactsDemo";
 import SheetsDemo from "@/modules/sheets/SheetsDemo";
+import ProjectsDemo from "@/modules/projects/ProjectsDemo";
+import SalesDemo from "@/modules/sales/SalesDemo";
+import NotificationsDemo from "@/modules/notifications/NotificationsDemo";
 
 const DEMOS: Record<string, React.ComponentType> = {
   "ci-docs": DocsDemo,
@@ -28,6 +31,9 @@ const DEMOS: Record<string, React.ComponentType> = {
   "ci-customer-service": CustomerServiceDemo,
   "ci-contacts": ContactsDemo,
   "ci-sheets": SheetsDemo,
+  "ci-projects": ProjectsDemo,
+  "ci-sales": SalesDemo,
+  "ci-notifications": NotificationsDemo,
 };
 
 export default function ModulePage() {

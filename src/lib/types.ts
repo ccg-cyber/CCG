@@ -137,6 +137,7 @@ export interface TaskItem {
   done: boolean;
   priority: "low" | "medium" | "high";
   customerId?: string;
+  projectId?: string;
 }
 
 export interface ApprovalRequest {
@@ -175,6 +176,22 @@ export interface SupportTicket {
   lastUpdate: string;
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  dueDate: string;
+  status: "on-track" | "at-risk" | "done";
+}
+
+export interface Quote {
+  id: string;
+  customerId: string;
+  dealId?: string;
+  description: string;
+  amount: number;
+  status: "draft" | "sent" | "accepted" | "declined";
+}
+
 export interface AppState {
   customers: Customer[];
   invoices: Invoice[];
@@ -188,4 +205,8 @@ export interface AppState {
   tickets: SupportTicket[];
   /** CI Sheets — revenue forecast targets by customer, the simplest real slice of "forecasting". */
   targets: Record<string, number>;
+  projects: Project[];
+  quotes: Quote[];
+  /** Notifications a user has dismissed — notifications themselves are computed, not stored, so read state is the only thing that needs persisting. */
+  dismissedNotificationIds: string[];
 }

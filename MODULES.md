@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 13
+- ✅ Live: 16
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 77
+- ⬜ Planned: 74
 
 ---
 
@@ -46,7 +46,7 @@ Mail, calendar, chat, meetings, contacts, notifications.
 | **CI Chat** | ⬜ Planned | Teams / Slack | DMs, channels, threads, mentions, searchable history, AI summaries. |
 | **CI Meet** | ⬜ Planned | — | Video meetings, captions, transcription, action items, auto summaries. |
 | **CI Communications** | ⬜ Planned | — | SMS, business messaging, notifications, unified conversation history. |
-| **CI Notifications** | ⬜ Planned | — | Central notification engine: priority, snooze, digest, escalation. |
+| **CI Notifications** | ✅ Live | — | Central notification engine: priority, snooze, digest, escalation. |
 
 ## Files
 
@@ -67,8 +67,8 @@ CRM, ERP, finance, sales, HR, inventory, projects, operations.
 | Module | Status | Replaces | Description |
 |---|---|---|---|
 | **CI CRM** | ✅ Live | — | Leads, pipelines, opportunities, customer timeline, AI sales assistance. |
-| **CI Projects** | ⬜ Planned | — | Kanban, timeline/Gantt, milestones, workload, budgets, time tracking. |
-| **CI Sales** | ⬜ Planned | — | Quotations, price lists, orders, commissions, sales targets. |
+| **CI Projects** | ✅ Live | — | Kanban, timeline/Gantt, milestones, workload, budgets, time tracking. |
+| **CI Sales** | ✅ Live | — | Quotations, price lists, orders, commissions, sales targets. |
 | **CI Customer Service** | ✅ Live | — | Tickets, SLAs, canned responses, knowledge base, AI support agents. |
 | **CI Marketing** | ⬜ Planned | — | Campaigns, contact lists, landing pages, segmentation, automation. |
 | **CI ERP Core** | ⬜ Planned | — | Companies, branches, currencies, taxes, fiscal periods, master data. |

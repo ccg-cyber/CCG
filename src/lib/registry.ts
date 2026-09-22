@@ -10,11 +10,10 @@ import type { ModuleDefinition } from "./types";
  *   - "scaffolded"  has a route and placeholder screen
  *   - "planned"     registered so the shape of the OS is complete; not built
  *
- * 13 modules are wired up end-to-end so far, sharing one dataset
- * (src/lib/data.ts) rather than being isolated demos: Home, Docs, Mail,
- * Drive, CRM, Tasks, Invoicing, Approval Center, Audit, Calendar,
- * Customer Service, Contacts, Sheets. The rest are registered and
- * navigable but not yet built — see MODULES.md for the live count.
+ * 16 modules are wired up end-to-end so far, sharing one dataset
+ * (src/lib/data.ts) rather than being isolated demos. The rest are
+ * registered and navigable but not yet built — see MODULES.md for the
+ * always-current live count and full breakdown by category.
  */
 export const MODULES: ModuleDefinition[] = [
   { id: "ci-home", slug: "home", name: "CI Home", category: "home", status: "live",
@@ -69,7 +68,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-communications", slug: "communications", name: "CI Communications", category: "communicate", status: "planned",
     description: "SMS, business messaging, notifications, unified conversation history.",
     keywords: ["sms", "whatsapp", "messaging"] },
-  { id: "ci-notifications", slug: "notifications", name: "CI Notifications", category: "communicate", status: "planned",
+  { id: "ci-notifications", slug: "notifications", name: "CI Notifications", category: "communicate", status: "live",
     description: "Central notification engine: priority, snooze, digest, escalation.",
     keywords: ["notifications", "alerts"] },
 
@@ -94,10 +93,10 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-crm", slug: "crm", name: "CI CRM", category: "business", status: "live",
     description: "Leads, pipelines, opportunities, customer timeline, AI sales assistance.",
     keywords: ["crm", "sales", "leads", "pipeline", "customer"] },
-  { id: "ci-projects", slug: "projects", name: "CI Projects", category: "business", status: "planned",
+  { id: "ci-projects", slug: "projects", name: "CI Projects", category: "business", status: "live",
     description: "Kanban, timeline/Gantt, milestones, workload, budgets, time tracking.",
     keywords: ["projects", "kanban", "gantt", "milestones"] },
-  { id: "ci-sales", slug: "sales", name: "CI Sales", category: "business", status: "planned",
+  { id: "ci-sales", slug: "sales", name: "CI Sales", category: "business", status: "live",
     description: "Quotations, price lists, orders, commissions, sales targets.",
     keywords: ["sales", "quotation", "orders"] },
   { id: "ci-customer-service", slug: "customer-service", name: "CI Customer Service", category: "business", status: "live",

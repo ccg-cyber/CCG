@@ -33,9 +33,12 @@ the code, always current).
 | CI Invoicing | ✅ Live — real invoices, overdue totals |
 | CI Approval Center | ✅ Live — real queue, approve/reject with consequences |
 | CI Audit | ✅ Live — immutable log of every human and agent action |
-| 77 more modules | ⬜ Registered, searchable, not yet built |
+| CI Projects | ✅ Live — groups tasks, real progress bars |
+| CI Sales | ✅ Live — accepting a quote auto-advances its CRM deal |
+| CI Notifications | ✅ Live — shared, dismissible, same data Home reads |
+| 74 more modules | ⬜ Registered, searchable, not yet built |
 
-All thirteen live modules read and write **one shared, persisted dataset**
+All sixteen live modules read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four
@@ -69,6 +72,12 @@ npm run build     # typecheck + production build
     Mail, Invoicing, Drive, Customer Service and Calendar using the same
     shared data: real deal stage, real overdue total, the real open ticket
     count, and the real next meeting date — nothing hardcoded per query.
+- Open **CI Sales**, accept the Nord Retail Group quote, then open **CI
+  CRM** — their deal has moved to "Won" without touching CRM at all. Check
+  **CI Audit** and you'll see two entries: "You" accepted the quote, and
+  "Ci Business OS" (the system actor) logged the automatic deal advance
+  separately — the audit trail distinguishes a human action from its
+  automated consequence.
 - Use the top search bar or the sidebar to jump into any of the 90
   modules — live ones show a working screen, everything else shows what
   it's scoped to become.

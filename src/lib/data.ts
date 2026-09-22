@@ -11,6 +11,8 @@ import type {
   AuditEvent,
   Meeting,
   SupportTicket,
+  Project,
+  Quote,
 } from "./types";
 
 /**
@@ -62,10 +64,21 @@ const DEALS: Deal[] = [
   { id: "deal-northwind", customerId: "cust-northwind", name: "Northwind Supplies", value: 5400, stage: "Won" },
 ];
 
+const PROJECTS: Project[] = [
+  { id: "proj-q3-rollout", name: "Q3 Rollout", dueDate: "2026-09-30", status: "on-track" },
+];
+
 const TASKS: TaskItem[] = [
   { id: "task-1", title: "Approve PO-2201 for Northwind Supplies", done: false, priority: "high", customerId: "cust-northwind" },
-  { id: "task-2", title: "Review Q3 rollout timeline", done: false, priority: "medium" },
+  { id: "task-2", title: "Review Q3 rollout timeline", done: false, priority: "medium", projectId: "proj-q3-rollout" },
   { id: "task-3", title: "Send follow-up to Nord Retail Group", done: true, priority: "low", customerId: "cust-nord" },
+  { id: "task-4", title: "Finalize rollout comms plan", done: false, priority: "medium", projectId: "proj-q3-rollout" },
+  { id: "task-5", title: "Migrate legacy data", done: true, priority: "high", projectId: "proj-q3-rollout" },
+];
+
+const QUOTES: Quote[] = [
+  { id: "quote-nord", customerId: "cust-nord", dealId: "deal-nord", description: "Enterprise tier — annual", amount: 18000, status: "sent" },
+  { id: "quote-blueharbor", customerId: "cust-blueharbor", dealId: "deal-blueharbor", description: "Standard tier — annual", amount: 7200, status: "draft" },
 ];
 
 const APPROVALS: ApprovalRequest[] = [
@@ -114,6 +127,9 @@ const SEED: AppState = {
   meetings: MEETINGS,
   tickets: TICKETS,
   targets: TARGETS,
+  projects: PROJECTS,
+  quotes: QUOTES,
+  dismissedNotificationIds: [],
 };
 
 export const appStore = createStore<AppState>("ci-os-app-state-v1", SEED);
@@ -293,6 +309,52 @@ export function addCustomer(name: string, email: string, company: string) {
 
 export function setTarget(customerId: string, value: number) {
   appStore.set((s) => ({ ...s, targets: { ...s.targets, [customerId]: value } }));
+}
+
+export function projectProgress(state: AppState, projectId: string): { done: number; total: number } {
+  const tasks = state.tasks.filter((t) => t.projectId === projectId);
+  return { done: tasks.filter((t) => t.done).length, total: tasks.length };
+}
+
+export function addProject(name: string, dueDate: string) {
+  const project: Project = { id: uid("proj"), name, dueDate, status: "on-track" };
+  appStore.set((s) => ({ ...s, projects: [...s.projects, project] }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-projects", action: `Created project "${name}"` });
+}
+
+export function decideQuote(id: string, decision: "sent" | "accepted" | "declined") {
+  const state = appStore.get();
+  const quote = state.quotes.find((q) => q.id === id);
+  if (!quote) return;
+
+  appStore.set((s) => ({
+    ...s,
+    quotes: s.quotes.map((q) => (q.id === id ? { ...q, status: decision } : q)),
+  }));
+
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-sales",
+    action: `Quote "${quote.description}" marked ${decision}`,
+  });
+
+  // Accepting a quote is a business event, not just a status flip — the
+  // linked CRM deal should reflect it without a human re-entering the
+  // same fact in a second module.
+  if (decision === "accepted" && quote.dealId) {
+    moveDealStage(quote.dealId, "Won");
+    addAuditEvent({
+      actor: "system",
+      actorName: "Ci Business OS",
+      moduleId: "ci-crm",
+      action: `Deal auto-advanced to Won — quote "${quote.description}" was accepted`,
+    });
+  }
+}
+
+export function dismissNotification(id: string) {
+  appStore.set((s) => ({ ...s, dismissedNotificationIds: [...s.dismissedNotificationIds, id] }));
 }
 
 export function resetDemoData() {
