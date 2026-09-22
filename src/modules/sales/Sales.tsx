@@ -8,7 +8,7 @@ const STATUS_STYLE: Record<Quote["status"], string> = {
   declined: "border-red-500/30 text-red-400 bg-red-500/10",
 };
 
-export default function SalesDemo() {
+export default function Sales() {
   const state = useAppState();
 
   return (

@@ -8,7 +8,7 @@ const STATUS_STYLE: Record<Employee["status"], string> = {
   offboarded: "border-ci-border text-ci-muted bg-ci-border/30",
 };
 
-export default function HRDemo() {
+export default function HR() {
   const state = useAppState();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");

@@ -9,7 +9,7 @@ const NEXT_STAGE: Record<Deal["stage"], Deal["stage"] | null> = {
   Won: null,
 };
 
-export default function CrmDemo() {
+export default function CRM() {
   const state = useAppState();
 
   return (

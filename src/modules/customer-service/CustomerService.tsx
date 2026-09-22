@@ -13,7 +13,7 @@ const NEXT_LABEL: Record<SupportTicket["status"], string | null> = {
   closed: null,
 };
 
-export default function CustomerServiceDemo() {
+export default function CustomerService() {
   const state = useAppState();
   const sorted = [...state.tickets].sort((a, b) => (a.status === "closed" ? 1 : -1));
 

@@ -125,8 +125,12 @@ scripts/
    category, status, description, keywords.
 2. Run `node scripts/gen-modules-doc.mjs` to refresh `MODULES.md`.
 3. It's now live in the sidebar and search with a "not built yet" page.
-4. When ready to build it, add a component under `src/modules/<name>/`
-   and register it in the `DEMOS` map in `src/pages/ModulePage.tsx`, then
-   flip its `status` to `"live"`.
+4. When ready to build it, the file location is never a guess: a module
+   with slug `<slug>` lives at `src/modules/<slug>/<Name>.tsx`, where
+   `<Name>` is the slug in PascalCase (`purchasing` → `Purchasing.tsx`,
+   `customer-service` → `CustomerService.tsx`). No `Demo`, `Page`, or
+   `Component` suffix — these are the real screens, not placeholders for
+   real ones. Register it in `MODULE_COMPONENTS` in
+   `src/pages/ModulePage.tsx`, then flip its `status` to `"live"`.
 
 See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the fuller process.

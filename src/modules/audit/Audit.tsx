@@ -11,7 +11,7 @@ function moduleName(id: string): string {
   return MODULES.find((m) => m.id === id)?.name ?? id;
 }
 
-export default function AuditDemo() {
+export default function Audit() {
   const state = useAppState();
 
   return (

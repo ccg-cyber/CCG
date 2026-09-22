@@ -62,6 +62,20 @@ This means:
 - Nothing about "what modules exist" is duplicated between the sidebar,
   the dashboard grid, and search — there is one source of truth.
 
+## A module's file location is never a guess
+
+Every live module's screen lives at `src/modules/<slug>/<Name>.tsx`,
+where `<slug>` is the exact `slug` field from its `registry.ts` entry and
+`<Name>` is that slug in PascalCase — `purchasing` is
+`src/modules/purchasing/Purchasing.tsx`, `customer-service` is
+`src/modules/customer-service/CustomerService.tsx`. No file carries a
+`Demo`, `Page`, `Component`, or `View` suffix: these are the product's
+real screens, and naming them as anything provisional would be a lie the
+codebase tells about itself. The mapping is registered once, in
+`MODULE_COMPONENTS` in `src/pages/ModulePage.tsx`, so finding or adding a
+module's implementation never requires searching — the slug is the
+address.
+
 ## One shell, not 90 apps
 
 Every module renders inside the same shell (`src/App.tsx`): same sidebar,

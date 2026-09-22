@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAppState, addCustomer } from "@/lib/data";
 
-export default function ContactsDemo() {
+export default function Contacts() {
   const state = useAppState();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAppState, toggleTask, addTask, customerName } from "@/lib/data";
 import type { TaskItem } from "@/lib/types";
 
-export default function TasksDemo() {
+export default function Tasks() {
   const state = useAppState();
   const [input, setInput] = useState("");
 

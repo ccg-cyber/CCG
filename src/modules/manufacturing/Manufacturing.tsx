@@ -1,6 +1,6 @@
 import { useAppState, completeProduction } from "@/lib/data";
 
-export default function ManufacturingDemo() {
+export default function Manufacturing() {
   const state = useAppState();
 
   function itemName(id: string) {

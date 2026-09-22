@@ -7,7 +7,7 @@ const STATUS_STYLE: Record<ContractStatus, string> = {
   expired: "border-red-500/30 text-red-400 bg-red-500/10",
 };
 
-export default function ContractsDemo() {
+export default function Contracts() {
   const state = useAppState();
 
   return (

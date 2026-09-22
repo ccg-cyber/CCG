@@ -41,10 +41,15 @@ in Ask CI's keyword matching, with a placeholder screen.
 
 ## Building out a module
 
-1. Create `src/modules/<name>/<Name>Demo.tsx` (or a real name once it's
-   not a demo). Keep it a self-contained component — it should not assume
-   anything about the shell beyond what's in `src/lib/`.
-2. Register it in the `DEMOS` map in `src/pages/ModulePage.tsx`.
+1. Create `src/modules/<slug>/<Name>.tsx`, where `<slug>` matches the
+   module's `slug` in `registry.ts` exactly and `<Name>` is that slug in
+   PascalCase (`sign` → `Sign.tsx`, `customer-service` →
+   `CustomerService.tsx`, `hr`/`crm` → `HR.tsx`/`CRM.tsx`, acronym kept
+   uppercase). This mapping is fixed and never abbreviated further —
+   anyone should be able to find a module's implementation from its name
+   alone, without grep. Keep it a self-contained component — it should not
+   assume anything about the shell beyond what's in `src/lib/`.
+2. Register it in `MODULE_COMPONENTS` in `src/pages/ModulePage.tsx`.
 3. Flip the module's `status` in the registry: `"planned"` →
    `"scaffolded"` (route exists, placeholder UI) → `"live"` (real,
    working UI).

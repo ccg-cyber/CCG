@@ -1,6 +1,6 @@
 import { useAppState, logTimeOff } from "@/lib/data";
 
-export default function AttendanceDemo() {
+export default function Attendance() {
   const state = useAppState();
 
   return (

@@ -1,6 +1,6 @@
 import { useAppState } from "@/lib/data";
 
-export default function InventoryDemo() {
+export default function Inventory() {
   const state = useAppState();
 
   return (

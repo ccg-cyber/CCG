@@ -1,6 +1,6 @@
 import { useAppState, monthlyPay, runPayroll } from "@/lib/data";
 
-export default function PayrollDemo() {
+export default function Payroll() {
   const state = useAppState();
   const active = state.employees.filter((e) => e.status !== "offboarded");
   const total = active.reduce((sum, e) => sum + monthlyPay(e), 0);

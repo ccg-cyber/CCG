@@ -2,54 +2,62 @@ import { useParams, Link } from "react-router-dom";
 import { getModule } from "@/lib/registry";
 import { CATEGORIES } from "@/lib/categories";
 import StatusBadge from "@/components/StatusBadge";
-import DocsDemo from "@/modules/docs/DocsDemo";
-import MailDemo from "@/modules/mail/MailDemo";
-import DriveDemo from "@/modules/drive/DriveDemo";
-import CrmDemo from "@/modules/crm/CrmDemo";
-import TasksDemo from "@/modules/tasks/TasksDemo";
-import InvoicingDemo from "@/modules/invoicing/InvoicingDemo";
-import ApprovalCenterDemo from "@/modules/approvals/ApprovalCenterDemo";
-import AuditDemo from "@/modules/audit/AuditDemo";
-import CalendarDemo from "@/modules/calendar/CalendarDemo";
-import CustomerServiceDemo from "@/modules/customer-service/CustomerServiceDemo";
-import ContactsDemo from "@/modules/contacts/ContactsDemo";
-import SheetsDemo from "@/modules/sheets/SheetsDemo";
-import ProjectsDemo from "@/modules/projects/ProjectsDemo";
-import SalesDemo from "@/modules/sales/SalesDemo";
-import NotificationsDemo from "@/modules/notifications/NotificationsDemo";
-import PurchasingDemo from "@/modules/purchasing/PurchasingDemo";
-import HRDemo from "@/modules/hr/HRDemo";
-import InventoryDemo from "@/modules/inventory/InventoryDemo";
-import MarketingDemo from "@/modules/marketing/MarketingDemo";
-import PayrollDemo from "@/modules/payroll/PayrollDemo";
-import ManufacturingDemo from "@/modules/manufacturing/ManufacturingDemo";
-import AttendanceDemo from "@/modules/attendance/AttendanceDemo";
-import ContractsDemo from "@/modules/contracts/ContractsDemo";
+import Docs from "@/modules/docs/Docs";
+import Mail from "@/modules/mail/Mail";
+import Drive from "@/modules/drive/Drive";
+import CRM from "@/modules/crm/CRM";
+import Tasks from "@/modules/tasks/Tasks";
+import Invoicing from "@/modules/invoicing/Invoicing";
+import Approvals from "@/modules/approvals/Approvals";
+import Audit from "@/modules/audit/Audit";
+import Calendar from "@/modules/calendar/Calendar";
+import CustomerService from "@/modules/customer-service/CustomerService";
+import Contacts from "@/modules/contacts/Contacts";
+import Sheets from "@/modules/sheets/Sheets";
+import Projects from "@/modules/projects/Projects";
+import Sales from "@/modules/sales/Sales";
+import Notifications from "@/modules/notifications/Notifications";
+import Purchasing from "@/modules/purchasing/Purchasing";
+import HR from "@/modules/hr/HR";
+import Inventory from "@/modules/inventory/Inventory";
+import Marketing from "@/modules/marketing/Marketing";
+import Payroll from "@/modules/payroll/Payroll";
+import Manufacturing from "@/modules/manufacturing/Manufacturing";
+import Attendance from "@/modules/attendance/Attendance";
+import Contracts from "@/modules/contracts/Contracts";
 
-const DEMOS: Record<string, React.ComponentType> = {
-  "ci-docs": DocsDemo,
-  "ci-mail": MailDemo,
-  "ci-drive": DriveDemo,
-  "ci-crm": CrmDemo,
-  "ci-tasks": TasksDemo,
-  "ci-invoicing": InvoicingDemo,
-  "ci-approval-center": ApprovalCenterDemo,
-  "ci-audit": AuditDemo,
-  "ci-calendar": CalendarDemo,
-  "ci-customer-service": CustomerServiceDemo,
-  "ci-contacts": ContactsDemo,
-  "ci-sheets": SheetsDemo,
-  "ci-projects": ProjectsDemo,
-  "ci-sales": SalesDemo,
-  "ci-notifications": NotificationsDemo,
-  "ci-purchasing": PurchasingDemo,
-  "ci-hr": HRDemo,
-  "ci-inventory": InventoryDemo,
-  "ci-marketing": MarketingDemo,
-  "ci-payroll": PayrollDemo,
-  "ci-manufacturing": ManufacturingDemo,
-  "ci-attendance": AttendanceDemo,
-  "ci-contracts": ContractsDemo,
+/**
+ * Registry module id -> its real component. This is the one place that
+ * connects "the module is live" (registry.ts) to "here's its screen"
+ * (src/modules/<slug>/<Name>.tsx) — every module's implementation lives
+ * at exactly the path its slug predicts, so finding or adding one never
+ * requires searching: CI Purchasing is src/modules/purchasing/Purchasing.tsx,
+ * full stop.
+ */
+const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
+  "ci-docs": Docs,
+  "ci-mail": Mail,
+  "ci-drive": Drive,
+  "ci-crm": CRM,
+  "ci-tasks": Tasks,
+  "ci-invoicing": Invoicing,
+  "ci-approval-center": Approvals,
+  "ci-audit": Audit,
+  "ci-calendar": Calendar,
+  "ci-customer-service": CustomerService,
+  "ci-contacts": Contacts,
+  "ci-sheets": Sheets,
+  "ci-projects": Projects,
+  "ci-sales": Sales,
+  "ci-notifications": Notifications,
+  "ci-purchasing": Purchasing,
+  "ci-hr": HR,
+  "ci-inventory": Inventory,
+  "ci-marketing": Marketing,
+  "ci-payroll": Payroll,
+  "ci-manufacturing": Manufacturing,
+  "ci-attendance": Attendance,
+  "ci-contracts": Contracts,
 };
 
 export default function ModulePage() {
@@ -68,7 +76,7 @@ export default function ModulePage() {
   }
 
   const category = CATEGORIES.find((c) => c.id === module.category);
-  const Demo = DEMOS[module.id];
+  const ModuleScreen = MODULE_COMPONENTS[module.id];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
@@ -82,8 +90,8 @@ export default function ModulePage() {
         {module.replaces && <p className="text-xs text-ci-muted/70 mt-1">Replaces: {module.replaces}</p>}
       </div>
 
-      {Demo ? (
-        <Demo />
+      {ModuleScreen ? (
+        <ModuleScreen />
       ) : (
         <div className="rounded-xl border border-dashed border-ci-border bg-ci-panel p-8 text-center max-w-2xl">
           <p className="text-sm text-ci-muted">

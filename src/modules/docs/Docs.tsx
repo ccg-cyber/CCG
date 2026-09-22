@@ -17,7 +17,7 @@ in transit. A copy of each invoice is attached.
 Kind regards,
 Accounts Receivable`;
 
-export default function DocsDemo() {
+export default function Docs() {
   const [text, setText] = useState(SEED);
 
   return (

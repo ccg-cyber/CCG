@@ -8,7 +8,7 @@ const ICON: Record<DriveFile["type"], string> = {
   sheet: "📊",
 };
 
-export default function DriveDemo() {
+export default function Drive() {
   const state = useAppState();
   const files = [...state.files].sort((a, b) => (a.id < b.id ? 1 : -1));
 

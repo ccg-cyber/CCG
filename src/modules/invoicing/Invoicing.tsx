@@ -7,7 +7,7 @@ const STATUS_STYLE: Record<Invoice["status"], string> = {
   pending: "bg-amber-500/15 text-amber-400 border-amber-500/30",
 };
 
-export default function InvoicingDemo() {
+export default function Invoicing() {
   const state = useAppState();
   const invoices = [...state.invoices].sort((a, b) => (a.status === "overdue" ? -1 : 1));
   const totalOutstanding = state.invoices

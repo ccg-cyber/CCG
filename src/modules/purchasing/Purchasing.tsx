@@ -10,7 +10,7 @@ const STATUS_STYLE: Record<PurchaseOrder["status"], string> = {
   ordered: "border-ci-accent/30 text-ci-accent bg-ci-accent/10",
 };
 
-export default function PurchasingDemo() {
+export default function Purchasing() {
   const state = useAppState();
   const suppliers = state.customers.filter((c) => c.tags.includes("supplier"));
   const [open, setOpen] = useState(false);

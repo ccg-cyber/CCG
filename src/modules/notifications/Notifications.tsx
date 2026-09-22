@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useAppState, dismissNotification } from "@/lib/data";
 import { visibleNotifications } from "@/lib/notifications";
 
-export default function NotificationsDemo() {
+export default function Notifications() {
   const state = useAppState();
   const notifications = visibleNotifications(state);
 

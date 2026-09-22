@@ -1,6 +1,6 @@
 import { useAppState, decideApproval, customerName } from "@/lib/data";
 
-export default function ApprovalCenterDemo() {
+export default function Approvals() {
   const state = useAppState();
   const pending = state.approvals.filter((a) => a.status === "pending");
   const decided = state.approvals.filter((a) => a.status !== "pending");

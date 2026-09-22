@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAppState, markEmailRead, customerName } from "@/lib/data";
 
-export default function MailDemo() {
+export default function Mail() {
   const state = useAppState();
   const sorted = [...state.emails].sort((a, b) => (a.time < b.time ? 1 : -1));
   const [selectedId, setSelectedId] = useState<string>(sorted[0]?.id ?? "");

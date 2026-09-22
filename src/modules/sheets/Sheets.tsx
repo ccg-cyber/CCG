@@ -7,7 +7,7 @@ import { useAppState, paidTotalForCustomer, setTarget } from "@/lib/data";
  * the same target/actual/variance pattern a real spreadsheet formula
  * would compute, without building a general formula engine yet.
  */
-export default function SheetsDemo() {
+export default function Sheets() {
   const state = useAppState();
   const totalTarget = state.customers.reduce((sum, c) => sum + (state.targets[c.id] ?? 0), 0);
   const totalActual = state.customers.reduce((sum, c) => sum + paidTotalForCustomer(state, c.id), 0);

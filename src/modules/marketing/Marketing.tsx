@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAppState, launchCampaign } from "@/lib/data";
 
-export default function MarketingDemo() {
+export default function Marketing() {
   const state = useAppState();
   const [name, setName] = useState("");
   const newLeads = state.deals.filter((d) => d.stage === "New").length;

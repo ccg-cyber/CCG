@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useAppState, scheduleMeeting, customerName } from "@/lib/data";
 
-export default function CalendarDemo() {
+export default function Calendar() {
   const state = useAppState();
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");

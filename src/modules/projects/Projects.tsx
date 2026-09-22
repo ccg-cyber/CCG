@@ -1,6 +1,6 @@
 import { useAppState, projectProgress, toggleTask } from "@/lib/data";
 
-export default function ProjectsDemo() {
+export default function Projects() {
   const state = useAppState();
 
   return (
