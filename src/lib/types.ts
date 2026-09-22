@@ -182,6 +182,7 @@ export interface Employee {
   status: "active" | "onboarding" | "offboarded";
   /** Annual base salary — the simplest real slice of "payroll". */
   baseSalary: number;
+  ptoBalance: number;
 }
 
 export interface InventoryItem {
@@ -198,6 +199,22 @@ export interface Campaign {
   status: "draft" | "active" | "completed";
   audienceCount: number;
   launchedAt?: string;
+}
+
+export interface ProductionOrder {
+  id: string;
+  name: string;
+  inputs: { itemId: string; quantity: number }[];
+  outputItemId: string;
+  outputQuantity: number;
+  status: "pending" | "completed";
+}
+
+export interface Contract {
+  id: string;
+  customerId: string;
+  title: string;
+  expiresOn: string;
 }
 
 export interface Meeting {
@@ -254,6 +271,8 @@ export interface AppState {
   employees: Employee[];
   inventory: InventoryItem[];
   campaigns: Campaign[];
+  productionOrders: ProductionOrder[];
+  contracts: Contract[];
   /** Notifications a user has dismissed — notifications themselves are computed, not stored, so read state is the only thing that needs persisting. */
   dismissedNotificationIds: string[];
 }

@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 21
+- ✅ Live: 24
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 69
+- ⬜ Planned: 66
 
 ---
 
@@ -77,14 +77,14 @@ CRM, ERP, finance, sales, HR, inventory, projects, operations.
 | **CI Purchasing** | ✅ Live | — | Purchase requests, RFQs, supplier comparison, approvals, POs. |
 | **CI Inventory** | ✅ Live | — | SKUs, warehouses, stock movements, lot/serial, reorder points, valuation. |
 | **CI POS** | ⬜ Planned | — | Retail sales, cash drawers, discounts, offline mode, branch sync. |
-| **CI Manufacturing** | ⬜ Planned | — | BOMs, production orders, routing, capacity planning, quality checks. |
+| **CI Manufacturing** | ✅ Live | — | BOMs, production orders, routing, capacity planning, quality checks. |
 | **CI Logistics** | ⬜ Planned | — | Deliveries, routes, drivers, proof of delivery, dispatch planning. |
 | **CI HR** | ✅ Live | — | Employee profiles, org chart, onboarding, leave, evaluations, self-service. |
 | **CI Payroll** | ✅ Live | — | Salaries, deductions, bonuses, payroll runs, payslips, accounting sync. |
-| **CI Attendance** | ⬜ Planned | — | Clock-in/out, shifts, schedules, overtime, absence tracking. |
+| **CI Attendance** | ✅ Live | — | Clock-in/out, shifts, schedules, overtime, absence tracking. |
 | **CI Recruit** | ⬜ Planned | — | Vacancies, applicants, CV parsing, interviews, offers, onboarding handoff. |
 | **CI Maintenance** | ⬜ Planned | — | Preventive maintenance, work orders, equipment history, spare parts. |
-| **CI Contracts** | ⬜ Planned | — | Contracts, renewal dates, clauses, versioning, AI contract extraction. |
+| **CI Contracts** | ✅ Live | — | Contracts, renewal dates, clauses, versioning, AI contract extraction. |
 | **CI Portals** | ⬜ Planned | — | Customer, supplier, employee and partner self-service portals. |
 
 ## Create

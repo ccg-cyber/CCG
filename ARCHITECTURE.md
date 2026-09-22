@@ -158,7 +158,7 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Twenty-one modules are wired up end-to-end against the one shared dataset:
+Twenty-four modules are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
@@ -181,10 +181,13 @@ Twenty-one modules are wired up end-to-end against the one shared dataset:
 | CI Inventory | Business | Stock moves as a side effect of an approved PO, two hops from the click |
 | CI Marketing | Business | Reads CRM deal stage, writes real CI Mail sends — no fake counts |
 | CI Payroll | Business | Reads CI HR's employees — the "two layers deep" test, passed |
+| CI Manufacturing | Business | A real BOM: consumes N inputs, produces 1 output, blocks if short |
+| CI Attendance | Business | Second module reading/writing CI HR's Employee records |
+| CI Contracts | Business | Status computed from a date, not stored — recalculates live |
 | CI Approval Center | Control | Real queue, now rendering two different payload kinds |
 | CI Audit | Control | Real timeline of every human, agent and system action |
 
-The other 69 are registered with real names, categories, descriptions and
+The other 66 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
@@ -275,12 +278,12 @@ trail doesn't change.
 4. **CI Autonomy Control** as an actual policy surface — today
    `needsApproval` is hardcoded per intent in `ask-ci.ts`; it should be a
    configurable rule a human sets, not a constant in the router.
-5. Promote the next handful of modules from `planned` to `live`. 21 of 90
-   are done. Natural next candidates: **CI Manufacturing** (Inventory now
-   tracks raw stock; Manufacturing would be the first module to consume
-   it — a BOM turning N units of Widget A + Widget B into 1 finished
-   good, decrementing Inventory the same way Purchasing increments it),
-   **CI Attendance/Recruit** (extend CI HR's employee data rather than
-   introduce a new entity family), and **CI Legal/Compliance** (nothing
-   in the dataset yet represents a contract or a compliance deadline —
-   CI Contracts and CI Legal would be a natural pair to build together).
+5. Promote the next handful of modules from `planned` to `live`. 24 of 90
+   are done. Natural next candidates: **CI Legal/Compliance** (CI
+   Contracts now tracks expiry; Legal would be the natural next layer —
+   policies and compliance checklists referencing those same contracts),
+   **CI Recruit** (CI HR has employees but nothing feeds new ones in
+   except the manual form; Recruit would be the pipeline that ends in
+   `addEmployee()`), and **CI POS** (CI Inventory now has real stock
+   levels; POS would be the first module to sell that same stock at the
+   register rather than through CI Sales' quote-to-deal path).

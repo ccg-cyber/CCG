@@ -17,6 +17,8 @@ import type {
   Employee,
   InventoryItem,
   Campaign,
+  ProductionOrder,
+  Contract,
 } from "./types";
 
 /**
@@ -88,6 +90,21 @@ const QUOTES: Quote[] = [
 const INVENTORY: InventoryItem[] = [
   { id: "item-widget-a", sku: "WA-100", name: "Widget A", quantityOnHand: 40, reorderPoint: 20 },
   { id: "item-widget-b", sku: "WB-200", name: "Widget B", quantityOnHand: 15, reorderPoint: 20 },
+  { id: "item-assembled-kit", sku: "AK-300", name: "Assembled Kit", quantityOnHand: 0, reorderPoint: 5 },
+];
+
+const PRODUCTION_ORDERS: ProductionOrder[] = [
+  {
+    id: "po-mfg-1",
+    name: "Assemble Kits — Batch 1",
+    inputs: [
+      { itemId: "item-widget-a", quantity: 2 },
+      { itemId: "item-widget-b", quantity: 1 },
+    ],
+    outputItemId: "item-assembled-kit",
+    outputQuantity: 1,
+    status: "pending",
+  },
 ];
 
 const PURCHASE_ORDERS: PurchaseOrder[] = [
@@ -125,9 +142,14 @@ const TICKETS: SupportTicket[] = [
 ];
 
 const EMPLOYEES: Employee[] = [
-  { id: "emp-1", name: "Jordan Reyes", role: "Account Manager", department: "Sales", startDate: "2024-03-01", status: "active", baseSalary: 72000 },
-  { id: "emp-2", name: "Priya Nair", role: "Support Engineer", department: "Customer Service", startDate: "2023-11-15", status: "active", baseSalary: 68000 },
-  { id: "emp-3", name: "Sam Okafor", role: "Operations Analyst", department: "Operations", startDate: "2026-09-01", status: "onboarding", baseSalary: 60000 },
+  { id: "emp-1", name: "Jordan Reyes", role: "Account Manager", department: "Sales", startDate: "2024-03-01", status: "active", baseSalary: 72000, ptoBalance: 12 },
+  { id: "emp-2", name: "Priya Nair", role: "Support Engineer", department: "Customer Service", startDate: "2023-11-15", status: "active", baseSalary: 68000, ptoBalance: 8 },
+  { id: "emp-3", name: "Sam Okafor", role: "Operations Analyst", department: "Operations", startDate: "2026-09-01", status: "onboarding", baseSalary: 60000, ptoBalance: 15 },
+];
+
+const CONTRACTS: Contract[] = [
+  { id: "contract-acme", customerId: "cust-acme", title: "Annual support agreement", expiresOn: "2026-10-05" },
+  { id: "contract-northwind", customerId: "cust-northwind", title: "Vendor supply agreement", expiresOn: "2027-01-15" },
 ];
 
 const TARGETS: Record<string, number> = {
@@ -155,6 +177,8 @@ const SEED: AppState = {
   employees: EMPLOYEES,
   inventory: INVENTORY,
   campaigns: CAMPAIGNS,
+  productionOrders: PRODUCTION_ORDERS,
+  contracts: CONTRACTS,
   dismissedNotificationIds: [],
 };
 
@@ -360,9 +384,89 @@ export function addEmployee(name: string, role: string, department: string, base
     startDate: now().slice(0, 10),
     status: "onboarding",
     baseSalary,
+    ptoBalance: 15,
   };
   appStore.set((s) => ({ ...s, employees: [...s.employees, employee] }));
   addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-hr", action: `Added employee ${name} (${role})` });
+}
+
+export function logTimeOff(employeeId: string, days: number) {
+  const employee = appStore.get().employees.find((e) => e.id === employeeId);
+  if (!employee || employee.ptoBalance < days) return;
+  appStore.set((s) => ({
+    ...s,
+    employees: s.employees.map((e) => (e.id === employeeId ? { ...e, ptoBalance: e.ptoBalance - days } : e)),
+  }));
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-attendance",
+    action: `Logged ${days} day(s) off for ${employee.name} (${employee.ptoBalance - days} remaining)`,
+  });
+}
+
+export function completeProduction(id: string) {
+  const state = appStore.get();
+  const order = state.productionOrders.find((o) => o.id === id);
+  if (!order || order.status !== "pending") return;
+
+  const canFulfill = order.inputs.every((input) => {
+    const item = state.inventory.find((i) => i.id === input.itemId);
+    return item && item.quantityOnHand >= input.quantity;
+  });
+  if (!canFulfill) return;
+
+  appStore.set((s) => ({
+    ...s,
+    inventory: s.inventory.map((item) => {
+      const consumed = order.inputs.find((i) => i.itemId === item.id);
+      if (consumed) return { ...item, quantityOnHand: item.quantityOnHand - consumed.quantity };
+      if (item.id === order.outputItemId) return { ...item, quantityOnHand: item.quantityOnHand + order.outputQuantity };
+      return item;
+    }),
+    productionOrders: s.productionOrders.map((o) => (o.id === id ? { ...o, status: "completed" } : o)),
+  }));
+
+  const outputItem = state.inventory.find((i) => i.id === order.outputItemId);
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-manufacturing",
+    action: `Completed "${order.name}" — produced ${order.outputQuantity} unit(s) of ${outputItem?.name ?? order.outputItemId}`,
+  });
+  addAuditEvent({
+    actor: "system",
+    actorName: "Ci Business OS",
+    moduleId: "ci-inventory",
+    action: `Consumed ${order.inputs.map((i) => `${i.quantity}x ${state.inventory.find((x) => x.id === i.itemId)?.name ?? i.itemId}`).join(", ")} for "${order.name}"`,
+  });
+}
+
+export type ContractStatus = "active" | "expiring-soon" | "expired";
+
+export function contractStatus(expiresOn: string, referenceDate = new Date()): ContractStatus {
+  const days = (new Date(expiresOn).getTime() - referenceDate.getTime()) / (1000 * 60 * 60 * 24);
+  if (days < 0) return "expired";
+  if (days <= 30) return "expiring-soon";
+  return "active";
+}
+
+export function renewContract(id: string) {
+  const contract = appStore.get().contracts.find((c) => c.id === id);
+  if (!contract) return;
+  const next = new Date(contract.expiresOn);
+  next.setFullYear(next.getFullYear() + 1);
+  const nextISO = next.toISOString().slice(0, 10);
+  appStore.set((s) => ({
+    ...s,
+    contracts: s.contracts.map((c) => (c.id === id ? { ...c, expiresOn: nextISO } : c)),
+  }));
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-contracts",
+    action: `Renewed "${contract.title}" through ${nextISO}`,
+  });
 }
 
 export function toggleTask(id: string) {

@@ -22,6 +22,9 @@ import HRDemo from "@/modules/hr/HRDemo";
 import InventoryDemo from "@/modules/inventory/InventoryDemo";
 import MarketingDemo from "@/modules/marketing/MarketingDemo";
 import PayrollDemo from "@/modules/payroll/PayrollDemo";
+import ManufacturingDemo from "@/modules/manufacturing/ManufacturingDemo";
+import AttendanceDemo from "@/modules/attendance/AttendanceDemo";
+import ContractsDemo from "@/modules/contracts/ContractsDemo";
 
 const DEMOS: Record<string, React.ComponentType> = {
   "ci-docs": DocsDemo,
@@ -44,6 +47,9 @@ const DEMOS: Record<string, React.ComponentType> = {
   "ci-inventory": InventoryDemo,
   "ci-marketing": MarketingDemo,
   "ci-payroll": PayrollDemo,
+  "ci-manufacturing": ManufacturingDemo,
+  "ci-attendance": AttendanceDemo,
+  "ci-contracts": ContractsDemo,
 };
 
 export default function ModulePage() {

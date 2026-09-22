@@ -10,7 +10,7 @@ import type { ModuleDefinition } from "./types";
  *   - "scaffolded"  has a route and placeholder screen
  *   - "planned"     registered so the shape of the OS is complete; not built
  *
- * 21 modules are wired up end-to-end so far, sharing one dataset
+ * 24 modules are wired up end-to-end so far, sharing one dataset
  * (src/lib/data.ts) rather than being isolated demos. The rest are
  * registered and navigable but not yet built — see MODULES.md for the
  * always-current live count and full breakdown by category.
@@ -123,7 +123,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-pos", slug: "pos", name: "CI POS", category: "business", status: "planned",
     description: "Retail sales, cash drawers, discounts, offline mode, branch sync.",
     keywords: ["pos", "point of sale", "retail"] },
-  { id: "ci-manufacturing", slug: "manufacturing", name: "CI Manufacturing", category: "business", status: "planned",
+  { id: "ci-manufacturing", slug: "manufacturing", name: "CI Manufacturing", category: "business", status: "live",
     description: "BOMs, production orders, routing, capacity planning, quality checks.",
     keywords: ["manufacturing", "bom", "production"] },
   { id: "ci-logistics", slug: "logistics", name: "CI Logistics", category: "business", status: "planned",
@@ -135,7 +135,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-payroll", slug: "payroll", name: "CI Payroll", category: "business", status: "live",
     description: "Salaries, deductions, bonuses, payroll runs, payslips, accounting sync.",
     keywords: ["payroll", "salary", "payslip"] },
-  { id: "ci-attendance", slug: "attendance", name: "CI Attendance", category: "business", status: "planned",
+  { id: "ci-attendance", slug: "attendance", name: "CI Attendance", category: "business", status: "live",
     description: "Clock-in/out, shifts, schedules, overtime, absence tracking.",
     keywords: ["attendance", "clock in", "shifts"] },
   { id: "ci-recruit", slug: "recruit", name: "CI Recruit", category: "business", status: "planned",
@@ -144,7 +144,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-maintenance", slug: "maintenance", name: "CI Maintenance", category: "business", status: "planned",
     description: "Preventive maintenance, work orders, equipment history, spare parts.",
     keywords: ["maintenance", "work order", "equipment"] },
-  { id: "ci-contracts", slug: "contracts", name: "CI Contracts", category: "business", status: "planned",
+  { id: "ci-contracts", slug: "contracts", name: "CI Contracts", category: "business", status: "live",
     description: "Contracts, renewal dates, clauses, versioning, AI contract extraction.",
     keywords: ["contracts", "renewal", "legal"] },
   { id: "ci-portals", slug: "portals", name: "CI Portals", category: "business", status: "planned",
