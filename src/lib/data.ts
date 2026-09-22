@@ -13,6 +13,8 @@ import type {
   SupportTicket,
   Project,
   Quote,
+  PurchaseOrder,
+  Employee,
 } from "./types";
 
 /**
@@ -81,6 +83,10 @@ const QUOTES: Quote[] = [
   { id: "quote-blueharbor", customerId: "cust-blueharbor", dealId: "deal-blueharbor", description: "Standard tier — annual", amount: 7200, status: "draft" },
 ];
 
+const PURCHASE_ORDERS: PurchaseOrder[] = [
+  { id: "po-2201", supplierId: "cust-northwind", description: "Q4 inventory restock", amount: 4300, status: "pending" },
+];
+
 const APPROVALS: ApprovalRequest[] = [
   {
     id: "appr-po-2201",
@@ -90,6 +96,7 @@ const APPROVALS: ApprovalRequest[] = [
     createdBy: "user",
     status: "pending",
     createdAt: now(),
+    payload: { kind: "purchase-order", purchaseOrderId: "po-2201" },
   },
 ];
 
@@ -106,6 +113,12 @@ const MEETINGS: Meeting[] = [
 const TICKETS: SupportTicket[] = [
   { id: "tick-acme-login", customerId: "cust-acme", subject: "Login issue after last update", status: "open", priority: "medium", createdAt: "2026-09-20T10:00:00Z", lastUpdate: "2026-09-21T09:00:00Z" },
   { id: "tick-northwind-delivery", customerId: "cust-northwind", subject: "Delivery delay question", status: "closed", priority: "low", createdAt: "2026-09-10T10:00:00Z", lastUpdate: "2026-09-12T10:00:00Z" },
+];
+
+const EMPLOYEES: Employee[] = [
+  { id: "emp-1", name: "Jordan Reyes", role: "Account Manager", department: "Sales", startDate: "2024-03-01", status: "active" },
+  { id: "emp-2", name: "Priya Nair", role: "Support Engineer", department: "Customer Service", startDate: "2023-11-15", status: "active" },
+  { id: "emp-3", name: "Sam Okafor", role: "Operations Analyst", department: "Operations", startDate: "2026-09-01", status: "onboarding" },
 ];
 
 const TARGETS: Record<string, number> = {
@@ -129,6 +142,8 @@ const SEED: AppState = {
   targets: TARGETS,
   projects: PROJECTS,
   quotes: QUOTES,
+  purchaseOrders: PURCHASE_ORDERS,
+  employees: EMPLOYEES,
   dismissedNotificationIds: [],
 };
 
@@ -223,6 +238,46 @@ export function decideApproval(id: string, decision: "approved" | "rejected") {
       action: `Sent email to ${to}: "${subject}"`,
     });
   }
+
+  if (approval.payload?.kind === "purchase-order") {
+    const { purchaseOrderId } = approval.payload;
+    const poStatus = decision === "approved" ? "approved" : "rejected";
+    appStore.set((s) => ({
+      ...s,
+      purchaseOrders: s.purchaseOrders.map((po) => (po.id === purchaseOrderId ? { ...po, status: poStatus } : po)),
+    }));
+    addAuditEvent({
+      actor: "system",
+      actorName: "Ci Business OS",
+      moduleId: "ci-purchasing",
+      action: `Purchase order ${purchaseOrderId} marked ${poStatus} following approval decision`,
+    });
+  }
+}
+
+export function createPurchaseOrder(supplierId: string, description: string, amount: number) {
+  const po: PurchaseOrder = { id: uid("po"), supplierId, description, amount, status: "pending" };
+  appStore.set((s) => ({ ...s, purchaseOrders: [po, ...s.purchaseOrders] }));
+  addApproval({
+    title: `Purchase order ${po.id} — $${amount.toLocaleString()} to ${customerName(appStore.get(), supplierId)}`,
+    description,
+    moduleId: "ci-purchasing",
+    createdBy: "user",
+    payload: { kind: "purchase-order", purchaseOrderId: po.id },
+  });
+}
+
+export function addEmployee(name: string, role: string, department: string) {
+  const employee: Employee = {
+    id: uid("emp"),
+    name,
+    role,
+    department,
+    startDate: now().slice(0, 10),
+    status: "onboarding",
+  };
+  appStore.set((s) => ({ ...s, employees: [...s.employees, employee] }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-hr", action: `Added employee ${name} (${role})` });
 }
 
 export function toggleTask(id: string) {

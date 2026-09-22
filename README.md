@@ -36,9 +36,11 @@ the code, always current).
 | CI Projects | ✅ Live — groups tasks, real progress bars |
 | CI Sales | ✅ Live — accepting a quote auto-advances its CRM deal |
 | CI Notifications | ✅ Live — shared, dismissible, same data Home reads |
-| 74 more modules | ⬜ Registered, searchable, not yet built |
+| CI Purchasing | ✅ Live — real POs, wired to the existing approval flow |
+| CI HR | ✅ Live — employees by department; not customer-centric data |
+| 72 more modules | ⬜ Registered, searchable, not yet built |
 
-All sixteen live modules read and write **one shared, persisted dataset**
+All eighteen live modules read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four

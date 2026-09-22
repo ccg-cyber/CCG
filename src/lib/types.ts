@@ -148,13 +148,35 @@ export interface ApprovalRequest {
   createdBy: "agent" | "user";
   status: "pending" | "approved" | "rejected";
   createdAt: string;
-  payload?: {
-    kind: "send-email";
-    to: string;
-    subject: string;
-    body: string;
-    attachment?: string;
-  };
+  payload?:
+    | {
+        kind: "send-email";
+        to: string;
+        subject: string;
+        body: string;
+        attachment?: string;
+      }
+    | {
+        kind: "purchase-order";
+        purchaseOrderId: string;
+      };
+}
+
+export interface PurchaseOrder {
+  id: string;
+  supplierId: string;
+  description: string;
+  amount: number;
+  status: "pending" | "approved" | "rejected" | "ordered";
+}
+
+export interface Employee {
+  id: string;
+  name: string;
+  role: string;
+  department: string;
+  startDate: string;
+  status: "active" | "onboarding" | "offboarded";
 }
 
 export interface Meeting {
@@ -207,6 +229,8 @@ export interface AppState {
   targets: Record<string, number>;
   projects: Project[];
   quotes: Quote[];
+  purchaseOrders: PurchaseOrder[];
+  employees: Employee[];
   /** Notifications a user has dismissed — notifications themselves are computed, not stored, so read state is the only thing that needs persisting. */
   dismissedNotificationIds: string[];
 }

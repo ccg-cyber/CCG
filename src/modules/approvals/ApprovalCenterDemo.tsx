@@ -1,4 +1,4 @@
-import { useAppState, decideApproval } from "@/lib/data";
+import { useAppState, decideApproval, customerName } from "@/lib/data";
 
 export default function ApprovalCenterDemo() {
   const state = useAppState();
@@ -13,7 +13,10 @@ export default function ApprovalCenterDemo() {
         </h2>
         {pending.length === 0 && <p className="text-sm text-ci-muted">Nothing waiting on you.</p>}
         <div className="space-y-3">
-          {pending.map((a) => (
+          {pending.map((a) => {
+            const poPayload = a.payload?.kind === "purchase-order" ? a.payload : null;
+            const po = poPayload ? state.purchaseOrders.find((p) => p.id === poPayload.purchaseOrderId) : undefined;
+            return (
             <div key={a.id} className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
               <div className="flex items-start justify-between gap-3 mb-2">
                 <div>
@@ -24,6 +27,20 @@ export default function ApprovalCenterDemo() {
                   {a.createdBy === "agent" ? "CI Agent" : "You"}
                 </span>
               </div>
+
+              {po && (
+                <div className="rounded-md border border-ci-border bg-ci-panel2 p-3 mb-3 text-xs space-y-1">
+                  <p>
+                    <span className="text-ci-muted">Supplier:</span> {customerName(state, po.supplierId)}
+                  </p>
+                  <p>
+                    <span className="text-ci-muted">Amount:</span> ${po.amount.toLocaleString()}
+                  </p>
+                  <p>
+                    <span className="text-ci-muted">Description:</span> {po.description}
+                  </p>
+                </div>
+              )}
 
               {a.payload?.kind === "send-email" && (
                 <div className="rounded-md border border-ci-border bg-ci-panel2 p-3 mb-3 text-xs space-y-1">
@@ -59,7 +76,8 @@ export default function ApprovalCenterDemo() {
                 </button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

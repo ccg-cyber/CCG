@@ -158,7 +158,7 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Sixteen modules are wired up end-to-end against the one shared dataset:
+Eighteen modules are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
@@ -176,13 +176,30 @@ Sixteen modules are wired up end-to-end against the one shared dataset:
 | CI Invoicing | Business | Real invoices/overdue totals feeding Ask CI and Sheets |
 | CI Projects | Business | Groups CI Tasks; real progress bars from shared task state |
 | CI Sales | Business | Accepting a quote auto-advances its linked CRM deal |
-| CI Approval Center | Control | Real queue with consequential approve/reject |
+| CI Purchasing | Business | Reused the existing generic approval flow for a second payload kind |
+| CI HR | Business | First entity with no customer relationship — tests the pattern |
+| CI Approval Center | Control | Real queue, now rendering two different payload kinds |
 | CI Audit | Control | Real timeline of every human, agent and system action |
 
-The other 74 are registered with real names, categories, descriptions and
+The other 72 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
+
+## The approval flow generalizes without touching Approval Center's core
+
+CI Purchasing is the first proof that `ApprovalRequest.payload` is
+actually a general mechanism, not something built once for the email
+scenario and never reused. Adding a second payload kind
+(`"purchase-order"`) meant: a new variant on the `payload` union type, one
+new branch in `decideApproval()` (flip the linked `PurchaseOrder`'s status
+instead of sending mail), and one new rendering block in
+`ApprovalCenterDemo.tsx`. The pending-queue logic, the approve/reject
+buttons, the history section, and every other module that opens an
+approval were untouched. A third kind (a contract needing signature, a
+refund needing sign-off) follows the same three-step recipe — this is the
+shape `CI APPROVAL CENTER` needs to hold up once real modules multiply
+past the two kinds it has today.
 
 ## Modules trigger each other — a third actor besides "user" and "agent"
 
@@ -240,11 +257,11 @@ trail doesn't change.
    `needsApproval` is hardcoded per intent in `ask-ci.ts`; it should be a
    configurable rule a human sets, not a constant in the router.
 5. Promote the next handful of modules from `planned` to `live`. Sheets,
-   Calendar, Customer Service, Contacts, Projects, Sales and Notifications
-   are done. Natural next candidates: **CI Purchasing** (there's already a
-   seeded PO approval sitting in CI Approval Center with nowhere to live),
-   **CI Marketing** (the natural home for turning a CI CRM "New" stage
-   deal into an outbound sequence), and **CI HR** (no employee data exists
-   yet at all — it would be the first module outside the customer-centric
-   half of the dataset, a useful test of whether the `data.ts` pattern
-   holds up for a non-customer entity).
+   Calendar, Customer Service, Contacts, Projects, Sales, Notifications,
+   Purchasing and HR are done — 18 of 90. Natural next candidates:
+   **CI Inventory** (Purchasing creates POs but nothing tracks the stock
+   they bring in), **CI Marketing** (the natural home for turning a CI CRM
+   "New"-stage deal into an outbound sequence), and **CI Payroll** (the
+   first module that would read CI HR's employee data the way Sheets reads
+   Invoicing's — another test of the shared-dataset pattern holding up
+   two layers deep).

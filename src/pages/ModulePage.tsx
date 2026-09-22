@@ -17,6 +17,8 @@ import SheetsDemo from "@/modules/sheets/SheetsDemo";
 import ProjectsDemo from "@/modules/projects/ProjectsDemo";
 import SalesDemo from "@/modules/sales/SalesDemo";
 import NotificationsDemo from "@/modules/notifications/NotificationsDemo";
+import PurchasingDemo from "@/modules/purchasing/PurchasingDemo";
+import HRDemo from "@/modules/hr/HRDemo";
 
 const DEMOS: Record<string, React.ComponentType> = {
   "ci-docs": DocsDemo,
@@ -34,6 +36,8 @@ const DEMOS: Record<string, React.ComponentType> = {
   "ci-projects": ProjectsDemo,
   "ci-sales": SalesDemo,
   "ci-notifications": NotificationsDemo,
+  "ci-purchasing": PurchasingDemo,
+  "ci-hr": HRDemo,
 };
 
 export default function ModulePage() {

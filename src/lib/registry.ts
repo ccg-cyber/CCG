@@ -10,7 +10,7 @@ import type { ModuleDefinition } from "./types";
  *   - "scaffolded"  has a route and placeholder screen
  *   - "planned"     registered so the shape of the OS is complete; not built
  *
- * 16 modules are wired up end-to-end so far, sharing one dataset
+ * 18 modules are wired up end-to-end so far, sharing one dataset
  * (src/lib/data.ts) rather than being isolated demos. The rest are
  * registered and navigable but not yet built — see MODULES.md for the
  * always-current live count and full breakdown by category.
@@ -114,7 +114,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-invoicing", slug: "invoicing", name: "CI Invoicing", category: "business", status: "live",
     description: "Estimates, invoices, credit notes, recurring billing, payment links.",
     keywords: ["invoice", "billing", "estimate"] },
-  { id: "ci-purchasing", slug: "purchasing", name: "CI Purchasing", category: "business", status: "planned",
+  { id: "ci-purchasing", slug: "purchasing", name: "CI Purchasing", category: "business", status: "live",
     description: "Purchase requests, RFQs, supplier comparison, approvals, POs.",
     keywords: ["procurement", "purchasing", "rfq", "purchase order"] },
   { id: "ci-inventory", slug: "inventory", name: "CI Inventory", category: "business", status: "planned",
@@ -129,7 +129,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-logistics", slug: "logistics", name: "CI Logistics", category: "business", status: "planned",
     description: "Deliveries, routes, drivers, proof of delivery, dispatch planning.",
     keywords: ["logistics", "delivery", "fleet", "dispatch"] },
-  { id: "ci-hr", slug: "hr", name: "CI HR", category: "business", status: "planned",
+  { id: "ci-hr", slug: "hr", name: "CI HR", category: "business", status: "live",
     description: "Employee profiles, org chart, onboarding, leave, evaluations, self-service.",
     keywords: ["hr", "human resources", "employee", "onboarding"] },
   { id: "ci-payroll", slug: "payroll", name: "CI Payroll", category: "business", status: "planned",

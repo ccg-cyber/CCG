@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 16
+- ✅ Live: 18
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 74
+- ⬜ Planned: 72
 
 ---
 
@@ -74,12 +74,12 @@ CRM, ERP, finance, sales, HR, inventory, projects, operations.
 | **CI ERP Core** | ⬜ Planned | — | Companies, branches, currencies, taxes, fiscal periods, master data. |
 | **CI Accounting & Finance** | ⬜ Planned | — | General ledger, receivables/payables, banking, budgets, AI anomaly detection. |
 | **CI Invoicing** | ✅ Live | — | Estimates, invoices, credit notes, recurring billing, payment links. |
-| **CI Purchasing** | ⬜ Planned | — | Purchase requests, RFQs, supplier comparison, approvals, POs. |
+| **CI Purchasing** | ✅ Live | — | Purchase requests, RFQs, supplier comparison, approvals, POs. |
 | **CI Inventory** | ⬜ Planned | — | SKUs, warehouses, stock movements, lot/serial, reorder points, valuation. |
 | **CI POS** | ⬜ Planned | — | Retail sales, cash drawers, discounts, offline mode, branch sync. |
 | **CI Manufacturing** | ⬜ Planned | — | BOMs, production orders, routing, capacity planning, quality checks. |
 | **CI Logistics** | ⬜ Planned | — | Deliveries, routes, drivers, proof of delivery, dispatch planning. |
-| **CI HR** | ⬜ Planned | — | Employee profiles, org chart, onboarding, leave, evaluations, self-service. |
+| **CI HR** | ✅ Live | — | Employee profiles, org chart, onboarding, leave, evaluations, self-service. |
 | **CI Payroll** | ⬜ Planned | — | Salaries, deductions, bonuses, payroll runs, payslips, accounting sync. |
 | **CI Attendance** | ⬜ Planned | — | Clock-in/out, shifts, schedules, overtime, absence tracking. |
 | **CI Recruit** | ⬜ Planned | — | Vacancies, applicants, CV parsing, interviews, offers, onboarding handoff. |
