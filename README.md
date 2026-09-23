@@ -84,6 +84,34 @@ npm run dev       # local dev server
 npm run build     # typecheck + production build
 ```
 
+## Deploying
+
+`npm run dev` is for local development only — it has no build
+optimizations and its hot-reload websocket has no way to work through a
+reverse proxy on a public domain. For a real deployment (behind nginx,
+Caddy, Cloudflare Tunnel, or anything similar), build and serve the
+static output instead:
+
+```bash
+npm install
+npm run build                          # writes dist/
+npm run preview -- --host              # serves dist/, binds all interfaces
+```
+
+`vite.config.ts` already lists the domain this app is deployed behind
+(`os.cierp.uk`) in `preview.allowedHosts` — Vite rejects requests whose
+`Host` header isn't recognized, so add any additional domain there too.
+Keep the preview process running persistently (`pm2`, a systemd unit, or
+equivalent) rather than in a foreground terminal, and point your reverse
+proxy at the port it prints (`5173` by default here, set in
+`vite.config.ts`).
+
+For anything beyond a single always-on preview process — multiple
+replicas, zero-downtime redeploys — serve the `dist/` folder directly
+from a static file server (nginx, Caddy, or a static host) instead of
+`vite preview`, which is meant for local verification of a build, not
+long-running production traffic.
+
 ## Try it
 
 - Open the app and type into **Ask CI** on the home page:
