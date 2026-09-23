@@ -8,8 +8,8 @@ agents doing the cross-application work a person used to do by hand.
 This repository is the first slice of that: a real desktop — boot
 sequence, icons, draggable/resizable windows, a taskbar, a Start menu —
 not an admin dashboard with a sidebar. The full 90-module architecture is
-registered and reachable from it, 46 modules are built end-to-end against
-**one real shared dataset** (not 46 disconnected demos), and an "Ask CI"
+registered and reachable from it, 48 modules are built end-to-end against
+**one real shared dataset** (not 48 disconnected demos), and an "Ask CI"
 command bar actually drafts documents, files them in Drive, and opens a
 real approval — not a description of what it would do.
 
@@ -67,9 +67,11 @@ the code, always current).
 | CI ERP Core | ✅ Live — company/branch/currency/fiscal-year master data, live cross-module KPIs |
 | CI Present | ✅ Live — real slide editor + presenter view (replaces PowerPoint) |
 | CI Design | ✅ Live — a real draggable canvas for banners/social posts (replaces Canva/Adobe-style tools) |
-| 44 more modules | ⬜ Registered, searchable, not yet built |
+| CI PDF | ✅ Live — convert/merge CI Drive files into real PDF records (replaces Acrobat) |
+| CI Workflow Engine | ✅ Live — user-authored "when X, do Y" rules that create real CI Tasks |
+| 42 more modules | ⬜ Registered, searchable, not yet built |
 
-All forty-six live modules (nearly half the full map) read and write **one shared, persisted dataset**
+All forty-eight live modules (over half the full map) read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four
@@ -213,7 +215,7 @@ src/
   pages/
     Home.tsx             CI Home's content — Ask CI, notifications, approvals,
                         the module grid — registered like any other module
-  modules/              Real implementations for the 46 live modules
+  modules/              Real implementations for the 48 live modules
 scripts/
   gen-modules-doc.mjs  Regenerates MODULES.md from the registry
 ```

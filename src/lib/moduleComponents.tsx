@@ -8,6 +8,8 @@ import Invoicing from "@/modules/invoicing/Invoicing";
 import Accounting from "@/modules/accounting/Accounting";
 import ERP from "@/modules/erp/ERP";
 import Present from "@/modules/present/Present";
+import PDF from "@/modules/pdf/PDF";
+import Workflow from "@/modules/workflow/Workflow";
 import Design from "@/modules/design/Design";
 import Approvals from "@/modules/approvals/Approvals";
 import Audit from "@/modules/audit/Audit";
@@ -70,6 +72,8 @@ export const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
   "ci-accounting": Accounting,
   "ci-erp-core": ERP,
   "ci-present": Present,
+  "ci-pdf": PDF,
+  "ci-workflow-engine": Workflow,
   "ci-design": Design,
   "ci-approval-center": Approvals,
   "ci-audit": Audit,

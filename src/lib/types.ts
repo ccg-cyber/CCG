@@ -447,6 +447,21 @@ export interface DesignProject {
   elements: DesignElement[];
 }
 
+export type WorkflowTrigger =
+  | { type: "invoice-overdue"; thresholdDays: number }
+  | { type: "low-stock" }
+  | { type: "quote-stalled"; thresholdStatus: "sent" };
+
+export interface WorkflowRule {
+  id: string;
+  name: string;
+  enabled: boolean;
+  trigger: WorkflowTrigger;
+  /** v1 supports one action type on purpose — real, not a combinatorial
+   * menu of actions that don't all actually run. */
+  actionTitleTemplate: string;
+}
+
 export interface AppState {
   customers: Customer[];
   invoices: Invoice[];
@@ -484,6 +499,9 @@ export interface AppState {
   erp: ErpSettings;
   presentations: Presentation[];
   designProjects: DesignProject[];
+  workflowRules: WorkflowRule[];
+  /** Dedup key set (`ruleId:entityId`) so re-running rules never creates a duplicate task for the same match. */
+  firedWorkflowKeys: string[];
   /** CI Marketplace — which of the built-in cross-module automations are switched on. */
   automations: Record<string, boolean>;
   /** CI Governance — org-wide policy values other modules' logic reads. */

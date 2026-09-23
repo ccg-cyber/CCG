@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 46
+- ✅ Live: 48
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 44
+- ⬜ Planned: 42
 
 ---
 
@@ -29,7 +29,7 @@ Documents, spreadsheets, presentations, PDFs, notes, forms, tasks.
 | **CI Docs** | ✅ Live | Word | Documents, templates, track changes, versioning, AI rewriting, DOCX/PDF import-export. |
 | **CI Sheets** | ✅ Live | Excel | Spreadsheets, formulas, pivot tables, forecasting, AI formula creation. |
 | **CI Present** | ✅ Live | PowerPoint | Presentations, themes, automatic slide generation, brand enforcement. |
-| **CI PDF** | ⬜ Planned | Acrobat | View, convert, merge, split, OCR, redact, sign and extract from PDFs. |
+| **CI PDF** | ✅ Live | Acrobat | View, convert, merge, split, OCR, redact, sign and extract from PDFs. |
 | **CI Notes** | ⬜ Planned | — | Quick notes, notebooks, clippings, voice-to-note, handwriting OCR. |
 | **CI Forms** | ✅ Live | — | Form builder, surveys, conditional logic, automatic workflow triggering. |
 | **CI Tasks** | ✅ Live | — | To-dos, assignments, priorities, deadlines, recurring tasks, approvals. |
@@ -127,7 +127,7 @@ No-code database, app builder, automation, integrations.
 | **CI Database** | ⬜ Planned | — | No-code tables, relational data, custom fields, views, APIs. |
 | **CI Builder** | ⬜ Planned | — | Company-specific mini-apps: forms, tables, dashboards, portals, no code. |
 | **CI Automate** | ⬜ Planned | Zapier / Power Automate | Triggers, conditions, actions, webhooks, agent-powered automations. |
-| **CI Workflow Engine** | ⬜ Planned | — | Business process stages, rules, escalation, delegation, cross-module flows. |
+| **CI Workflow Engine** | ✅ Live | — | Business process stages, rules, escalation, delegation, cross-module flows. |
 | **CI API Hub** | ⬜ Planned | — | External APIs, OAuth connections, webhooks, credentials, quotas, logs. |
 | **CI Connect** | ⬜ Planned | — | Connectors to Microsoft, Google, banks, e-commerce, CRMs and more. |
 | **CI Data Hub** | ✅ Live | — | Import/export, ETL, mapping, sync, dedup, master-data management. |

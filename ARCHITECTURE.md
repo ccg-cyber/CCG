@@ -266,7 +266,7 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Forty-six modules — over half the full map — are wired up end-to-end against the one shared dataset:
+Forty-eight modules — well over half the full map — are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
@@ -316,8 +316,10 @@ Forty-six modules — over half the full map — are wired up end-to-end against
 | CI ERP Core | Business | Company/branch/currency/fiscal master data plus a live command center pulling real counts from six other modules |
 | CI Present | Work | A real slide editor and presenter view — Office parity, not a static mockup |
 | CI Design | Create | A real draggable canvas — Adobe/Canva-style parity, elements persist through the same mutation seam as everything else |
+| CI PDF | Work | Works directly on CI Drive's own `type: "pdf"` field — no separate document type to keep in sync |
+| CI Workflow Engine | Build | A human-authored rule engine: real, deduplicated cross-module automation with no code change per rule |
 
-The other 44 are registered with real names, categories, descriptions and
+The other 42 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
@@ -498,18 +500,16 @@ line item.
    (`state.governance` read by a mutation function, edited through a real
    module screen) for one rule, a purchasing threshold; Autonomy Control
    is the same pattern applied to Ask CI's own approval gate.
-4. Promote the next handful of modules from `planned` to `live`. 46 of 90
-   are done — over half the map. Natural next candidates: **CI Workflow
-   Engine** (the "system" actor pattern and CI Marketplace's automation
-   toggles are both hand-written today; Workflow Engine is where a human
-   authors a new "when X in module A, do Y in module B" rule instead of it
-   requiring a code change), **CI Industry Packs** (CI Marketplace toggles
-   automations one at a time; a pack would be a named bundle of settings —
-   targets, thresholds, automations — applied together — see the next
-   section for a real industry's workflows to base one on), and **CI PDF**
-   / **CI Video** / **CI Media** (Office/Adobe parity is now real for
-   documents, spreadsheets, slides, and simple design — PDF handling and
-   media/video are the remaining gaps in that comparison).
+4. Promote the next handful of modules from `planned` to `live`. 48 of 90
+   are done — over half the map. **CI Workflow Engine** and **CI PDF** are
+   now both live (see below); natural next candidates: **CI Industry
+   Packs** (CI Marketplace toggles automations one at a time; a pack would
+   be a named bundle of settings — targets, thresholds, automations —
+   applied together — see the next section for a real industry's
+   workflows to base one on), and **CI Video** / **CI Media** (Office/
+   Adobe parity is now real for documents, spreadsheets, slides, simple
+   design, and PDFs — video/media library are the remaining gaps in that
+   comparison).
 
 ## A real factory ERP as a reference, not a demo to copy
 
@@ -593,10 +593,20 @@ different shapes, because they answer different questions:
 
 Both are proof that "a human sets a rule here, a mutation function
 somewhere else reads it" is a general pattern this codebase can keep
-reusing — not something built once for these two cases. `CI WORKFLOW
-ENGINE` and `CI AUTONOMY CONTROL` are where it goes next: the same shape,
-generalized from a fixed catalog of hardcoded checks to rules a human
-authors at runtime.
+reusing — not something built once for these two cases. **CI Workflow
+Engine** is that generalization, now live: instead of a fixed catalog of
+`if automations["..."]` checks hardcoded per mutation function,
+`WorkflowRule` is data a human creates through the module's own screen —
+a trigger (`invoice-overdue`, `low-stock`, `quote-stalled`) plus a task-
+title template — and `runWorkflows()` evaluates every enabled rule
+against the live shared state generically, creating a real `CI Task` per
+match. The dedup ledger (`firedWorkflowKeys`) is what makes this safe to
+re-run freely rather than something that has to be triggered exactly
+once — the same problem CI Marketplace's automations don't have to solve
+because they fire inline, at the moment of the triggering action, not on
+a schedule or a button press. `CI AUTONOMY CONTROL` is the one piece of
+this pattern still unbuilt: the same shape, applied to Ask CI's own
+approval gate instead of a fixed set of business triggers.
 
 ## A bug the verification process actually caught
 

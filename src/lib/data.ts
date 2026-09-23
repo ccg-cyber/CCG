@@ -41,6 +41,8 @@ import type {
   DesignProject,
   DesignElement,
   DesignElementType,
+  WorkflowRule,
+  WorkflowTrigger,
 } from "./types";
 
 /**
@@ -298,6 +300,23 @@ const DESIGN_PROJECTS: DesignProject[] = [
   },
 ];
 
+const WORKFLOW_RULES: WorkflowRule[] = [
+  {
+    id: "wf-overdue-followup",
+    name: "Overdue invoice → follow-up task",
+    enabled: true,
+    trigger: { type: "invoice-overdue", thresholdDays: 7 },
+    actionTitleTemplate: "Follow up on overdue invoice #{number} — {customer}",
+  },
+  {
+    id: "wf-low-stock",
+    name: "Low stock → reorder task",
+    enabled: true,
+    trigger: { type: "low-stock" },
+    actionTitleTemplate: "Reorder {item} ({qty} left, below reorder point)",
+  },
+];
+
 const CHEQUES: Cheque[] = [
   {
     id: "chq-0001",
@@ -378,6 +397,8 @@ const SEED: AppState = {
   erp: ERP_SETTINGS,
   presentations: PRESENTATIONS,
   designProjects: DESIGN_PROJECTS,
+  workflowRules: WORKFLOW_RULES,
+  firedWorkflowKeys: [],
   automations: AUTOMATIONS,
   governance: GOVERNANCE,
   dismissedNotificationIds: [],
@@ -433,6 +454,39 @@ export function addDriveFile(file: Omit<DriveFile, "id" | "modified"> & { modifi
   const newFile: DriveFile = { ...file, id: uid("file"), modified: file.modified ?? "Just now" };
   appStore.set((s) => ({ ...s, files: [newFile, ...s.files] }));
   return newFile;
+}
+
+/**
+ * CI PDF works on CI Drive's own files rather than a separate document
+ * type — `DriveFile.type` already distinguishes "pdf" from "doc"/"sheet",
+ * so converting or merging just files a new real Drive record, the same
+ * pattern CI Sign and CI Scan use for "produces a real filed document."
+ */
+export function convertToPdf(fileId: string): DriveFile | undefined {
+  const file = appStore.get().files.find((f) => f.id === fileId);
+  if (!file || file.type === "pdf") return undefined;
+  const pdf = addDriveFile({
+    name: `${file.name.replace(/\.[^.]+$/, "")}.pdf`,
+    type: "pdf",
+    owner: file.owner,
+    customerId: file.customerId,
+  });
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-pdf", action: `Converted "${file.name}" to PDF — filed "${pdf.name}" in CI Drive` });
+  return pdf;
+}
+
+export function mergePdfFiles(fileIds: string[], mergedName: string): DriveFile | undefined {
+  const state = appStore.get();
+  const sources = fileIds.map((id) => state.files.find((f) => f.id === id)).filter((f): f is DriveFile => Boolean(f));
+  if (sources.length < 2) return undefined;
+  const merged = addDriveFile({ name: mergedName, type: "pdf", owner: sources[0].owner });
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-pdf",
+    action: `Merged ${sources.length} file(s) (${sources.map((f) => f.name).join(", ")}) into "${merged.name}"`,
+  });
+  return merged;
 }
 
 export function addApproval(request: Omit<ApprovalRequest, "id" | "createdAt" | "status">): ApprovalRequest {
@@ -1511,6 +1565,94 @@ export function deleteDesignElement(projectId: string, elementId: string) {
       p.id === projectId ? { ...p, elements: p.elements.filter((el) => el.id !== elementId) } : p
     ),
   }));
+}
+
+export function createWorkflowRule(name: string, trigger: WorkflowTrigger, actionTitleTemplate: string): WorkflowRule {
+  const rule: WorkflowRule = { id: uid("wf"), name, enabled: true, trigger, actionTitleTemplate };
+  appStore.set((s) => ({ ...s, workflowRules: [rule, ...s.workflowRules] }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-workflow-engine", action: `Created rule "${name}"` });
+  return rule;
+}
+
+export function setWorkflowRuleEnabled(id: string, enabled: boolean) {
+  appStore.set((s) => ({ ...s, workflowRules: s.workflowRules.map((r) => (r.id === id ? { ...r, enabled } : r)) }));
+}
+
+export function deleteWorkflowRule(id: string) {
+  appStore.set((s) => ({ ...s, workflowRules: s.workflowRules.filter((r) => r.id !== id) }));
+}
+
+/**
+ * The actual "when X in module A, do Y in module B" engine: a human
+ * authors a rule (trigger + task-title template) through CI Workflow
+ * Engine's own screen, no code change required, and this evaluates every
+ * enabled rule against the live shared state. Each match creates a real
+ * CI Task exactly once — `firedWorkflowKeys` is the dedup ledger so
+ * running this repeatedly never spams duplicate tasks for the same
+ * invoice/item/quote. This is the generalized version of what CI
+ * Marketplace's automations do one hardcoded pair at a time.
+ */
+export function runWorkflows(): number {
+  const state = appStore.get();
+  const fired = new Set(state.firedWorkflowKeys);
+  const newTasks: TaskItem[] = [];
+  const newKeys: string[] = [];
+
+  for (const rule of state.workflowRules) {
+    if (!rule.enabled) continue;
+
+    if (rule.trigger.type === "invoice-overdue") {
+      for (const inv of state.invoices) {
+        const key = `${rule.id}:${inv.id}`;
+        if (fired.has(key)) continue;
+        if (inv.status === "overdue" && (inv.overdueDays ?? 0) >= rule.trigger.thresholdDays) {
+          const title = rule.actionTitleTemplate
+            .replace("{number}", inv.number)
+            .replace("{customer}", customerName(state, inv.customerId));
+          newTasks.push({ id: uid("task"), title, done: false, priority: "high", customerId: inv.customerId });
+          newKeys.push(key);
+        }
+      }
+    } else if (rule.trigger.type === "low-stock") {
+      for (const item of state.inventory) {
+        const key = `${rule.id}:${item.id}`;
+        if (fired.has(key)) continue;
+        if (item.quantityOnHand < item.reorderPoint) {
+          const title = rule.actionTitleTemplate.replace("{item}", item.name).replace("{qty}", String(item.quantityOnHand));
+          newTasks.push({ id: uid("task"), title, done: false, priority: "medium" });
+          newKeys.push(key);
+        }
+      }
+    } else if (rule.trigger.type === "quote-stalled") {
+      for (const quote of state.quotes) {
+        const key = `${rule.id}:${quote.id}`;
+        if (fired.has(key)) continue;
+        if (quote.status === rule.trigger.thresholdStatus) {
+          const title = rule.actionTitleTemplate
+            .replace("{customer}", customerName(state, quote.customerId))
+            .replace("{description}", quote.description);
+          newTasks.push({ id: uid("task"), title, done: false, priority: "medium", customerId: quote.customerId });
+          newKeys.push(key);
+        }
+      }
+    }
+  }
+
+  if (newTasks.length > 0) {
+    appStore.set((s) => ({
+      ...s,
+      tasks: [...newTasks, ...s.tasks],
+      firedWorkflowKeys: [...s.firedWorkflowKeys, ...newKeys],
+    }));
+    addAuditEvent({
+      actor: "system",
+      actorName: "Ci Business OS",
+      moduleId: "ci-workflow-engine",
+      action: `Ran workflow rules — created ${newTasks.length} task(s): ${newTasks.map((t) => t.title).join("; ")}`,
+    });
+  }
+
+  return newTasks.length;
 }
 
 export function resetDemoData() {
