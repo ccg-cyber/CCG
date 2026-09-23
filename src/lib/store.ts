@@ -11,6 +11,10 @@ import { useSyncExternalStore } from "react";
  */
 type Listener = () => void;
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export interface Store<T> {
   get: () => T;
   set: (updater: T | ((prev: T) => T)) => void;
@@ -24,7 +28,20 @@ export function createStore<T>(key: string, initial: T): Store<T> {
   function loadInitial(): T {
     try {
       const raw = localStorage.getItem(key);
-      if (raw) return JSON.parse(raw) as T;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        // A returning visitor's localStorage predates whatever top-level
+        // fields the current build added since their last visit — without
+        // this merge, a module reading a field that doesn't exist yet in
+        // their saved state throws mid-render and (with no error boundary)
+        // takes down the entire app to a blank white page, not just that
+        // module's window. Backfilling from `initial` (the current SEED)
+        // means new fields always arrive with a real default instead.
+        if (isPlainObject(initial) && isPlainObject(parsed)) {
+          return { ...(initial as object), ...(parsed as object) } as T;
+        }
+        return parsed as T;
+      }
     } catch {
       // private mode, quota, or corrupt data — fall back to defaults
     }
