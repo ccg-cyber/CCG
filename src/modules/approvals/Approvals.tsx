@@ -91,8 +91,8 @@ export default function Approvals() {
                 <span
                   className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] ${
                     a.status === "approved"
-                      ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
-                      : "border-red-500/30 text-red-400 bg-red-500/10"
+                      ? "border-emerald-500/30 text-emerald-600 bg-emerald-500/10"
+                      : "border-red-500/30 text-red-600 bg-red-500/10"
                   }`}
                 >
                   {a.status}

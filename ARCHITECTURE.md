@@ -266,7 +266,7 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Forty-two modules — nearly half the full map — are wired up end-to-end against the one shared dataset:
+Forty-six modules — over half the full map — are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
@@ -312,8 +312,12 @@ Forty-two modules — nearly half the full map — are wired up end-to-end again
 | CI Marketplace | Build | Real on/off switches for the built-in cross-module automations — verified to actually change behavior |
 | CI Governance | Control | A spend threshold read by createPurchaseOrder() itself, not a display of a policy nobody enforces |
 | CI Data Hub | Build | CSV import/export straight into CI Contacts' real list — a fourth front door, after Forms, Website and manual entry |
+| CI Accounting & Finance | Business | A real double-entry check: posting is refused unless debit equals credit |
+| CI ERP Core | Business | Company/branch/currency/fiscal master data plus a live command center pulling real counts from six other modules |
+| CI Present | Work | A real slide editor and presenter view — Office parity, not a static mockup |
+| CI Design | Create | A real draggable canvas — Adobe/Canva-style parity, elements persist through the same mutation seam as everything else |
 
-The other 48 are registered with real names, categories, descriptions and
+The other 44 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
@@ -407,37 +411,105 @@ later (an API call from `CI API HUB`, say) costs nothing structurally.
   `CI CORE` and every module read/write through, so "one company database"
   stops being a metaphor.
 
+## Deployable on a company's own server, not a hosted demo
+
+A direct piece of feedback shaped this section: every company already has
+an ERP that works — the point of Ci isn't to prove that a purchase order
+can be approved, it's to be the one system a company actually installs on
+its own server and runs its work through, the way Microsoft Office and
+Adobe's tools are things a company deploys and everyone uses daily, not a
+website someone visits. Three concrete gaps that framing exposed, now
+addressed or scoped:
+
+- **"There's no place that reads like Office or Adobe."** True as of the
+  last pass — CI Docs/Sheets covered Word/Excel, but PowerPoint and any
+  Adobe/Canva-style tool had no live module. **CI Present** (real slide
+  editor: outline, reorder, a presenter view that fills the window) and
+  **CI Design** (a real draggable canvas — add a rectangle/circle/text,
+  drag it, recolor it, backed by the same mutation-function persistence
+  as everything else) are now live, closing that gap with working tools,
+  not mockups. `replaces: "PowerPoint"` / the Canva-style description in
+  `registry.ts` were already there — they just didn't have a module behind
+  them yet.
+- **"There's no place for the ERP itself."** The vacuum-bags-erp-derived
+  work (Manufacturing, Inventory, Accounting, Sales) landed as improvements
+  *inside* separate modules, with nothing tying them together as one ERP
+  suite the way a real ERP's own home screen does. **CI ERP Core** is now
+  that place: company profile, base currency, fiscal year, branches — the
+  master data every business module sits under — plus a live command
+  center with real numbers pulled from each module (open PO count, low-
+  stock items, in-progress production orders, draft journal entries, open
+  quotes, monthly payroll), not a static list of links.
+- **"The theme reads as a dev tool, not professional business software."**
+  The entire palette lived in one place (`tailwind.config.js`'s `ci.*`
+  tokens) specifically so this kind of change is a single-file edit, not a
+  re-skin of every module — it's now a light, neutral palette (white
+  panels, near-black text, a corporate blue accent) instead of the earlier
+  dark theme. The one deliberate exception is `BootScreen.tsx`, kept dark
+  on purpose: real machines' boot/POST screens (Windows, macOS, BIOS) are
+  dark even on light-themed systems, so this is consistent with the "this
+  feels like a machine starting up" goal, not an oversight.
+
+The fourth gap — **"it should be deployable on a company's server, not
+just visited as a website"** — is real and *not* solved by this pass, and
+shouldn't be claimed as solved: it needs an honest plan, not a rushed
+swap that risks breaking 46 working modules for an untested backend in
+one sitting. The concrete path, in order:
+
+1. **A real backend**, matching the architecture `vacuum-bags-erp` itself
+   demonstrates: a small API server (Node/Express, mirroring the exact
+   function names already in `data.ts` — `createPurchaseOrder`,
+   `decideQuote`, `postJournalEntry`, etc. — as HTTP endpoints) backed by
+   SQLite for a single-company on-prem install (Postgres for a larger
+   deployment). `src/lib/store.ts`'s reactive-store interface is the seam:
+   module components call the same named functions either way, so the
+   swap is "point `data.ts` at `fetch()` calls instead of a local object,"
+   not "rewrite every module." This is the same shape
+   `vacuum-bags-erp/app/db.py` already proves works for a real factory.
+2. **Real per-user auth and RBAC** (`CI Identity`) — replacing the single
+   hardcoded `CURRENT_USER` and permissions stub with the same kind of
+   real login `vacuum-bags-erp` has (`users` table, session tokens,
+   server-enforced per-role module access returning a real 403 — not just
+   a hidden sidebar item).
+3. **A self-host package**: a `Dockerfile` + `docker-compose.yml` a
+   company points at its own server and runs, the exact pattern
+   `vacuum-bags-erp`'s own README documents for its factory deployment —
+   `docker compose up -d --build`, data persisted in a bind-mounted
+   volume, a documented backup script. This is what turns "a web app you
+   can visit" into "software a company installs," which is the actual
+   ask.
+
+None of this is started yet — it's sequenced here deliberately so the
+next pass on it has a plan to follow instead of a vague "add a backend"
+line item.
+
 ## Where this goes next (not built yet, in priority order)
 
-1. **A real backend** — `src/lib/store.ts` is `localStorage`-backed, so
-   data lives in one browser only and doesn't survive across devices or
-   users. The mutation-function seam in `data.ts` is designed so a real
-   API/database swaps in without touching any module component — but that
-   swap hasn't happened yet.
-2. **Real auth** (`CI IDENTITY`) replacing the single hardcoded
-   `CURRENT_USER` and the `"*"` role grant in `permissions.ts` with actual
-   per-user, per-module RBAC.
-3. **A real LLM-backed Ask CI** replacing the pattern-matched `planFor()`
+1. **The backend, auth, and self-host packaging above** — the single
+   biggest remaining gap between "a working prototype" and "software a
+   company deploys." See the previous section for the concrete plan.
+2. **A real LLM-backed Ask CI** replacing the pattern-matched `planFor()`
    with a model call into `CI INTELLIGENCE CORE` — the data layer, the
    approval gate, and every module it calls into are already real and
    don't need to change.
-4. **CI Autonomy Control** as an actual policy surface for Ask CI
+3. **CI Autonomy Control** as an actual policy surface for Ask CI
    specifically — today `needsApproval` is still hardcoded per intent in
    `ask-ci.ts`. CI Governance now proves the pattern this needs
    (`state.governance` read by a mutation function, edited through a real
    module screen) for one rule, a purchasing threshold; Autonomy Control
    is the same pattern applied to Ask CI's own approval gate.
-5. Promote the next handful of modules from `planned` to `live`. 43 of 90
-   are done — nearly half the map. Natural next candidates: **CI
-   Workflow Engine** (the "system" actor pattern and CI Marketplace's
-   automation toggles are both hand-written today; Workflow Engine is
-   where a human authors a new "when X in module A, do Y in module B"
-   rule instead of it requiring a code change), **CI Industry Packs**
-   (CI Marketplace toggles automations one at a time; a pack would be a
-   named bundle of settings — targets, thresholds, automations — applied
-   together — see the next section for a real industry's workflows to
-   base one on), and **CI Identity** (priority 2 above, now overdue: every
-   module still trusts the single hardcoded `CURRENT_USER`).
+4. Promote the next handful of modules from `planned` to `live`. 46 of 90
+   are done — over half the map. Natural next candidates: **CI Workflow
+   Engine** (the "system" actor pattern and CI Marketplace's automation
+   toggles are both hand-written today; Workflow Engine is where a human
+   authors a new "when X in module A, do Y in module B" rule instead of it
+   requiring a code change), **CI Industry Packs** (CI Marketplace toggles
+   automations one at a time; a pack would be a named bundle of settings —
+   targets, thresholds, automations — applied together — see the next
+   section for a real industry's workflows to base one on), and **CI PDF**
+   / **CI Video** / **CI Media** (Office/Adobe parity is now real for
+   documents, spreadsheets, slides, and simple design — PDF handling and
+   media/video are the remaining gaps in that comparison).
 
 ## A real factory ERP as a reference, not a demo to copy
 

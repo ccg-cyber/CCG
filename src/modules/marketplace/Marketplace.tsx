@@ -25,7 +25,7 @@ export default function Marketplace() {
             <button
               onClick={() => setAutomationEnabled(a.id, !enabled)}
               className={`shrink-0 rounded-full px-3 py-1 text-[11px] font-medium ${
-                enabled ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" : "bg-ci-border/40 text-ci-muted border border-ci-border"
+                enabled ? "bg-emerald-500/15 text-emerald-600 border border-emerald-500/30" : "bg-ci-border/40 text-ci-muted border border-ci-border"
               }`}
             >
               {enabled ? "On" : "Off"}

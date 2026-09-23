@@ -33,7 +33,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-sheets", slug: "sheets", name: "CI Sheets", replaces: "Excel", category: "work", status: "live",
     description: "Spreadsheets, formulas, pivot tables, forecasting, AI formula creation.",
     keywords: ["spreadsheet", "excel", "formula", "pivot"] },
-  { id: "ci-present", slug: "present", name: "CI Present", replaces: "PowerPoint", category: "work", status: "planned",
+  { id: "ci-present", slug: "present", name: "CI Present", replaces: "PowerPoint", category: "work", status: "live",
     description: "Presentations, themes, automatic slide generation, brand enforcement.",
     keywords: ["slides", "powerpoint", "presentation", "deck"] },
   { id: "ci-pdf", slug: "pdf", name: "CI PDF", replaces: "Acrobat", category: "work", status: "planned",
@@ -105,7 +105,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-marketing", slug: "marketing", name: "CI Marketing", category: "business", status: "live",
     description: "Campaigns, contact lists, landing pages, segmentation, automation.",
     keywords: ["marketing", "campaign", "email marketing"] },
-  { id: "ci-erp-core", slug: "erp", name: "CI ERP Core", category: "business", status: "planned",
+  { id: "ci-erp-core", slug: "erp", name: "CI ERP Core", category: "business", status: "live",
     description: "Companies, branches, currencies, taxes, fiscal periods, master data.",
     keywords: ["erp", "master data", "fiscal"] },
   { id: "ci-accounting", slug: "accounting", name: "CI Accounting & Finance", category: "business", status: "live",
@@ -152,7 +152,7 @@ export const MODULES: ModuleDefinition[] = [
     keywords: ["portal", "self-service"] },
 
   // ── Create ──────────────────────────────────────────────────────────
-  { id: "ci-design", slug: "design", name: "CI Design", category: "create", status: "planned",
+  { id: "ci-design", slug: "design", name: "CI Design", category: "create", status: "live",
     description: "Banners, ads, social posts, brochures, branded templates, image generation.",
     keywords: ["design", "graphics", "canva"] },
   { id: "ci-media", slug: "media", name: "CI Media", category: "create", status: "planned",

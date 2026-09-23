@@ -4,9 +4,9 @@ import { useAppState, customerName, createPurchaseOrder } from "@/lib/data";
 import type { PurchaseOrder } from "@/lib/types";
 
 const STATUS_STYLE: Record<PurchaseOrder["status"], string> = {
-  pending: "border-amber-500/30 text-amber-400 bg-amber-500/10",
-  approved: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
-  rejected: "border-red-500/30 text-red-400 bg-red-500/10",
+  pending: "border-amber-500/30 text-amber-600 bg-amber-500/10",
+  approved: "border-emerald-500/30 text-emerald-600 bg-emerald-500/10",
+  rejected: "border-red-500/30 text-red-600 bg-red-500/10",
   ordered: "border-ci-accent/30 text-ci-accent bg-ci-accent/10",
 };
 

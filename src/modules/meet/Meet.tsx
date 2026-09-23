@@ -24,7 +24,7 @@ export default function Meet() {
               <p className="text-xs text-ci-muted">{new Date(m.start).toLocaleString()}</p>
             </div>
             {m.completed && (
-              <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-400">
+              <span className="shrink-0 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[11px] text-emerald-600">
                 ended
               </span>
             )}

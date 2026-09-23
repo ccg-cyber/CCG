@@ -90,7 +90,7 @@ export default function AskCiBar() {
           {plan.needsApproval && (
             <Link
               to="/modules/approvals"
-              className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[11px] text-amber-400 hover:bg-amber-500/20"
+              className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[11px] text-amber-600 hover:bg-amber-500/20"
             >
               Routed to CI Approval Center — review and approve →
             </Link>

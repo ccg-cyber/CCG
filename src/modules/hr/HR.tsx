@@ -3,8 +3,8 @@ import { useAppState, addEmployee } from "@/lib/data";
 import type { Employee } from "@/lib/types";
 
 const STATUS_STYLE: Record<Employee["status"], string> = {
-  active: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
-  onboarding: "border-amber-500/30 text-amber-400 bg-amber-500/10",
+  active: "border-emerald-500/30 text-emerald-600 bg-emerald-500/10",
+  onboarding: "border-amber-500/30 text-amber-600 bg-amber-500/10",
   offboarded: "border-ci-border text-ci-muted bg-ci-border/30",
 };
 

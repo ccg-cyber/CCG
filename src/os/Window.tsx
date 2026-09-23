@@ -77,7 +77,7 @@ export default function Window({ win, title, active, onClose, onFocus, onMinimiz
             onMouseDown={(e) => e.stopPropagation()}
             onClick={onMinimize}
             aria-label="Minimize"
-            className="h-5 w-5 flex items-center justify-center rounded hover:bg-white/10 text-ci-muted text-xs leading-none"
+            className="h-5 w-5 flex items-center justify-center rounded hover:bg-black/8 text-ci-muted text-xs leading-none"
           >
             ─
           </button>
@@ -85,7 +85,7 @@ export default function Window({ win, title, active, onClose, onFocus, onMinimiz
             onMouseDown={(e) => e.stopPropagation()}
             onClick={onToggleMaximize}
             aria-label={win.maximized ? "Restore" : "Maximize"}
-            className="h-5 w-5 flex items-center justify-center rounded hover:bg-white/10 text-ci-muted text-xs leading-none"
+            className="h-5 w-5 flex items-center justify-center rounded hover:bg-black/8 text-ci-muted text-xs leading-none"
           >
             {win.maximized ? "❐" : "□"}
           </button>

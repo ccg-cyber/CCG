@@ -34,6 +34,13 @@ import type {
   JournalLine,
   Cheque,
   Currency,
+  ErpSettings,
+  ErpBranch,
+  Presentation,
+  PresentationSlide,
+  DesignProject,
+  DesignElement,
+  DesignElementType,
 } from "./types";
 
 /**
@@ -259,6 +266,38 @@ const JOURNAL_ENTRIES: JournalEntry[] = [
   },
 ];
 
+const ERP_SETTINGS: ErpSettings = {
+  companyName: "Ci Business OS",
+  baseCurrency: "USD",
+  fiscalYearStartMonth: 1,
+  branches: [{ id: "branch-hq", name: "Headquarters", address: "" }],
+};
+
+const PRESENTATIONS: Presentation[] = [
+  {
+    id: "pres-qbr",
+    title: "Q4 Business Review",
+    slides: [
+      { id: "slide-1", heading: "Q4 Business Review", body: "Ci Business OS — company update" },
+      { id: "slide-2", heading: "Pipeline", body: "Nord Retail Group and BlueHarbor deals are progressing through CRM." },
+      { id: "slide-3", heading: "Next steps", body: "Close open quotes, clear overdue invoices, launch next campaign." },
+    ],
+  },
+];
+
+const DESIGN_PROJECTS: DesignProject[] = [
+  {
+    id: "design-social-launch",
+    name: "Product Launch — Social Post",
+    canvasWidth: 400,
+    canvasHeight: 300,
+    elements: [
+      { id: "el-bg", type: "rect", x: 0, y: 0, w: 400, h: 300, color: "#3457d5" },
+      { id: "el-title", type: "text", x: 24, y: 110, w: 350, h: 60, color: "#ffffff", text: "We're live.", fontSize: 32 },
+    ],
+  },
+];
+
 const CHEQUES: Cheque[] = [
   {
     id: "chq-0001",
@@ -336,6 +375,9 @@ const SEED: AppState = {
   expenses: EXPENSES,
   journalEntries: JOURNAL_ENTRIES,
   cheques: CHEQUES,
+  erp: ERP_SETTINGS,
+  presentations: PRESENTATIONS,
+  designProjects: DESIGN_PROJECTS,
   automations: AUTOMATIONS,
   governance: GOVERNANCE,
   dismissedNotificationIds: [],
@@ -1355,6 +1397,120 @@ export function updateChequeStatus(id: string, status: Cheque["status"]) {
     moduleId: "ci-accounting",
     action: `Cheque #${cheque.chequeNo} marked ${status}`,
   });
+}
+
+/**
+ * CI ERP Core's master data — company name, base currency, fiscal year,
+ * and branches. Every business module (Manufacturing, Inventory,
+ * Purchasing, Accounting, Sales, HR, Payroll) sits under this one profile,
+ * the same way a real ERP's admin/setup area anchors everything else.
+ */
+export function updateCompanyProfile(patch: Partial<Pick<ErpSettings, "companyName" | "baseCurrency" | "fiscalYearStartMonth">>) {
+  appStore.set((s) => ({ ...s, erp: { ...s.erp, ...patch } }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-erp-core", action: "Updated company profile" });
+}
+
+export function addBranch(name: string, address: string) {
+  const branch: ErpBranch = { id: uid("branch"), name, address };
+  appStore.set((s) => ({ ...s, erp: { ...s.erp, branches: [...s.erp.branches, branch] } }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-erp-core", action: `Added branch "${name}"` });
+}
+
+export function removeBranch(id: string) {
+  const branch = appStore.get().erp.branches.find((b) => b.id === id);
+  if (!branch) return;
+  appStore.set((s) => ({ ...s, erp: { ...s.erp, branches: s.erp.branches.filter((b) => b.id !== id) } }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-erp-core", action: `Removed branch "${branch.name}"` });
+}
+
+export function createPresentation(title: string): Presentation {
+  const presentation: Presentation = {
+    id: uid("pres"),
+    title,
+    slides: [{ id: uid("slide"), heading: title, body: "" }],
+  };
+  appStore.set((s) => ({ ...s, presentations: [presentation, ...s.presentations] }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-present", action: `Created presentation "${title}"` });
+  return presentation;
+}
+
+export function addSlide(presentationId: string) {
+  const slide: PresentationSlide = { id: uid("slide"), heading: "New slide", body: "" };
+  appStore.set((s) => ({
+    ...s,
+    presentations: s.presentations.map((p) => (p.id === presentationId ? { ...p, slides: [...p.slides, slide] } : p)),
+  }));
+}
+
+export function updateSlide(presentationId: string, slideId: string, patch: Partial<PresentationSlide>) {
+  appStore.set((s) => ({
+    ...s,
+    presentations: s.presentations.map((p) =>
+      p.id === presentationId ? { ...p, slides: p.slides.map((sl) => (sl.id === slideId ? { ...sl, ...patch } : sl)) } : p
+    ),
+  }));
+}
+
+export function deleteSlide(presentationId: string, slideId: string) {
+  appStore.set((s) => ({
+    ...s,
+    presentations: s.presentations.map((p) =>
+      p.id === presentationId ? { ...p, slides: p.slides.filter((sl) => sl.id !== slideId) } : p
+    ),
+  }));
+}
+
+export function reorderSlide(presentationId: string, slideId: string, direction: -1 | 1) {
+  appStore.set((s) => ({
+    ...s,
+    presentations: s.presentations.map((p) => {
+      if (p.id !== presentationId) return p;
+      const i = p.slides.findIndex((sl) => sl.id === slideId);
+      const j = i + direction;
+      if (i < 0 || j < 0 || j >= p.slides.length) return p;
+      const slides = [...p.slides];
+      [slides[i], slides[j]] = [slides[j], slides[i]];
+      return { ...p, slides };
+    }),
+  }));
+}
+
+export function createDesignProject(name: string): DesignProject {
+  const project: DesignProject = { id: uid("design"), name, canvasWidth: 400, canvasHeight: 300, elements: [] };
+  appStore.set((s) => ({ ...s, designProjects: [project, ...s.designProjects] }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-design", action: `Created design "${name}"` });
+  return project;
+}
+
+export function addDesignElement(projectId: string, type: DesignElementType) {
+  const base: Record<DesignElementType, Partial<DesignElement>> = {
+    rect: { w: 120, h: 80, color: "#3457d5" },
+    circle: { w: 80, h: 80, color: "#6d4fd1" },
+    text: { w: 160, h: 40, color: "#1a1f27", text: "Text", fontSize: 18 },
+  };
+  const element: DesignElement = { id: uid("el"), type, x: 20, y: 20, w: 100, h: 60, color: "#3457d5", ...base[type] };
+  appStore.set((s) => ({
+    ...s,
+    designProjects: s.designProjects.map((p) => (p.id === projectId ? { ...p, elements: [...p.elements, element] } : p)),
+  }));
+}
+
+export function updateDesignElement(projectId: string, elementId: string, patch: Partial<DesignElement>) {
+  appStore.set((s) => ({
+    ...s,
+    designProjects: s.designProjects.map((p) =>
+      p.id === projectId ? { ...p, elements: p.elements.map((el) => (el.id === elementId ? { ...el, ...patch } : el)) } : p
+    ),
+  }));
+}
+
+export function deleteDesignElement(projectId: string, elementId: string) {
+  appStore.set((s) => ({
+    ...s,
+    designProjects: s.designProjects.map((p) =>
+      p.id === projectId ? { ...p, elements: p.elements.filter((el) => el.id !== elementId) } : p
+    ),
+  }));
 }
 
 export function resetDemoData() {

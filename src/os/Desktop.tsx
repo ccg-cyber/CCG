@@ -72,7 +72,7 @@ function DesktopInner() {
   return (
     <div
       className="absolute inset-0 overflow-hidden select-none"
-      style={{ background: "radial-gradient(circle at 20% -10%, #1a1f3d 0%, #0b0d18 45%, #0b0d18 100%)" }}
+      style={{ background: "radial-gradient(circle at 20% -10%, #e9edf9 0%, #f4f5f8 45%, #f4f5f8 100%)" }}
       onMouseDown={() => setSelectedIcon(null)}
     >
       <div className="absolute top-4 left-4 flex flex-col gap-1">
@@ -89,13 +89,11 @@ function DesktopInner() {
                 setSelectedIcon(null);
               }}
               className={`w-20 flex flex-col items-center gap-1 rounded-md px-1 py-2 text-center ${
-                selectedIcon === id ? "bg-white/15 ring-1 ring-white/30" : ""
+                selectedIcon === id ? "bg-black/8 ring-1 ring-black/15" : ""
               }`}
             >
               <span className="text-2xl leading-none">{ICONS[id] ?? "🗔"}</span>
-              <span className="text-[11px] text-white/90 leading-tight" style={{ textShadow: "0 1px 2px rgba(0,0,0,0.6)" }}>
-                {mod.name.replace("CI ", "")}
-              </span>
+              <span className="text-[11px] text-ci-text leading-tight">{mod.name.replace("CI ", "")}</span>
             </button>
           );
         })}

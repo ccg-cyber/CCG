@@ -39,7 +39,7 @@ export default function Sheets() {
                 className="w-24 rounded-md border border-ci-border bg-ci-panel2 px-2 py-1 text-sm"
               />
               <span>${actual.toLocaleString()}</span>
-              <span className={variance >= 0 ? "text-emerald-400" : "text-red-400"}>
+              <span className={variance >= 0 ? "text-emerald-600" : "text-red-600"}>
                 {variance >= 0 ? "+" : ""}${variance.toLocaleString()}
               </span>
             </div>
@@ -49,7 +49,7 @@ export default function Sheets() {
           <span>Total</span>
           <span>${totalTarget.toLocaleString()}</span>
           <span>${totalActual.toLocaleString()}</span>
-          <span className={totalActual - totalTarget >= 0 ? "text-emerald-400" : "text-red-400"}>
+          <span className={totalActual - totalTarget >= 0 ? "text-emerald-600" : "text-red-600"}>
             {totalActual - totalTarget >= 0 ? "+" : ""}${(totalActual - totalTarget).toLocaleString()}
           </span>
         </div>

@@ -4,8 +4,8 @@ import type { Shipment } from "@/lib/types";
 
 const STATUS_STYLE: Record<Shipment["status"], string> = {
   pending: "border-ci-border text-ci-muted bg-ci-border/30",
-  "in-transit": "border-amber-500/30 text-amber-400 bg-amber-500/10",
-  delivered: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
+  "in-transit": "border-amber-500/30 text-amber-600 bg-amber-500/10",
+  delivered: "border-emerald-500/30 text-emerald-600 bg-emerald-500/10",
 };
 
 export default function Logistics() {

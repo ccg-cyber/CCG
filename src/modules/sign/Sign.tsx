@@ -20,10 +20,10 @@ export default function Sign() {
                 {r.customerId && ` · ${customerName(state, r.customerId)}`}
               </p>
               <div className="flex gap-2">
-                <button onClick={() => signDocument(r.id)} className="text-[11px] text-emerald-400 hover:underline">
+                <button onClick={() => signDocument(r.id)} className="text-[11px] text-emerald-600 hover:underline">
                   Sign →
                 </button>
-                <button onClick={() => declineSignature(r.id)} className="text-[11px] text-red-400 hover:underline">
+                <button onClick={() => declineSignature(r.id)} className="text-[11px] text-red-600 hover:underline">
                   Decline
                 </button>
               </div>
@@ -49,8 +49,8 @@ export default function Sign() {
                   <span
                     className={`rounded-full border px-2 py-0.5 text-[11px] ${
                       r.status === "signed"
-                        ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
-                        : "border-red-500/30 text-red-400 bg-red-500/10"
+                        ? "border-emerald-500/30 text-emerald-600 bg-emerald-500/10"
+                        : "border-red-500/30 text-red-600 bg-red-500/10"
                     }`}
                   >
                     {r.status}

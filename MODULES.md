@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 43
+- ✅ Live: 46
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 47
+- ⬜ Planned: 44
 
 ---
 
@@ -28,7 +28,7 @@ Documents, spreadsheets, presentations, PDFs, notes, forms, tasks.
 |---|---|---|---|
 | **CI Docs** | ✅ Live | Word | Documents, templates, track changes, versioning, AI rewriting, DOCX/PDF import-export. |
 | **CI Sheets** | ✅ Live | Excel | Spreadsheets, formulas, pivot tables, forecasting, AI formula creation. |
-| **CI Present** | ⬜ Planned | PowerPoint | Presentations, themes, automatic slide generation, brand enforcement. |
+| **CI Present** | ✅ Live | PowerPoint | Presentations, themes, automatic slide generation, brand enforcement. |
 | **CI PDF** | ⬜ Planned | Acrobat | View, convert, merge, split, OCR, redact, sign and extract from PDFs. |
 | **CI Notes** | ⬜ Planned | — | Quick notes, notebooks, clippings, voice-to-note, handwriting OCR. |
 | **CI Forms** | ✅ Live | — | Form builder, surveys, conditional logic, automatic workflow triggering. |
@@ -71,7 +71,7 @@ CRM, ERP, finance, sales, HR, inventory, projects, operations.
 | **CI Sales** | ✅ Live | — | Quotations, price lists, orders, commissions, sales targets. |
 | **CI Customer Service** | ✅ Live | — | Tickets, SLAs, canned responses, knowledge base, AI support agents. |
 | **CI Marketing** | ✅ Live | — | Campaigns, contact lists, landing pages, segmentation, automation. |
-| **CI ERP Core** | ⬜ Planned | — | Companies, branches, currencies, taxes, fiscal periods, master data. |
+| **CI ERP Core** | ✅ Live | — | Companies, branches, currencies, taxes, fiscal periods, master data. |
 | **CI Accounting & Finance** | ✅ Live | — | General ledger, receivables/payables, banking, budgets, AI anomaly detection. |
 | **CI Invoicing** | ✅ Live | — | Estimates, invoices, credit notes, recurring billing, payment links. |
 | **CI Purchasing** | ✅ Live | — | Purchase requests, RFQs, supplier comparison, approvals, POs. |
@@ -93,7 +93,7 @@ Design, media, video, audio, translation, web presence.
 
 | Module | Status | Replaces | Description |
 |---|---|---|---|
-| **CI Design** | ⬜ Planned | — | Banners, ads, social posts, brochures, branded templates, image generation. |
+| **CI Design** | ✅ Live | — | Banners, ads, social posts, brochures, branded templates, image generation. |
 | **CI Media** | ⬜ Planned | — | Image/audio/video library, transcoding, metadata, AI search. |
 | **CI Video** | ⬜ Planned | — | Video editing, subtitles, transcription, brand templates, AI production. |
 | **CI Audio** | ⬜ Planned | — | Recording, voice notes, transcription, translation, speech generation. |

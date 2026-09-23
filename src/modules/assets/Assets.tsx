@@ -19,7 +19,7 @@ export default function Assets() {
               </div>
               <span
                 className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] ${
-                  a.status === "in-use" ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10" : "border-ci-border text-ci-muted bg-ci-border/30"
+                  a.status === "in-use" ? "border-emerald-500/30 text-emerald-600 bg-emerald-500/10" : "border-ci-border text-ci-muted bg-ci-border/30"
                 }`}
               >
                 {employee ? employee.name : a.status}

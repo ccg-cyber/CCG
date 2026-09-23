@@ -8,8 +8,8 @@ agents doing the cross-application work a person used to do by hand.
 This repository is the first slice of that: a real desktop — boot
 sequence, icons, draggable/resizable windows, a taskbar, a Start menu —
 not an admin dashboard with a sidebar. The full 90-module architecture is
-registered and reachable from it, 43 modules are built end-to-end against
-**one real shared dataset** (not 43 disconnected demos), and an "Ask CI"
+registered and reachable from it, 46 modules are built end-to-end against
+**one real shared dataset** (not 46 disconnected demos), and an "Ask CI"
 command bar actually drafts documents, files them in Drive, and opens a
 real approval — not a description of what it would do.
 
@@ -64,9 +64,12 @@ the code, always current).
 | CI Governance | ✅ Live — a spend threshold that changes real approval behavior |
 | CI Data Hub | ✅ Live — CSV import/export into CI Contacts' real list |
 | CI Accounting & Finance | ✅ Live — general ledger (draft/posted journals, balance-checked) + cheques |
-| 47 more modules | ⬜ Registered, searchable, not yet built |
+| CI ERP Core | ✅ Live — company/branch/currency/fiscal-year master data, live cross-module KPIs |
+| CI Present | ✅ Live — real slide editor + presenter view (replaces PowerPoint) |
+| CI Design | ✅ Live — a real draggable canvas for banners/social posts (replaces Canva/Adobe-style tools) |
+| 44 more modules | ⬜ Registered, searchable, not yet built |
 
-All forty-three live modules (nearly half the full map) read and write **one shared, persisted dataset**
+All forty-six live modules (nearly half the full map) read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four
@@ -130,6 +133,10 @@ long-running production traffic.
   or browse by category. This replaces both the old sidebar tree and a
   separate search box with one launcher, the way a real OS's app launcher
   is both at once.
+- **The theme is light and professional by default** — every color in the
+  app comes from one palette (`tailwind.config.js`'s `ci.*` tokens), tuned
+  for a business tool people look at all day, not a dark developer-tool
+  aesthetic.
 - **On a phone-width screen**, the floating windows disappear entirely —
   below 720px it's a different shell (`src/os/CompactShell.tsx`): a
   home-screen icon grid, one app fullscreen at a time, a back button, and
@@ -206,7 +213,7 @@ src/
   pages/
     Home.tsx             CI Home's content — Ask CI, notifications, approvals,
                         the module grid — registered like any other module
-  modules/              Real implementations for the 43 live modules
+  modules/              Real implementations for the 46 live modules
 scripts/
   gen-modules-doc.mjs  Regenerates MODULES.md from the registry
 ```

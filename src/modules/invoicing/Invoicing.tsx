@@ -2,9 +2,9 @@ import { useAppState, customerName, markInvoicePaid } from "@/lib/data";
 import type { Invoice } from "@/lib/types";
 
 const STATUS_STYLE: Record<Invoice["status"], string> = {
-  paid: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
-  overdue: "bg-red-500/15 text-red-400 border-red-500/30",
-  pending: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+  paid: "bg-emerald-500/15 text-emerald-600 border-emerald-500/30",
+  overdue: "bg-red-500/15 text-red-600 border-red-500/30",
+  pending: "bg-amber-500/15 text-amber-600 border-amber-500/30",
 };
 
 export default function Invoicing() {
@@ -23,8 +23,8 @@ export default function Invoicing() {
           <p className="text-lg font-semibold">${totalOutstanding.toLocaleString()}</p>
         </div>
         <div className="rounded-lg border border-red-500/30 bg-red-500/5 px-4 py-3">
-          <p className="text-xs text-red-400">Overdue</p>
-          <p className="text-lg font-semibold text-red-400">${totalOverdue.toLocaleString()}</p>
+          <p className="text-xs text-red-600">Overdue</p>
+          <p className="text-lg font-semibold text-red-600">${totalOverdue.toLocaleString()}</p>
         </div>
       </div>
 

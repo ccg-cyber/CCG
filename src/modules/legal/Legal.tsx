@@ -43,8 +43,8 @@ export default function Legal() {
                 <span
                   className={`rounded-full border px-2 py-0.5 text-[11px] ${
                     p.status === "compliant"
-                      ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
-                      : "border-amber-500/30 text-amber-400 bg-amber-500/10"
+                      ? "border-emerald-500/30 text-emerald-600 bg-emerald-500/10"
+                      : "border-amber-500/30 text-amber-600 bg-amber-500/10"
                   }`}
                 >
                   {p.status}

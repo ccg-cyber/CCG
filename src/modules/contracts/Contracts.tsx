@@ -2,9 +2,9 @@ import { useAppState, customerName, renewContract, contractStatus } from "@/lib/
 import type { ContractStatus } from "@/lib/data";
 
 const STATUS_STYLE: Record<ContractStatus, string> = {
-  active: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
-  "expiring-soon": "border-amber-500/30 text-amber-400 bg-amber-500/10",
-  expired: "border-red-500/30 text-red-400 bg-red-500/10",
+  active: "border-emerald-500/30 text-emerald-600 bg-emerald-500/10",
+  "expiring-soon": "border-amber-500/30 text-amber-600 bg-amber-500/10",
+  expired: "border-red-500/30 text-red-600 bg-red-500/10",
 };
 
 export default function Contracts() {

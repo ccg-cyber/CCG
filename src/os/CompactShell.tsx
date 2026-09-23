@@ -69,7 +69,7 @@ export default function CompactShell() {
         <div className="flex items-center justify-between mb-3">
           <span className="text-lg font-semibold">Ci</span>
           {notifCount > 0 && (
-            <span className="rounded-full bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 text-xs">
+            <span className="rounded-full bg-red-500/20 text-red-600 border border-red-500/30 px-2 py-0.5 text-xs">
               {notifCount}
             </span>
           )}

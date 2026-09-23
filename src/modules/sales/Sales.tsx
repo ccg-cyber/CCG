@@ -3,9 +3,9 @@ import type { Quote } from "@/lib/types";
 
 const STATUS_STYLE: Record<Quote["status"], string> = {
   draft: "border-ci-border text-ci-muted bg-ci-border/30",
-  sent: "border-amber-500/30 text-amber-400 bg-amber-500/10",
-  accepted: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
-  declined: "border-red-500/30 text-red-400 bg-red-500/10",
+  sent: "border-amber-500/30 text-amber-600 bg-amber-500/10",
+  accepted: "border-emerald-500/30 text-emerald-600 bg-emerald-500/10",
+  declined: "border-red-500/30 text-red-600 bg-red-500/10",
 };
 
 export default function Sales() {
@@ -35,10 +35,10 @@ export default function Sales() {
             )}
             {q.status === "sent" && (
               <>
-                <button onClick={() => decideQuote(q.id, "accepted")} className="text-[11px] text-emerald-400 hover:underline">
+                <button onClick={() => decideQuote(q.id, "accepted")} className="text-[11px] text-emerald-600 hover:underline">
                   Mark accepted →
                 </button>
-                <button onClick={() => decideQuote(q.id, "declined")} className="text-[11px] text-red-400 hover:underline">
+                <button onClick={() => decideQuote(q.id, "declined")} className="text-[11px] text-red-600 hover:underline">
                   Mark declined →
                 </button>
               </>

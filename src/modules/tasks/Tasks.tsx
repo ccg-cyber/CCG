@@ -13,8 +13,8 @@ export default function Tasks() {
   }
 
   const priorityColor: Record<TaskItem["priority"], string> = {
-    high: "text-red-400 border-red-500/30 bg-red-500/10",
-    medium: "text-amber-400 border-amber-500/30 bg-amber-500/10",
+    high: "text-red-600 border-red-500/30 bg-red-500/10",
+    medium: "text-amber-600 border-amber-500/30 bg-amber-500/10",
     low: "text-ci-muted border-ci-border bg-ci-border/30",
   };
 

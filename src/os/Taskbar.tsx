@@ -23,7 +23,7 @@ export default function Taskbar({ startOpen, onToggleStart }: { startOpen: boole
       <button
         onClick={onToggleStart}
         className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium shrink-0 ${
-          startOpen ? "bg-ci-accent/25 text-white" : "text-ci-text hover:bg-ci-panel2"
+          startOpen ? "bg-ci-accent text-white" : "text-ci-text hover:bg-ci-panel2"
         }`}
       >
         <span className="h-4 w-4 rounded-sm bg-gradient-to-br from-ci-accent to-ci-accent2" />
@@ -41,7 +41,7 @@ export default function Taskbar({ startOpen, onToggleStart }: { startOpen: boole
               onClick={() => (isFocused ? minimizeWindow(w.id) : focusWindow(w.id))}
               data-testid={`taskbar-${w.moduleId}`}
               className={`shrink-0 rounded-md px-3 py-1.5 text-xs ${
-                isFocused ? "bg-ci-accent/20 border border-ci-accent/40 text-white" : "text-ci-muted hover:bg-ci-panel2 border border-transparent"
+                isFocused ? "bg-ci-accent/15 border border-ci-accent/40 text-ci-accent font-medium" : "text-ci-muted hover:bg-ci-panel2 border border-transparent"
               }`}
             >
               {mod.name}
@@ -52,7 +52,7 @@ export default function Taskbar({ startOpen, onToggleStart }: { startOpen: boole
 
       <div className="flex items-center gap-3 text-xs text-ci-muted pr-1 shrink-0">
         {notifCount > 0 && (
-          <span className="rounded-full bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5">{notifCount}</span>
+          <span className="rounded-full bg-red-500/20 text-red-600 border border-red-500/30 px-2 py-0.5">{notifCount}</span>
         )}
         <span className="font-mono">{now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
       </div>

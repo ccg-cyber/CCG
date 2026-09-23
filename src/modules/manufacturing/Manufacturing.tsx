@@ -13,9 +13,9 @@ import type { ProductionOrder } from "@/lib/types";
 const STATUS_STYLE: Record<ProductionOrder["status"], string> = {
   pending: "border-ci-muted/30 text-ci-muted bg-ci-panel2",
   "in-progress": "border-ci-accent/30 text-ci-accent bg-ci-accent/10",
-  paused: "border-amber-500/30 text-amber-400 bg-amber-500/10",
-  completed: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
-  cancelled: "border-red-500/30 text-red-400 bg-red-500/10",
+  paused: "border-amber-500/30 text-amber-600 bg-amber-500/10",
+  completed: "border-emerald-500/30 text-emerald-600 bg-emerald-500/10",
+  cancelled: "border-red-500/30 text-red-600 bg-red-500/10",
 };
 
 function OrderCard({ order }: { order: ProductionOrder }) {
@@ -69,7 +69,7 @@ function OrderCard({ order }: { order: ProductionOrder }) {
           )}
           {order.status === "in-progress" && (
             <>
-              <button onClick={() => pauseProduction(order.id)} className="text-[11px] text-amber-400 hover:underline">
+              <button onClick={() => pauseProduction(order.id)} className="text-[11px] text-amber-600 hover:underline">
                 Pause
               </button>
               <button

@@ -24,7 +24,7 @@ export default function Inventory() {
             <div key={item.id} className="grid grid-cols-[100px_1fr_120px_120px_100px] items-center gap-2 px-4 py-2.5 text-sm border-b border-ci-border last:border-b-0">
               <span className="text-ci-muted">{item.sku}</span>
               <span>{item.name}</span>
-              <span className={low ? "text-red-400 font-medium" : ""}>
+              <span className={low ? "text-red-600 font-medium" : ""}>
                 {item.quantityOnHand} {low && "· low stock"}
               </span>
               <span className="text-ci-muted">{item.reorderPoint}</span>

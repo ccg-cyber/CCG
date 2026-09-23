@@ -27,9 +27,9 @@ export default function Recruit() {
             <span
               className={`shrink-0 rounded-full border px-2 py-0.5 text-[11px] ${
                 c.stage === "hired"
-                  ? "border-emerald-500/30 text-emerald-400 bg-emerald-500/10"
+                  ? "border-emerald-500/30 text-emerald-600 bg-emerald-500/10"
                   : c.stage === "rejected"
-                  ? "border-red-500/30 text-red-400 bg-red-500/10"
+                  ? "border-red-500/30 text-red-600 bg-red-500/10"
                   : "border-ci-border text-ci-muted bg-ci-border/30"
               }`}
             >
@@ -41,7 +41,7 @@ export default function Recruit() {
               <button onClick={() => advanceCandidate(c.id)} className="text-[11px] text-ci-accent hover:underline">
                 {STAGE_LABEL[c.stage]} →
               </button>
-              <button onClick={() => rejectCandidate(c.id)} className="text-[11px] text-red-400 hover:underline">
+              <button onClick={() => rejectCandidate(c.id)} className="text-[11px] text-red-600 hover:underline">
                 Reject
               </button>
             </div>

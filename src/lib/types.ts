@@ -395,6 +395,58 @@ export interface Cheque {
   status: "pending" | "deposited" | "cleared" | "returned" | "cancelled";
 }
 
+export interface ErpBranch {
+  id: string;
+  name: string;
+  address: string;
+}
+
+/** CI ERP Core's master data — company-wide settings every other business
+ * module reads. This is the one "place" that identifies Ci's ERP suite as
+ * one system: everything under Business (Manufacturing, Inventory,
+ * Purchasing, Accounting, Sales, HR, Payroll) sits under one company
+ * profile and currency, the way a real ERP's admin/setup area does. */
+export interface ErpSettings {
+  companyName: string;
+  baseCurrency: Currency;
+  fiscalYearStartMonth: number;
+  branches: ErpBranch[];
+}
+
+export interface PresentationSlide {
+  id: string;
+  heading: string;
+  body: string;
+}
+
+export interface Presentation {
+  id: string;
+  title: string;
+  slides: PresentationSlide[];
+}
+
+export type DesignElementType = "rect" | "circle" | "text";
+
+export interface DesignElement {
+  id: string;
+  type: DesignElementType;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  color: string;
+  text?: string;
+  fontSize?: number;
+}
+
+export interface DesignProject {
+  id: string;
+  name: string;
+  canvasWidth: number;
+  canvasHeight: number;
+  elements: DesignElement[];
+}
+
 export interface AppState {
   customers: Customer[];
   invoices: Invoice[];
@@ -429,6 +481,9 @@ export interface AppState {
   expenses: Expense[];
   journalEntries: JournalEntry[];
   cheques: Cheque[];
+  erp: ErpSettings;
+  presentations: Presentation[];
+  designProjects: DesignProject[];
   /** CI Marketplace — which of the built-in cross-module automations are switched on. */
   automations: Record<string, boolean>;
   /** CI Governance — org-wide policy values other modules' logic reads. */

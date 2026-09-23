@@ -10,16 +10,16 @@ import {
 import type { Cheque, Currency, JournalLine } from "@/lib/types";
 
 const JOURNAL_STATUS_STYLE: Record<string, string> = {
-  draft: "border-amber-500/30 text-amber-400 bg-amber-500/10",
-  posted: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
-  cancelled: "border-red-500/30 text-red-400 bg-red-500/10",
+  draft: "border-amber-500/30 text-amber-600 bg-amber-500/10",
+  posted: "border-emerald-500/30 text-emerald-600 bg-emerald-500/10",
+  cancelled: "border-red-500/30 text-red-600 bg-red-500/10",
 };
 
 const CHEQUE_STATUS_STYLE: Record<Cheque["status"], string> = {
-  pending: "border-amber-500/30 text-amber-400 bg-amber-500/10",
+  pending: "border-amber-500/30 text-amber-600 bg-amber-500/10",
   deposited: "border-ci-accent/30 text-ci-accent bg-ci-accent/10",
-  cleared: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
-  returned: "border-red-500/30 text-red-400 bg-red-500/10",
+  cleared: "border-emerald-500/30 text-emerald-600 bg-emerald-500/10",
+  returned: "border-red-500/30 text-red-600 bg-red-500/10",
   cancelled: "border-ci-border text-ci-muted bg-ci-panel2",
 };
 
@@ -115,7 +115,7 @@ export default function Accounting() {
             key={t}
             onClick={() => setTab(t)}
             className={`px-3 py-2 text-xs font-medium border-b-2 -mb-px ${
-              tab === t ? "border-ci-accent text-white" : "border-transparent text-ci-muted"
+              tab === t ? "border-ci-accent text-ci-accent" : "border-transparent text-ci-muted"
             }`}
           >
             {t === "ledger" ? "General Ledger" : "Banking & Cheques"}
@@ -182,7 +182,7 @@ export default function Accounting() {
                 <button onClick={() => setLines((ls) => [...ls, emptyLine()])} className="text-[11px] text-ci-accent">
                   + Add line
                 </button>
-                {jvError && <p className="text-[11px] text-red-400">{jvError}</p>}
+                {jvError && <p className="text-[11px] text-red-600">{jvError}</p>}
                 <div className="flex gap-2 pt-1">
                   <button onClick={submitJournal} className="rounded-md bg-ci-accent px-3 py-1.5 text-xs font-medium text-white">
                     Save as draft
@@ -232,7 +232,7 @@ export default function Accounting() {
                           Cancel
                         </button>
                       </div>
-                      {postErrors[j.id] && <p className="text-[11px] text-red-400 mt-1">{postErrors[j.id]}</p>}
+                      {postErrors[j.id] && <p className="text-[11px] text-red-600 mt-1">{postErrors[j.id]}</p>}
                     </div>
                   )}
                 </div>
