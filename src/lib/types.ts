@@ -291,6 +291,22 @@ export interface FormSubmission {
   createdAt: string;
 }
 
+export interface SignatureRequest {
+  id: string;
+  title: string;
+  customerId?: string;
+  documentName: string;
+  status: "pending" | "signed" | "declined";
+  signedAt?: string;
+}
+
+export interface Expense {
+  id: string;
+  vendor: string;
+  amount: number;
+  scannedAt: string;
+}
+
 export interface Meeting {
   id: string;
   customerId?: string;
@@ -298,6 +314,7 @@ export interface Meeting {
   start: string;
   end: string;
   attendees: string[];
+  completed?: boolean;
 }
 
 export interface SupportTicket {
@@ -356,6 +373,8 @@ export interface AppState {
   channels: ChatChannel[];
   chatMessages: ChatMessage[];
   formSubmissions: FormSubmission[];
+  signatureRequests: SignatureRequest[];
+  expenses: Expense[];
   /** Notifications a user has dismissed — notifications themselves are computed, not stored, so read state is the only thing that needs persisting. */
   dismissedNotificationIds: string[];
 }

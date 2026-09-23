@@ -34,6 +34,9 @@ import Knowledge from "@/modules/knowledge/Knowledge";
 import Chat from "@/modules/chat/Chat";
 import Forms from "@/modules/forms/Forms";
 import Search from "@/modules/search/Search";
+import Sign from "@/modules/sign/Sign";
+import Meet from "@/modules/meet/Meet";
+import Scan from "@/modules/scan/Scan";
 
 /**
  * Registry module id -> its real component. This is the one place that
@@ -76,6 +79,9 @@ const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
   "ci-chat": Chat,
   "ci-forms": Forms,
   "ci-search": Search,
+  "ci-sign": Sign,
+  "ci-meet": Meet,
+  "ci-scan": Scan,
 };
 
 export default function ModulePage() {

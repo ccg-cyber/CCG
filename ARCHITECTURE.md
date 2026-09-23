@@ -172,7 +172,7 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Thirty-three modules — over a third of the full map — are wired up end-to-end against the one shared dataset:
+Thirty-six modules — 40% of the full map — are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
@@ -208,9 +208,12 @@ Thirty-three modules — over a third of the full map — are wired up end-to-en
 | CI Knowledge | Intelligence | First non-transactional module — durable content, not a status ladder |
 | CI Chat | Communicate | First synchronous module — persisted channels and messages |
 | CI Forms | Work | First module other modules are *consumed through* — a submission creates a real ticket or candidate, not a stored blob |
-| CI Search | Files | Searches real records across all 33 live modules — distinct from the module-name search in the top bar |
+| CI Search | Files | Searches real records across all 36 live modules — distinct from the module-name search in the top bar |
+| CI Sign | Files | Signing calls addDriveFile() directly — a real document lands in CI Drive |
+| CI Meet | Communicate | Reads CI Calendar's meetings; ending one creates real CI Tasks from typed action items |
+| CI Scan | Files | A text-based stand-in for OCR that still produces a real record and a real filed document |
 
-The other 57 are registered with real names, categories, descriptions and
+The other 54 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
@@ -319,13 +322,14 @@ later (an API call from `CI API HUB`, say) costs nothing structurally.
 4. **CI Autonomy Control** as an actual policy surface — today
    `needsApproval` is hardcoded per intent in `ask-ci.ts`; it should be a
    configurable rule a human sets, not a constant in the router.
-5. Promote the next handful of modules from `planned` to `live`. 33 of 90
-   are done — over a third of the map. Natural next candidates:
-   **CI Sign** (CI Contracts tracks expiry but nothing represents actually
-   getting one signed — the natural companion to the "renew" flow already
-   built), **CI Meet** (CI Calendar schedules meetings but nothing
-   represents joining one — the synchronous counterpart CI Chat just
-   proved out), and **CI Scan** (CI Forms proved "a UI is a front door
-   onto existing mutations"; a scanned receipt or invoice feeding
-   `createTicket()` or a new `receiveStock()`-like function would be the
-   same pattern from a camera instead of a form).
+5. Promote the next handful of modules from `planned` to `live`. 36 of 90
+   are done — 40% of the map. Natural next candidates: **CI Archive** (CI
+   Contracts and CI Sign both produce documents with a real lifecycle now;
+   nothing yet represents retiring one), **CI Assistant** (Ask CI has
+   lived on the Home dashboard from day one; promoting it to its own
+   module would make it reachable the way every other capability is,
+   rather than being Home-only), and **CI Website** (every module so far
+   is internal-facing; a public-facing surface reading the same CI CRM/
+   Contacts data — a lead capture form feeding the exact `submitContactForm()`
+   CI Forms already built — would be the first module built for someone
+   outside the company).

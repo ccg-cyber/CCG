@@ -10,7 +10,7 @@ import type { ModuleDefinition } from "./types";
  *   - "scaffolded"  has a route and placeholder screen
  *   - "planned"     registered so the shape of the OS is complete; not built
  *
- * 33 modules are wired up end-to-end so far, sharing one dataset
+ * 36 modules are wired up end-to-end so far, sharing one dataset
  * (src/lib/data.ts) rather than being isolated demos. The rest are
  * registered and navigable but not yet built — see MODULES.md for the
  * always-current live count and full breakdown by category.
@@ -62,7 +62,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-chat", slug: "chat", name: "CI Chat", replaces: "Teams / Slack", category: "communicate", status: "live",
     description: "DMs, channels, threads, mentions, searchable history, AI summaries.",
     keywords: ["chat", "slack", "teams", "messaging"] },
-  { id: "ci-meet", slug: "meet", name: "CI Meet", category: "communicate", status: "planned",
+  { id: "ci-meet", slug: "meet", name: "CI Meet", category: "communicate", status: "live",
     description: "Video meetings, captions, transcription, action items, auto summaries.",
     keywords: ["meeting", "video call", "zoom", "transcription"] },
   { id: "ci-communications", slug: "communications", name: "CI Communications", category: "communicate", status: "planned",
@@ -79,10 +79,10 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-search", slug: "search", name: "CI Search", category: "files", status: "live",
     description: "One semantic search across mail, files, PDFs, chats, records and systems.",
     keywords: ["search", "find", "lookup"] },
-  { id: "ci-scan", slug: "scan", name: "CI Scan", category: "files", status: "planned",
+  { id: "ci-scan", slug: "scan", name: "CI Scan", category: "files", status: "live",
     description: "Camera/scanner capture, OCR, receipt detection, automatic filing.",
     keywords: ["scan", "ocr", "camera"] },
-  { id: "ci-sign", slug: "sign", name: "CI Sign", replaces: "DocuSign", category: "files", status: "planned",
+  { id: "ci-sign", slug: "sign", name: "CI Sign", replaces: "DocuSign", category: "files", status: "live",
     description: "E-signatures, approval chains, audit trails, reusable templates.",
     keywords: ["signature", "docusign", "esign"] },
   { id: "ci-archive", slug: "archive", name: "CI Archive", category: "files", status: "planned",

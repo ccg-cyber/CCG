@@ -52,10 +52,13 @@ the code, always current).
 | CI Knowledge | ✅ Live — the first non-transactional module: durable content |
 | CI Chat | ✅ Live — real channels and messages, persisted |
 | CI Forms | ✅ Live — a submission creates a real ticket or a real candidate |
-| CI Search | ✅ Live — searches real records across all 33 modules, not just names |
-| 57 more modules | ⬜ Registered, searchable, not yet built |
+| CI Search | ✅ Live — searches real records across all 36 modules, not just names |
+| CI Sign | ✅ Live — signing a document actually files it in CI Drive |
+| CI Meet | ✅ Live — ending a meeting with action items creates real CI Tasks |
+| CI Scan | ✅ Live — parses a receipt into a real expense, files it in CI Drive |
+| 54 more modules | ⬜ Registered, searchable, not yet built |
 
-All thirty-three live modules (over a third of the full map) read and write **one shared, persisted dataset**
+All thirty-six live modules (40% of the full map) read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four

@@ -28,6 +28,8 @@ import type {
   ChatChannel,
   ChatMessage,
   FormSubmission,
+  SignatureRequest,
+  Expense,
 } from "./types";
 
 /**
@@ -221,6 +223,13 @@ const CHAT_MESSAGES: ChatMessage[] = [
 
 const FORM_SUBMISSIONS: FormSubmission[] = [];
 
+const SIGNATURE_REQUESTS: SignatureRequest[] = [
+  { id: "sign-acme-renewal", title: "Renewed support agreement", customerId: "cust-acme", documentName: "Acme Ltd. — Support Renewal.pdf", status: "pending" },
+  { id: "sign-offer-morgan", title: "New hire offer letter — Morgan Blake", documentName: "Offer Letter — Morgan Blake.pdf", status: "pending" },
+];
+
+const EXPENSES: Expense[] = [];
+
 const SEED: AppState = {
   customers: CUSTOMERS,
   invoices: INVOICES,
@@ -250,6 +259,8 @@ const SEED: AppState = {
   channels: CHANNELS,
   chatMessages: CHAT_MESSAGES,
   formSubmissions: FORM_SUBMISSIONS,
+  signatureRequests: SIGNATURE_REQUESTS,
+  expenses: EXPENSES,
   dismissedNotificationIds: [],
 };
 
@@ -910,6 +921,78 @@ export function searchAllRecords(state: AppState, query: string): SearchResult[]
   }
 
   return results.slice(0, 40);
+}
+
+export function signDocument(id: string) {
+  const request = appStore.get().signatureRequests.find((r) => r.id === id);
+  if (!request || request.status !== "pending") return;
+
+  appStore.set((s) => ({
+    ...s,
+    signatureRequests: s.signatureRequests.map((r) => (r.id === id ? { ...r, status: "signed", signedAt: now() } : r)),
+  }));
+  addDriveFile({ customerId: request.customerId, name: request.documentName, type: "pdf", owner: "You" });
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-sign",
+    action: `Signed "${request.title}", filed "${request.documentName}" in CI Drive`,
+  });
+}
+
+export function declineSignature(id: string) {
+  const request = appStore.get().signatureRequests.find((r) => r.id === id);
+  if (!request || request.status !== "pending") return;
+  appStore.set((s) => ({
+    ...s,
+    signatureRequests: s.signatureRequests.map((r) => (r.id === id ? { ...r, status: "declined" } : r)),
+  }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-sign", action: `Declined "${request.title}"` });
+}
+
+export function endMeeting(id: string, actionItemsText: string) {
+  const meeting = appStore.get().meetings.find((m) => m.id === id);
+  if (!meeting) return;
+  const lines = actionItemsText
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  for (const line of lines) addTask(`${line} (from "${meeting.title}")`);
+
+  appStore.set((s) => ({
+    ...s,
+    meetings: s.meetings.map((m) => (m.id === id ? { ...m, completed: true } : m)),
+  }));
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-meet",
+    action: `Ended "${meeting.title}", created ${lines.length} task(s) in CI Tasks`,
+  });
+}
+
+/**
+ * A stand-in for OCR: rather than pretend to read pixels, it parses
+ * plain text the way a real OCR/document-intelligence step would hand it
+ * off — the point (proving "capture -> structured record -> filed
+ * document") doesn't depend on where the text came from.
+ */
+export function scanReceipt(rawText: string) {
+  const lines = rawText.split("\n").map((l) => l.trim()).filter(Boolean);
+  const vendor = lines[0] || "Unknown vendor";
+  const amountMatch = rawText.match(/\$?\s?(\d+(?:\.\d{2})?)/);
+  const amount = amountMatch ? Number(amountMatch[1]) : 0;
+
+  const expense: Expense = { id: uid("exp"), vendor, amount, scannedAt: now() };
+  appStore.set((s) => ({ ...s, expenses: [expense, ...s.expenses] }));
+  const file = addDriveFile({ name: `Receipt — ${vendor}.pdf`, type: "pdf", owner: "CI Agent" });
+  addAuditEvent({
+    actor: "agent",
+    actorName: "CI Agent",
+    moduleId: "ci-scan",
+    action: `Scanned receipt from ${vendor} for $${amount.toLocaleString()}, filed "${file.name}" in CI Drive`,
+  });
 }
 
 export function resetDemoData() {
