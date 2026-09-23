@@ -516,4 +516,10 @@ export interface AppState {
   dismissedNotificationIds: string[];
   /** CI Admin Center — OS-shell-level appearance, not business data, but it lives here so it survives reloads the same way everything else does. */
   uiPreferences: { wallpaper: string };
+  /** Real, editable identity — every "You" a mutation function logs (Audit
+   * actor, a chat message's sender, a scheduled meeting's attendee, a
+   * signed document's owner) reads this, not a hardcoded string. This is
+   * the piece that was missing for Ci to feel like *your* account rather
+   * than a fixed demo persona — see CI Admin Center's "My Profile" section. */
+  currentUser: { name: string; email: string; title: string };
 }

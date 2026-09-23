@@ -404,6 +404,7 @@ const SEED: AppState = {
   governance: GOVERNANCE,
   dismissedNotificationIds: [],
   uiPreferences: { wallpaper: "default" },
+  currentUser: { name: "You", email: "owner@company.example", title: "Owner" },
 };
 
 export const appStore = createStore<AppState>("ci-os-app-state-v1", SEED);
@@ -478,7 +479,7 @@ export async function uploadFileToDrive(file: File, customerId?: string): Promis
   const record = addDriveFile({
     name: file.name,
     type: driveFileTypeFor(file.type),
-    owner: "You",
+    owner: currentUserName(),
     customerId,
     hasBlob: true,
     mimeType: file.type || "application/octet-stream",
@@ -487,7 +488,7 @@ export async function uploadFileToDrive(file: File, customerId?: string): Promis
   await saveFileBlob(record.id, file);
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-drive",
     action: `Uploaded "${file.name}" (${formatBytes(file.size)})`,
   });
@@ -507,7 +508,7 @@ export async function deleteDriveFilePermanently(id: string): Promise<void> {
   if (!file) return;
   if (file.hasBlob) await deleteFileBlob(id);
   appStore.set((s) => ({ ...s, files: s.files.filter((f) => f.id !== id) }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-drive", action: `Permanently deleted "${file.name}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-drive", action: `Permanently deleted "${file.name}"` });
 }
 
 /**
@@ -525,7 +526,7 @@ export function convertToPdf(fileId: string): DriveFile | undefined {
     owner: file.owner,
     customerId: file.customerId,
   });
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-pdf", action: `Converted "${file.name}" to PDF — filed "${pdf.name}" in CI Drive` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-pdf", action: `Converted "${file.name}" to PDF — filed "${pdf.name}" in CI Drive` });
   return pdf;
 }
 
@@ -536,7 +537,7 @@ export function mergePdfFiles(fileIds: string[], mergedName: string): DriveFile 
   const merged = addDriveFile({ name: mergedName, type: "pdf", owner: sources[0].owner });
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-pdf",
     action: `Merged ${sources.length} file(s) (${sources.map((f) => f.name).join(", ")}) into "${merged.name}"`,
   });
@@ -561,7 +562,7 @@ export function decideApproval(id: string, decision: "approved" | "rejected") {
 
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: approval.moduleId,
     action: decision === "approved" ? `Approved: ${approval.title}` : `Rejected: ${approval.title}`,
   });
@@ -679,7 +680,7 @@ export function runPayroll() {
   const total = active.reduce((sum, e) => sum + monthlyPay(e), 0);
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-payroll",
     action: `Ran payroll for ${active.length} employee(s): $${total.toLocaleString(undefined, { maximumFractionDigits: 0 })} total`,
   });
@@ -715,12 +716,12 @@ export function createPurchaseOrder(supplierId: string, description: string, amo
 
 export function setPoAutoApproveThreshold(value: number) {
   appStore.set((s) => ({ ...s, governance: { ...s.governance, poAutoApproveThreshold: value } }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-governance", action: `Set PO auto-approve threshold to $${value.toLocaleString()}` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-governance", action: `Set PO auto-approve threshold to $${value.toLocaleString()}` });
 }
 
 export function setAutomationEnabled(id: string, enabled: boolean) {
   appStore.set((s) => ({ ...s, automations: { ...s.automations, [id]: enabled } }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-marketplace", action: `${enabled ? "Enabled" : "Disabled"} automation "${id}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-marketplace", action: `${enabled ? "Enabled" : "Disabled"} automation "${id}"` });
 }
 
 export function addEmployee(name: string, role: string, department: string, baseSalary: number) {
@@ -735,7 +736,7 @@ export function addEmployee(name: string, role: string, department: string, base
     ptoBalance: 15,
   };
   appStore.set((s) => ({ ...s, employees: [...s.employees, employee] }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-hr", action: `Added employee ${name} (${role})` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-hr", action: `Added employee ${name} (${role})` });
 }
 
 export function logTimeOff(employeeId: string, days: number) {
@@ -747,7 +748,7 @@ export function logTimeOff(employeeId: string, days: number) {
   }));
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-attendance",
     action: `Logged ${days} day(s) off for ${employee.name} (${employee.ptoBalance - days} remaining)`,
   });
@@ -762,21 +763,21 @@ export function startProduction(id: string) {
       o.id === id ? { ...o, status: "in-progress", startedAt: o.startedAt ?? now() } : o
     ),
   }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-manufacturing", action: `Started "${order.name}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-manufacturing", action: `Started "${order.name}"` });
 }
 
 export function pauseProduction(id: string) {
   const order = appStore.get().productionOrders.find((o) => o.id === id);
   if (!order || order.status !== "in-progress") return;
   appStore.set((s) => ({ ...s, productionOrders: s.productionOrders.map((o) => (o.id === id ? { ...o, status: "paused" } : o)) }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-manufacturing", action: `Paused "${order.name}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-manufacturing", action: `Paused "${order.name}"` });
 }
 
 export function cancelProduction(id: string) {
   const order = appStore.get().productionOrders.find((o) => o.id === id);
   if (!order || order.status === "completed") return;
   appStore.set((s) => ({ ...s, productionOrders: s.productionOrders.map((o) => (o.id === id ? { ...o, status: "cancelled" } : o)) }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-manufacturing", action: `Cancelled "${order.name}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-manufacturing", action: `Cancelled "${order.name}"` });
 }
 
 /**
@@ -818,7 +819,7 @@ export function completeProduction(id: string, actuals: Record<string, number> =
   const variance = resolved.filter((i) => i.consumed !== i.quantity);
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-manufacturing",
     action: `Completed "${order.name}" — produced ${order.outputQuantity} unit(s) of ${outputItem?.name ?? order.outputItemId}`,
   });
@@ -920,7 +921,7 @@ export function renewContract(id: string) {
   }));
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-contracts",
     action: `Renewed "${contract.title}" through ${nextISO}`,
   });
@@ -962,7 +963,7 @@ export function markInvoicePaid(id: string) {
   if (invoice) {
     addAuditEvent({
       actor: "user",
-      actorName: "You",
+      actorName: currentUserName(),
       moduleId: "ci-invoicing",
       action: `Marked invoice #${invoice.number} as paid`,
     });
@@ -978,10 +979,10 @@ export function scheduleMeeting(title: string, startISO: string, customerId?: st
     title,
     start: start.toISOString(),
     end: end.toISOString(),
-    attendees: ["You"],
+    attendees: [currentUserName()],
   };
   appStore.set((s) => ({ ...s, meetings: [...s.meetings, meeting] }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-calendar", action: `Scheduled "${title}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-calendar", action: `Scheduled "${title}"` });
 }
 
 export function advanceTicketStatus(id: string) {
@@ -996,7 +997,7 @@ export function advanceTicketStatus(id: string) {
   }));
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-customer-service",
     action: `Ticket "${ticket.subject}" moved to ${next}`,
   });
@@ -1005,7 +1006,7 @@ export function advanceTicketStatus(id: string) {
 export function addCustomer(name: string, email: string, company: string) {
   const customer: Customer = { id: uid("cust"), name, email, company, tags: [] };
   appStore.set((s) => ({ ...s, customers: [...s.customers, customer] }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-contacts", action: `Added contact ${name}` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-contacts", action: `Added contact ${name}` });
 }
 
 export function setTarget(customerId: string, value: number) {
@@ -1020,7 +1021,7 @@ export function projectProgress(state: AppState, projectId: string): { done: num
 export function addProject(name: string, dueDate: string) {
   const project: Project = { id: uid("proj"), name, dueDate, status: "on-track" };
   appStore.set((s) => ({ ...s, projects: [...s.projects, project] }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-projects", action: `Created project "${name}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-projects", action: `Created project "${name}"` });
 }
 
 export function decideQuote(id: string, decision: "sent" | "accepted" | "declined") {
@@ -1038,7 +1039,7 @@ export function decideQuote(id: string, decision: "sent" | "accepted" | "decline
 
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-sales",
     action: `Quote "${quote.description}" marked ${decision}`,
   });
@@ -1069,7 +1070,7 @@ export function reviewPolicy(id: string) {
     ...s,
     policies: s.policies.map((p) => (p.id === id ? { ...p, status: "compliant", lastReviewed: now().slice(0, 10) } : p)),
   }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-legal", action: `Reviewed policy "${policy.name}" — marked compliant` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-legal", action: `Reviewed policy "${policy.name}" — marked compliant` });
 }
 
 const STAGE_ORDER: Candidate["stage"][] = ["applied", "interview", "offer", "hired"];
@@ -1084,7 +1085,7 @@ export function advanceCandidate(id: string) {
     ...s,
     candidates: s.candidates.map((c) => (c.id === id ? { ...c, stage: next } : c)),
   }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-recruit", action: `${candidate.name} moved to ${next}` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-recruit", action: `${candidate.name} moved to ${next}` });
 
   // Hiring isn't just a label change — it's the real-world event that
   // creates the employee record CI HR (and everything reading it, like
@@ -1107,7 +1108,7 @@ export function rejectCandidate(id: string) {
     ...s,
     candidates: s.candidates.map((c) => (c.id === id ? { ...c, stage: "rejected" } : c)),
   }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-recruit", action: `${candidate.name} rejected` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-recruit", action: `${candidate.name} rejected` });
 }
 
 export function sellStock(itemId: string, quantity: number) {
@@ -1122,7 +1123,7 @@ export function sellStock(itemId: string, quantity: number) {
   }));
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-pos",
     action: `Sold ${quantity}x ${item.name} for $${total.toLocaleString()}`,
   });
@@ -1135,7 +1136,7 @@ export function dispatchShipment(id: string, carrier: string) {
     ...s,
     shipments: s.shipments.map((sh) => (sh.id === id ? { ...sh, status: "in-transit", carrier, dispatchedAt: now() } : sh)),
   }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-logistics", action: `Dispatched "${shipment.description}" via ${carrier}` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-logistics", action: `Dispatched "${shipment.description}" via ${carrier}` });
 }
 
 export function deliverShipment(id: string) {
@@ -1145,7 +1146,7 @@ export function deliverShipment(id: string) {
     ...s,
     shipments: s.shipments.map((sh) => (sh.id === id ? { ...sh, status: "delivered", deliveredAt: now() } : sh)),
   }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-logistics", action: `Marked "${shipment.description}" delivered` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-logistics", action: `Marked "${shipment.description}" delivered` });
 }
 
 export function assetCurrentValue(asset: Asset, referenceDate = new Date()): number {
@@ -1163,7 +1164,7 @@ export function assignAsset(assetId: string, employeeId: string) {
     ...s,
     assets: s.assets.map((a) => (a.id === assetId ? { ...a, assignedToEmployeeId: employeeId, status: "in-use" } : a)),
   }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-assets", action: `Assigned "${asset.name}" to ${employee.name}` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-assets", action: `Assigned "${asset.name}" to ${employee.name}` });
 }
 
 export function unassignAsset(assetId: string) {
@@ -1173,7 +1174,7 @@ export function unassignAsset(assetId: string) {
     ...s,
     assets: s.assets.map((a) => (a.id === assetId ? { ...a, assignedToEmployeeId: undefined, status: "in-storage" } : a)),
   }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-assets", action: `Returned "${asset.name}" to storage` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-assets", action: `Returned "${asset.name}" to storage` });
 }
 
 export function saveArticle(id: string, title: string, body: string) {
@@ -1181,14 +1182,14 @@ export function saveArticle(id: string, title: string, body: string) {
     ...s,
     articles: s.articles.map((a) => (a.id === id ? { ...a, title, body, updatedAt: now().slice(0, 10) } : a)),
   }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-knowledge", action: `Updated article "${title}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-knowledge", action: `Updated article "${title}"` });
 }
 
 export function postMessage(channelId: string, text: string) {
   if (!text.trim()) return;
   appStore.set((s) => ({
     ...s,
-    chatMessages: [...s.chatMessages, { id: uid("chat"), channelId, from: "You", text: text.trim(), time: now() }],
+    chatMessages: [...s.chatMessages, { id: uid("chat"), channelId, from: currentUserName(), text: text.trim(), time: now() }],
   }));
 }
 
@@ -1214,7 +1215,7 @@ function recordFormSubmission(formName: string, summary: string) {
     ...s,
     formSubmissions: [{ id: uid("sub"), formName, summary, createdAt: now() }, ...s.formSubmissions],
   }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-forms", action: `${formName}: ${summary}` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-forms", action: `${formName}: ${summary}` });
 }
 
 /**
@@ -1310,10 +1311,10 @@ export function signDocument(id: string) {
     ...s,
     signatureRequests: s.signatureRequests.map((r) => (r.id === id ? { ...r, status: "signed", signedAt: now() } : r)),
   }));
-  addDriveFile({ customerId: request.customerId, name: request.documentName, type: "pdf", owner: "You" });
+  addDriveFile({ customerId: request.customerId, name: request.documentName, type: "pdf", owner: currentUserName() });
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-sign",
     action: `Signed "${request.title}", filed "${request.documentName}" in CI Drive`,
   });
@@ -1326,7 +1327,7 @@ export function declineSignature(id: string) {
     ...s,
     signatureRequests: s.signatureRequests.map((r) => (r.id === id ? { ...r, status: "declined" } : r)),
   }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-sign", action: `Declined "${request.title}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-sign", action: `Declined "${request.title}"` });
 }
 
 export function endMeeting(id: string, actionItemsText: string) {
@@ -1345,7 +1346,7 @@ export function endMeeting(id: string, actionItemsText: string) {
   }));
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-meet",
     action: `Ended "${meeting.title}", created ${lines.length} task(s) in CI Tasks`,
   });
@@ -1384,14 +1385,14 @@ export function archiveFile(id: string) {
   const file = appStore.get().files.find((f) => f.id === id);
   if (!file) return;
   appStore.set((s) => ({ ...s, files: s.files.map((f) => (f.id === id ? { ...f, archived: true } : f)) }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-archive", action: `Archived "${file.name}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-archive", action: `Archived "${file.name}"` });
 }
 
 export function restoreFromArchive(id: string) {
   const file = appStore.get().files.find((f) => f.id === id);
   if (!file) return;
   appStore.set((s) => ({ ...s, files: s.files.map((f) => (f.id === id ? { ...f, archived: false } : f)) }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-archive", action: `Restored "${file.name}" from archive` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-archive", action: `Restored "${file.name}" from archive` });
 }
 
 /**
@@ -1426,7 +1427,7 @@ export function importCustomersCsv(csvText: string): { imported: number; skipped
   }
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-data-hub",
     action: `Imported ${newCustomers.length} customer(s) from CSV (${skipped} skipped as duplicates)`,
   });
@@ -1455,7 +1456,7 @@ export function createJournalEntry(reference: string, currency: Currency, lines:
     status: "draft",
   };
   appStore.set((s) => ({ ...s, journalEntries: [entry, ...s.journalEntries] }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-accounting", action: `Created draft journal entry "${reference}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-accounting", action: `Created draft journal entry "${reference}"` });
   return entry;
 }
 
@@ -1469,7 +1470,7 @@ export function postJournalEntry(id: string): { ok: boolean; error?: string } {
     return { ok: false, error: `Not balanced — debit $${debit.toFixed(2)} vs. credit $${credit.toFixed(2)}` };
   }
   appStore.set((s) => ({ ...s, journalEntries: s.journalEntries.map((j) => (j.id === id ? { ...j, status: "posted" } : j)) }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-accounting", action: `Posted journal entry "${entry.reference}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-accounting", action: `Posted journal entry "${entry.reference}"` });
   return { ok: true };
 }
 
@@ -1477,7 +1478,7 @@ export function cancelJournalEntry(id: string) {
   const entry = appStore.get().journalEntries.find((j) => j.id === id);
   if (!entry || entry.status === "cancelled") return;
   appStore.set((s) => ({ ...s, journalEntries: s.journalEntries.map((j) => (j.id === id ? { ...j, status: "cancelled" } : j)) }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-accounting", action: `Cancelled journal entry "${entry.reference}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-accounting", action: `Cancelled journal entry "${entry.reference}"` });
 }
 
 export function createCheque(cheque: Omit<Cheque, "id" | "status">): Cheque {
@@ -1485,7 +1486,7 @@ export function createCheque(cheque: Omit<Cheque, "id" | "status">): Cheque {
   appStore.set((s) => ({ ...s, cheques: [record, ...s.cheques] }));
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-accounting",
     action: `Recorded ${cheque.type} cheque #${cheque.chequeNo} — $${cheque.amount.toLocaleString()} ${cheque.currency}, due ${cheque.dueDate}`,
   });
@@ -1501,7 +1502,7 @@ export function updateChequeStatus(id: string, status: Cheque["status"]) {
   appStore.set((s) => ({ ...s, cheques: s.cheques.map((c) => (c.id === id ? { ...c, status } : c)) }));
   addAuditEvent({
     actor: "user",
-    actorName: "You",
+    actorName: currentUserName(),
     moduleId: "ci-accounting",
     action: `Cheque #${cheque.chequeNo} marked ${status}`,
   });
@@ -1515,20 +1516,20 @@ export function updateChequeStatus(id: string, status: Cheque["status"]) {
  */
 export function updateCompanyProfile(patch: Partial<Pick<ErpSettings, "companyName" | "baseCurrency" | "fiscalYearStartMonth">>) {
   appStore.set((s) => ({ ...s, erp: { ...s.erp, ...patch } }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-erp-core", action: "Updated company profile" });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-erp-core", action: "Updated company profile" });
 }
 
 export function addBranch(name: string, address: string) {
   const branch: ErpBranch = { id: uid("branch"), name, address };
   appStore.set((s) => ({ ...s, erp: { ...s.erp, branches: [...s.erp.branches, branch] } }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-erp-core", action: `Added branch "${name}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-erp-core", action: `Added branch "${name}"` });
 }
 
 export function removeBranch(id: string) {
   const branch = appStore.get().erp.branches.find((b) => b.id === id);
   if (!branch) return;
   appStore.set((s) => ({ ...s, erp: { ...s.erp, branches: s.erp.branches.filter((b) => b.id !== id) } }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-erp-core", action: `Removed branch "${branch.name}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-erp-core", action: `Removed branch "${branch.name}"` });
 }
 
 export function createPresentation(title: string): Presentation {
@@ -1538,7 +1539,7 @@ export function createPresentation(title: string): Presentation {
     slides: [{ id: uid("slide"), heading: title, body: "" }],
   };
   appStore.set((s) => ({ ...s, presentations: [presentation, ...s.presentations] }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-present", action: `Created presentation "${title}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-present", action: `Created presentation "${title}"` });
   return presentation;
 }
 
@@ -1586,7 +1587,7 @@ export function reorderSlide(presentationId: string, slideId: string, direction:
 export function createDesignProject(name: string): DesignProject {
   const project: DesignProject = { id: uid("design"), name, canvasWidth: 400, canvasHeight: 300, elements: [] };
   appStore.set((s) => ({ ...s, designProjects: [project, ...s.designProjects] }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-design", action: `Created design "${name}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-design", action: `Created design "${name}"` });
   return project;
 }
 
@@ -1624,7 +1625,7 @@ export function deleteDesignElement(projectId: string, elementId: string) {
 export function createWorkflowRule(name: string, trigger: WorkflowTrigger, actionTitleTemplate: string): WorkflowRule {
   const rule: WorkflowRule = { id: uid("wf"), name, enabled: true, trigger, actionTitleTemplate };
   appStore.set((s) => ({ ...s, workflowRules: [rule, ...s.workflowRules] }));
-  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-workflow-engine", action: `Created rule "${name}"` });
+  addAuditEvent({ actor: "user", actorName: currentUserName(), moduleId: "ci-workflow-engine", action: `Created rule "${name}"` });
   return rule;
 }
 
@@ -1711,6 +1712,18 @@ export function runWorkflows(): number {
 
 export function setWallpaper(key: string) {
   appStore.set((s) => ({ ...s, uiPreferences: { ...s.uiPreferences, wallpaper: key } }));
+}
+
+/** What every mutation function logs as the acting user's name — reads
+ * the real, editable profile (CI Admin Center's "My Profile") instead of
+ * a hardcoded "You". Falls back to "You" only if someone clears the
+ * field entirely, so an empty name never shows up blank in the audit log. */
+export function currentUserName(): string {
+  return appStore.get().currentUser.name.trim() || "You";
+}
+
+export function updateCurrentUser(patch: Partial<AppState["currentUser"]>) {
+  appStore.set((s) => ({ ...s, currentUser: { ...s.currentUser, ...patch } }));
 }
 
 export function resetDemoData() {

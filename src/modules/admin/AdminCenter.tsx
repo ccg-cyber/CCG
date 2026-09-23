@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useAppState, setWallpaper, resetDemoData } from "@/lib/data";
+import { useAppState, setWallpaper, resetDemoData, updateCurrentUser } from "@/lib/data";
 import { WALLPAPERS } from "@/os/wallpapers";
 import { estimateVfsUsage, countStoredBlobs, clearAllBlobs, formatBytes, type StorageEstimate } from "@/lib/vfs";
 
@@ -16,6 +16,9 @@ export default function AdminCenter() {
   const [confirmingClearFiles, setConfirmingClearFiles] = useState(false);
   const [estimate, setEstimate] = useState<StorageEstimate | null>(null);
   const [blobCount, setBlobCount] = useState<number | null>(null);
+  const [name, setName] = useState(state.currentUser.name);
+  const [email, setEmail] = useState(state.currentUser.email);
+  const [title, setTitle] = useState(state.currentUser.title);
 
   async function refreshStorage() {
     const [est, count] = await Promise.all([estimateVfsUsage(), countStoredBlobs()]);
@@ -47,6 +50,38 @@ export default function AdminCenter() {
         </Link>{" "}
         — this is device-level appearance and local data instead.
       </p>
+
+      <div className="rounded-lg border border-ci-border bg-ci-panel p-4">
+        <p className="text-sm font-medium mb-1">My profile</p>
+        <p className="text-xs text-ci-muted mb-3">
+          Who you are in Ci — every action you take (audit log entries, chat messages, uploaded files, signed
+          documents, scheduled meetings) is attributed to this name instead of a fixed "You".
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onBlur={() => name.trim() && name !== state.currentUser.name && updateCurrentUser({ name: name.trim() })}
+            placeholder="Your name"
+            className="flex-1 min-w-[140px] rounded-md border border-ci-border bg-ci-panel2 px-3 py-1.5 text-sm"
+          />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onBlur={() => email.trim() && email !== state.currentUser.email && updateCurrentUser({ email: email.trim() })}
+            placeholder="Your email"
+            className="flex-1 min-w-[140px] rounded-md border border-ci-border bg-ci-panel2 px-3 py-1.5 text-sm"
+          />
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={() => title.trim() && title !== state.currentUser.title && updateCurrentUser({ title: title.trim() })}
+            placeholder="Your title"
+            className="flex-1 min-w-[140px] rounded-md border border-ci-border bg-ci-panel2 px-3 py-1.5 text-sm"
+          />
+        </div>
+      </div>
 
       <div className="rounded-lg border border-ci-border bg-ci-panel p-4">
         <p className="text-sm font-medium mb-3">Desktop wallpaper</p>

@@ -1,7 +1,8 @@
-import { useAppState, decideApproval, customerName } from "@/lib/data";
+import { useAppState, decideApproval, customerName, currentUserName } from "@/lib/data";
 
 export default function Approvals() {
   const state = useAppState();
+  const you = currentUserName();
   const pending = state.approvals.filter((a) => a.status === "pending");
   const decided = state.approvals.filter((a) => a.status !== "pending");
 
@@ -24,7 +25,7 @@ export default function Approvals() {
                   <p className="text-xs text-ci-muted mt-0.5">{a.description}</p>
                 </div>
                 <span className="shrink-0 rounded-full border border-ci-border px-2 py-0.5 text-[11px] text-ci-muted">
-                  {a.createdBy === "agent" ? "CI Agent" : "You"}
+                  {a.createdBy === "agent" ? "CI Agent" : you}
                 </span>
               </div>
 

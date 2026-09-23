@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { OSWindow } from "./WindowManagerContext";
 
 interface Props {
@@ -17,6 +17,15 @@ interface Props {
 export default function Window({ win, title, active, onClose, onFocus, onMinimize, onToggleMaximize, onMove, onResize, children }: Props) {
   const dragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
   const resizeRef = useRef<{ startX: number; startY: number; originW: number; originH: number } | null>(null);
+  // A window should feel like it opens, not just appear — one frame at
+  // scale-95/opacity-0, then transition to full size. Runs once per real
+  // mount (a fresh `id`, i.e. actually opening — not every re-render), so
+  // reopening a minimized window doesn't replay it.
+  const [entered, setEntered] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
 
   if (win.minimized) return null;
 
@@ -60,7 +69,9 @@ export default function Window({ win, title, active, onClose, onFocus, onMinimiz
     <div
       onMouseDown={onFocus}
       data-testid={`window-${win.moduleId}`}
-      className={`absolute flex flex-col rounded-lg overflow-hidden border shadow-2xl ${active ? "border-ci-accent/50" : "border-ci-border"}`}
+      className={`absolute flex flex-col rounded-lg overflow-hidden border transition-[opacity,transform,box-shadow] duration-150 ease-out ${
+        active ? "border-ci-accent/50 shadow-2xl" : "border-ci-border shadow-md"
+      } ${entered ? "opacity-100 scale-100" : "opacity-0 scale-[0.97]"}`}
       style={{ left: win.x, top: win.y, width: win.width, height: win.height, zIndex: 10 + win.zIndex }}
     >
       <div

@@ -116,10 +116,23 @@ The shell now is a real desktop, in `src/os/`:
   double-click-titlebar-to-maximize. No drag/resize library — plain
   `mousedown`/`mousemove`/`mouseup` listeners attached to `window` for the
   duration of the gesture, consistent with the rest of the stack's "no
-  dependency you don't need" discipline.
+  dependency you don't need" discipline. A freshly opened window mounts at
+  `opacity-0 scale-95` and transitions to full size/opacity one frame
+  later (`Window.tsx`'s `entered` state) — a real OS window opening feels
+  like something, it doesn't just appear — and carries a visibly heavier
+  shadow while focused (`shadow-2xl`) versus unfocused (`shadow-md`), so
+  which window has keyboard/click focus is never ambiguous at a glance.
+  Default window size dropped from 860×580 to 760×540 and the cascade
+  offset for each newly opened window widened from 26px to 44px/40px
+  (`WindowManagerContext.tsx`) — the old numbers left barely a titlebar's
+  width of the previous window clickable once three or four were open.
 - **`Desktop.tsx`** — the wallpaper, a curated column of desktop icons
-  (double-click to open, matching real OS semantics), and the render loop
-  over open windows. It also owns the one piece of routing logic left: a
+  (single click both selects and opens — matching the Start menu and the
+  mobile home-screen grid's single-tap-to-open, not the double-click a
+  desktop icon needed in an earlier pass, which read as broken to anyone
+  used to how every other launcher surface in this app already behaves),
+  and the render loop over open windows. It also owns the one piece of
+  routing logic left: a
   `useLocation()` effect that opens a window when the URL matches
   `/modules/:slug` (so old links, `Link`s inside module components, and
   bookmarks all still work) and opens `CI Home` by default the first time
@@ -303,6 +316,32 @@ same coin — everything a human or an agent does should be reconstructible
 later as a readable timeline. Not implemented yet in this slice, but the
 `AuditEvent` type in `src/lib/types.ts` reserves the shape (`actor`:
 `"user" | "agent" | "system"`) so it isn't an afterthought when it's built.
+
+## A real identity, not a fixed demo persona
+
+Every action Ci logs — an audit entry, a chat message's sender, a signed
+document's owner, a scheduled meeting's attendee, an uploaded file's owner —
+used to hard-code the literal string `"You"` at each of the 50-odd call
+sites in `src/lib/data.ts` that create one of those records. That's fine
+for a demo walkthrough and wrong for a real account: it means nobody can
+actually be *themselves* in the system.
+
+`AppState.currentUser: { name, email, title }` (`src/lib/types.ts`) fixes
+that. `currentUserName()` and `updateCurrentUser(patch)` (`src/lib/data.ts`)
+are the single choke point every one of those call sites reads through
+instead of the literal, and CI Admin Center's "My profile" section is the
+editable form: type a name and blur, and every subsequent action attributes
+to it. It's the same pattern `updateCompanyProfile` in CI ERP Core already
+used for company-wide fields — one small store slice, one update function,
+one form bound to it — not a new subsystem.
+
+This does not yet cover real email/file connectors: signing in as yourself
+and *connecting your actual Gmail or OneDrive account* needs OAuth token
+exchange through a real backend, which this client-only app doesn't have.
+See "Deployable on a company's own server, not a hosted demo" below — that
+gap is still open. What this section closes is the smaller, buildable-now
+half: the app now knows who you say you are, and reflects that back
+everywhere it previously said "You."
 
 ## What's actually live vs. mapped
 

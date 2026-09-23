@@ -67,8 +67,8 @@ export function hasRestorableSession(): boolean {
   return loadPersistedState().windows.length > 0;
 }
 
-const DEFAULT_WIDTH = 860;
-const DEFAULT_HEIGHT = 580;
+const DEFAULT_WIDTH = 760;
+const DEFAULT_HEIGHT = 540;
 const MIN_WIDTH = 360;
 const MIN_HEIGHT = 240;
 
@@ -93,9 +93,12 @@ function reducer(state: State, action: Action): State {
         // Offset clear of the desktop icon column (roughly x:0-110) so
         // the first window opened doesn't immediately bury every icon —
         // a real OS lets this happen too once you've moved windows
-        // around, but it shouldn't be the very first thing you see.
-        x: 150 + (count % 8) * 26,
-        y: 30 + (count % 8) * 26,
+        // around, but it shouldn't be the very first thing you see. A
+        // wider per-window step (44px, not the original 26px) keeps each
+        // new window's titlebar clearly clickable above the last one
+        // instead of nearly re-stacking on top of it.
+        x: 150 + (count % 6) * 44,
+        y: 30 + (count % 6) * 40,
         width,
         height,
         zIndex: state.nextZ,

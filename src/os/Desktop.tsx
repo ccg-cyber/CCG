@@ -82,16 +82,15 @@ function DesktopInner() {
             <button
               key={id}
               onMouseDown={(e) => e.stopPropagation()}
-              onClick={() => setSelectedIcon(id)}
-              onDoubleClick={() => {
+              onClick={() => {
+                setSelectedIcon(id);
                 openWindow(id);
-                setSelectedIcon(null);
               }}
-              className={`w-20 flex flex-col items-center gap-1 rounded-md px-1 py-2 text-center ${
-                selectedIcon === id ? "bg-black/8 ring-1 ring-black/15" : ""
+              className={`group w-20 flex flex-col items-center gap-1 rounded-md px-1 py-2 text-center transition-colors ${
+                selectedIcon === id ? "bg-black/8 ring-1 ring-black/15" : "hover:bg-black/5"
               }`}
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/70 shadow-sm text-ci-accent">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/80 shadow-sm text-ci-accent transition-transform duration-150 group-hover:scale-110 group-hover:shadow-md group-active:scale-95">
                 <ModuleIcon moduleId={id} className="h-5 w-5" />
               </span>
               <span className="text-[11px] text-ci-text leading-tight">{mod.name.replace("CI ", "")}</span>
