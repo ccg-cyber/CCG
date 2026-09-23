@@ -121,6 +121,7 @@ export interface DriveFile {
   type: "folder" | "doc" | "pdf" | "sheet";
   modified: string;
   owner: string;
+  archived?: boolean;
 }
 
 export interface Deal {

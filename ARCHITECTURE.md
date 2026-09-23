@@ -172,7 +172,7 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Thirty-six modules — 40% of the full map — are wired up end-to-end against the one shared dataset:
+Thirty-nine modules — over 40% of the full map — are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
@@ -212,8 +212,11 @@ Thirty-six modules — 40% of the full map — are wired up end-to-end against t
 | CI Sign | Files | Signing calls addDriveFile() directly — a real document lands in CI Drive |
 | CI Meet | Communicate | Reads CI Calendar's meetings; ending one creates real CI Tasks from typed action items |
 | CI Scan | Files | A text-based stand-in for OCR that still produces a real record and a real filed document |
+| CI Archive | Files | A filtered view of CI Drive's own files — archiving there changes what Drive itself shows |
+| CI Assistant | Intelligence | Ask CI given its own address — the same component embedded on Home, not a copy |
+| CI Website | Create | A third front door onto submitContactForm() — the public-site path costs nothing structurally |
 
-The other 54 are registered with real names, categories, descriptions and
+The other 51 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
@@ -322,14 +325,33 @@ later (an API call from `CI API HUB`, say) costs nothing structurally.
 4. **CI Autonomy Control** as an actual policy surface — today
    `needsApproval` is hardcoded per intent in `ask-ci.ts`; it should be a
    configurable rule a human sets, not a constant in the router.
-5. Promote the next handful of modules from `planned` to `live`. 36 of 90
-   are done — 40% of the map. Natural next candidates: **CI Archive** (CI
-   Contracts and CI Sign both produce documents with a real lifecycle now;
-   nothing yet represents retiring one), **CI Assistant** (Ask CI has
-   lived on the Home dashboard from day one; promoting it to its own
-   module would make it reachable the way every other capability is,
-   rather than being Home-only), and **CI Website** (every module so far
-   is internal-facing; a public-facing surface reading the same CI CRM/
-   Contacts data — a lead capture form feeding the exact `submitContactForm()`
-   CI Forms already built — would be the first module built for someone
-   outside the company).
+5. Promote the next handful of modules from `planned` to `live`. 39 of 90
+   are done — over 40% of the map. Natural next candidates: **CI
+   Marketplace** (CI Industry Packs and CI Marketplace are the only two
+   modules whose entire job is presenting *other* modules — a natural
+   pairing with the registry-as-data architecture itself), **CI
+   Governance** (CI Autonomy Control's `needsApproval` policy, once it
+   exists per priority 4 above, needs somewhere a human actually sets and
+   reviews it), and **CI Data Hub** (every module's seed data was typed by
+   hand into `data.ts`; a real import path — CSV in, records out through
+   the same mutation functions Forms and Scan already prove out — is the
+   next honest step before priority 1's real backend).
+
+## A bug the verification process actually caught
+
+`searchModules()` (used by the top bar's search and by Ask CI's keyword
+fallback) shipped in the very first commit checking whether a module's
+name/description/keywords *contained the entire query string* — which
+only ever matches when someone types a short phrase that happens to be a
+literal substring of a module's text. It was never wrong for the two
+demo scenarios or single-word searches, so nothing caught it through many
+rounds of verification. It surfaced only when CI Assistant was given its
+own page and "I need a video editor" — one of the three example buttons
+that had existed since the first commit — was actually clicked for the
+first time and returned "no module matches." The fix (score modules by
+how many significant words match, after stripping stopwords like "i" and
+"need") is in the same commit as CI Archive/Assistant/Website. The lesson
+this leaves for the roadmap: **exercising every UI affordance at least
+once, not just the paths a given batch's work touches, is part of what
+"verified" needs to mean going forward** — a passing build and a
+correct-looking screenshot are necessary, not sufficient.

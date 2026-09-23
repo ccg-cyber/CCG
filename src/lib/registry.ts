@@ -10,7 +10,7 @@ import type { ModuleDefinition } from "./types";
  *   - "scaffolded"  has a route and placeholder screen
  *   - "planned"     registered so the shape of the OS is complete; not built
  *
- * 36 modules are wired up end-to-end so far, sharing one dataset
+ * 39 modules are wired up end-to-end so far, sharing one dataset
  * (src/lib/data.ts) rather than being isolated demos. The rest are
  * registered and navigable but not yet built — see MODULES.md for the
  * always-current live count and full breakdown by category.
@@ -85,7 +85,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-sign", slug: "sign", name: "CI Sign", replaces: "DocuSign", category: "files", status: "live",
     description: "E-signatures, approval chains, audit trails, reusable templates.",
     keywords: ["signature", "docusign", "esign"] },
-  { id: "ci-archive", slug: "archive", name: "CI Archive", category: "files", status: "planned",
+  { id: "ci-archive", slug: "archive", name: "CI Archive", category: "files", status: "live",
     description: "Long-term retention, immutable records, legal hold policies.",
     keywords: ["archive", "retention", "legal hold"] },
 
@@ -167,7 +167,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-translate", slug: "translate", name: "CI Translate", category: "create", status: "planned",
     description: "Documents, messages, websites and subtitles translated with formatting kept.",
     keywords: ["translate", "translation", "language"] },
-  { id: "ci-website", slug: "website", name: "CI Website / Commerce", category: "create", status: "planned",
+  { id: "ci-website", slug: "website", name: "CI Website / Commerce", category: "create", status: "live",
     description: "Websites, landing pages, catalogues, online stores, checkout.",
     keywords: ["website", "ecommerce", "landing page", "store"] },
 
@@ -239,7 +239,7 @@ export const MODULES: ModuleDefinition[] = [
     keywords: ["industry pack", "vertical", "template"] },
 
   // ── Intelligence ────────────────────────────────────────────────────
-  { id: "ci-assistant", slug: "assistant", name: "CI Assistant", category: "intelligence", status: "planned",
+  { id: "ci-assistant", slug: "assistant", name: "CI Assistant", category: "intelligence", status: "live",
     description: "The universal conversational interface, available everywhere in the OS.",
     keywords: ["assistant", "chatbot", "ai"] },
   { id: "ci-agents", slug: "agents", name: "CI Agents", category: "intelligence", status: "planned",
@@ -316,14 +316,34 @@ export function modulesByCategory(category: string): ModuleDefinition[] {
   return MODULES.filter((m) => m.category === category);
 }
 
+const SEARCH_STOPWORDS = new Set([
+  "a", "an", "the", "i", "need", "want", "to", "for", "of", "in", "on", "with",
+  "is", "are", "my", "me", "please", "can", "you", "help", "some", "and",
+]);
+
+/**
+ * Word-level match, not whole-string containment: "I need a video editor"
+ * matching CI Video means each significant word is checked against the
+ * module's name/description/keywords/replaces, then results are ranked by
+ * how many words matched. A naive `.includes(wholeQuery)` — what this
+ * function did until it was caught — only ever matches a query that
+ * happens to be a literal substring of a module's text, which excludes
+ * almost every natural-language phrase a person or Ask CI's fallback
+ * would actually type.
+ */
 export function searchModules(query: string): ModuleDefinition[] {
   const q = query.trim().toLowerCase();
   if (!q) return [];
-  return MODULES.filter(
-    (m) =>
-      m.name.toLowerCase().includes(q) ||
-      m.description.toLowerCase().includes(q) ||
-      m.keywords.some((k) => k.includes(q)) ||
-      (m.replaces ?? "").toLowerCase().includes(q)
-  );
+
+  const words = q.split(/\s+/).filter((w) => w.length > 1 && !SEARCH_STOPWORDS.has(w));
+  const terms = words.length > 0 ? words : [q];
+
+  const scored = MODULES.map((m) => {
+    const haystack = `${m.name} ${m.description} ${m.keywords.join(" ")} ${m.replaces ?? ""}`.toLowerCase();
+    const score = terms.reduce((acc, t) => acc + (haystack.includes(t) ? 1 : 0), 0);
+    return { m, score };
+  }).filter((x) => x.score > 0);
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored.map((x) => x.m);
 }

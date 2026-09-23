@@ -995,6 +995,26 @@ export function scanReceipt(rawText: string) {
   });
 }
 
+/**
+ * CI Archive doesn't hold a private copy of "archived files" — it's a
+ * filtered view of the exact same CI Drive files, the same pattern CI
+ * Notifications established for Home. Archiving a file here is also
+ * what makes CI Drive itself stop showing it: one flag, two screens.
+ */
+export function archiveFile(id: string) {
+  const file = appStore.get().files.find((f) => f.id === id);
+  if (!file) return;
+  appStore.set((s) => ({ ...s, files: s.files.map((f) => (f.id === id ? { ...f, archived: true } : f)) }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-archive", action: `Archived "${file.name}"` });
+}
+
+export function restoreFromArchive(id: string) {
+  const file = appStore.get().files.find((f) => f.id === id);
+  if (!file) return;
+  appStore.set((s) => ({ ...s, files: s.files.map((f) => (f.id === id ? { ...f, archived: false } : f)) }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-archive", action: `Restored "${file.name}" from archive` });
+}
+
 export function resetDemoData() {
   appStore.set(SEED);
 }

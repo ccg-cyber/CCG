@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 36
+- ✅ Live: 39
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 54
+- ⬜ Planned: 51
 
 ---
 
@@ -58,7 +58,7 @@ Storage, search, scanning, e-signature, archiving.
 | **CI Search** | ✅ Live | — | One semantic search across mail, files, PDFs, chats, records and systems. |
 | **CI Scan** | ✅ Live | — | Camera/scanner capture, OCR, receipt detection, automatic filing. |
 | **CI Sign** | ✅ Live | DocuSign | E-signatures, approval chains, audit trails, reusable templates. |
-| **CI Archive** | ⬜ Planned | — | Long-term retention, immutable records, legal hold policies. |
+| **CI Archive** | ✅ Live | — | Long-term retention, immutable records, legal hold policies. |
 
 ## Business
 
@@ -98,7 +98,7 @@ Design, media, video, audio, translation, web presence.
 | **CI Video** | ⬜ Planned | — | Video editing, subtitles, transcription, brand templates, AI production. |
 | **CI Audio** | ⬜ Planned | — | Recording, voice notes, transcription, translation, speech generation. |
 | **CI Translate** | ⬜ Planned | — | Documents, messages, websites and subtitles translated with formatting kept. |
-| **CI Website / Commerce** | ⬜ Planned | — | Websites, landing pages, catalogues, online stores, checkout. |
+| **CI Website / Commerce** | ✅ Live | — | Websites, landing pages, catalogues, online stores, checkout. |
 
 ## IT
 
@@ -141,7 +141,7 @@ Assistant, agents, agent studio, knowledge, reasoning.
 
 | Module | Status | Replaces | Description |
 |---|---|---|---|
-| **CI Assistant** | ⬜ Planned | — | The universal conversational interface, available everywhere in the OS. |
+| **CI Assistant** | ✅ Live | — | The universal conversational interface, available everywhere in the OS. |
 | **CI Agents** | ⬜ Planned | — | Specialized agents: GM, HR, Sales, Accounting, Procurement, Support, Legal. |
 | **CI Agent Studio** | ⬜ Planned | — | Build an agent: instructions, knowledge, tools, permissions, thresholds. |
 | **CI Knowledge** | ✅ Live | — | Internal wiki, procedures, manuals, FAQs, SOPs, knowledge graph. |

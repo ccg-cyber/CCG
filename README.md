@@ -56,9 +56,12 @@ the code, always current).
 | CI Sign | ✅ Live — signing a document actually files it in CI Drive |
 | CI Meet | ✅ Live — ending a meeting with action items creates real CI Tasks |
 | CI Scan | ✅ Live — parses a receipt into a real expense, files it in CI Drive |
-| 54 more modules | ⬜ Registered, searchable, not yet built |
+| CI Archive | ✅ Live — a filtered view of CI Drive; archiving moves files here |
+| CI Assistant | ✅ Live — Ask CI's own address, the same component as on Home |
+| CI Website | ✅ Live — a public lead form calling the same mutation CI Forms uses |
+| 51 more modules | ⬜ Registered, searchable, not yet built |
 
-All thirty-six live modules (40% of the full map) read and write **one shared, persisted dataset**
+All thirty-nine live modules (over 40% of the full map) read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four

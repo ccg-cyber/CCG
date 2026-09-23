@@ -37,6 +37,9 @@ import Search from "@/modules/search/Search";
 import Sign from "@/modules/sign/Sign";
 import Meet from "@/modules/meet/Meet";
 import Scan from "@/modules/scan/Scan";
+import Archive from "@/modules/archive/Archive";
+import Assistant from "@/modules/assistant/Assistant";
+import Website from "@/modules/website/Website";
 
 /**
  * Registry module id -> its real component. This is the one place that
@@ -82,6 +85,9 @@ const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
   "ci-sign": Sign,
   "ci-meet": Meet,
   "ci-scan": Scan,
+  "ci-archive": Archive,
+  "ci-assistant": Assistant,
+  "ci-website": Website,
 };
 
 export default function ModulePage() {
