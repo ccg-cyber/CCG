@@ -1,14 +1,22 @@
-import { createContext, useContext, useReducer, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useReducer, type ReactNode } from "react";
+import { getModuleById } from "@/lib/registry";
 
 /**
  * Real window state: position, size, stacking order, minimized/maximized —
  * not a metaphor. This is what makes opening CI CRM and CI Mail at once
  * behave like two windows on a desktop instead of two routes replacing
- * each other. Deliberately not persisted to src/lib/store.ts — window
- * layout is ephemeral UI chrome, not business data; it resets on reload
- * the way a real OS's window positions don't survive a full power-cycle
- * either.
+ * each other.
+ *
+ * Persisted to its own localStorage key (separate from src/lib/store.ts's
+ * business data) — a real OS resumes whatever you had open when you wake
+ * it, it doesn't reboot to a bare desktop every time. On mobile especially,
+ * the browser/PWA reloads the page far more often than a person chooses
+ * to — every "start from the beginning" on reopen was exactly this state
+ * being thrown away on every real page load, which is the opposite of
+ * "you shouldn't need to exit."
  */
+const WINDOWS_STORAGE_KEY = "ci-os-windows-v1";
+
 export interface OSWindow {
   id: string;
   moduleId: string;
@@ -35,6 +43,28 @@ interface State {
   windows: OSWindow[];
   nextZ: number;
   activeId: string | null;
+}
+
+const EMPTY_STATE: State = { windows: [], nextZ: 1, activeId: null };
+
+function loadPersistedState(): State {
+  try {
+    const raw = localStorage.getItem(WINDOWS_STORAGE_KEY);
+    if (!raw) return EMPTY_STATE;
+    const parsed = JSON.parse(raw) as State;
+    // A module removed or renamed since this was saved shouldn't resurrect
+    // as a broken window — drop anything that no longer resolves.
+    const windows = (parsed.windows ?? []).filter((w) => getModuleById(w.moduleId));
+    return { windows, nextZ: parsed.nextZ ?? 1, activeId: windows.some((w) => w.id === parsed.activeId) ? parsed.activeId : null };
+  } catch {
+    return EMPTY_STATE;
+  }
+}
+
+/** Whether this browser already has a Ci session to resume — used to skip
+ * the boot sequence on anything but a genuine first/cold start. */
+export function hasRestorableSession(): boolean {
+  return loadPersistedState().windows.length > 0;
 }
 
 const DEFAULT_WIDTH = 860;
@@ -137,7 +167,15 @@ interface WindowManagerValue {
 const WindowManagerContext = createContext<WindowManagerValue | null>(null);
 
 export function WindowManagerProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, { windows: [], nextZ: 1, activeId: null });
+  const [state, dispatch] = useReducer(reducer, undefined, loadPersistedState);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(WINDOWS_STORAGE_KEY, JSON.stringify(state));
+    } catch {
+      // best-effort only — losing window-restore state is not worth surfacing an error over
+    }
+  }, [state]);
 
   const value: WindowManagerValue = {
     windows: state.windows,

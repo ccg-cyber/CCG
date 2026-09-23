@@ -58,7 +58,10 @@ function DesktopInner() {
       if (mod) openWindow(mod.id);
     } else if (location.pathname === "/" && !openedHomeRef.current) {
       openedHomeRef.current = true;
-      openWindow("ci-home");
+      // Only force Home open on a genuinely empty desktop — a restored
+      // session already has its own windows and its own focus, and
+      // shouldn't be reshuffled just because the URL happens to be "/".
+      if (windows.length === 0) openWindow("ci-home");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);

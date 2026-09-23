@@ -99,10 +99,18 @@ The shell now is a real desktop, in `src/os/`:
   position, size, z-order, minimized/maximized, keyed by a stable id per
   open module instance. Opening an already-open module focuses it rather
   than duplicating it; closing, minimizing, maximizing, dragging and
-  resizing are all real reducer actions, not CSS tricks. Deliberately
-  *not* persisted to `src/lib/store.ts` — window layout is ephemeral UI
-  chrome, not business data, and resets on reload the way a real OS's
-  window positions don't survive a full power-cycle either.
+  resizing are all real reducer actions, not CSS tricks. Persisted to its
+  own localStorage key (`ci-os-windows-v1`, separate from `src/lib/
+  store.ts`'s business data — closing every window and reopening the app
+  should still be a blank desktop, not business data loss) and restored on
+  the next real page load via `useReducer`'s lazy-init argument. This
+  reverses an earlier "deliberately not persisted, like a real OS's window
+  positions not surviving a power-cycle" decision — the earlier framing
+  had the analogy backwards: a real OS doesn't lose your open windows on
+  every *sleep/wake*, only on an actual restart, and on mobile especially
+  the browser/PWA reloads the page far more often than a person chooses
+  to. Losing every open window on each of those reloads was "start from
+  the beginning" on a timer, not week-to-week persistence.
 - **`Window.tsx`** — the actual draggable, resizable frame: mouse-driven
   drag on the titlebar, a resize handle, minimize/maximize/close buttons,
   double-click-titlebar-to-maximize. No drag/resize library — plain

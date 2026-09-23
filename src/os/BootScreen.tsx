@@ -13,11 +13,13 @@ const STEP_MS = 240;
 
 /**
  * The moment the user asked for: you should feel like a machine is
- * starting up, not like a page is loading. Runs once per real page
- * load (App.tsx mounts it unconditionally on start) — client-side
- * navigation within the OS never re-triggers it, the same way opening
- * an app on a real desktop doesn't reboot the machine. Click, or any
- * key, skips straight to the desktop.
+ * starting up, not like a page is loading. App.tsx only mounts this on a
+ * genuine cold start — no session to resume (see
+ * WindowManagerContext.hasRestorableSession) — so it plays once, the
+ * first time, not every time the browser/PWA happens to reload the page.
+ * Client-side navigation within the OS never re-triggers it either way,
+ * the same way opening an app on a real desktop doesn't reboot the
+ * machine. Click, or any key, skips straight to the desktop.
  */
 export default function BootScreen({ onDone }: { onDone: () => void }) {
   const [revealed, setRevealed] = useState(0);
