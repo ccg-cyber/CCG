@@ -118,10 +118,16 @@ export interface DriveFile {
   id: string;
   customerId?: string;
   name: string;
-  type: "folder" | "doc" | "pdf" | "sheet";
+  type: "folder" | "doc" | "pdf" | "sheet" | "file";
   modified: string;
   owner: string;
   archived?: boolean;
+  /** True when this record's actual bytes are stored in IndexedDB (src/lib/vfs.ts),
+   * keyed by this same `id`. Records made before real uploads existed — the
+   * simulated ones CI Sign/CI Scan/CI PDF file — are metadata-only and leave this unset. */
+  hasBlob?: boolean;
+  mimeType?: string;
+  sizeBytes?: number;
 }
 
 export interface Deal {

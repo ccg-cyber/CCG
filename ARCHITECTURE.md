@@ -205,6 +205,38 @@ Mutations go through named functions (`decideApproval`, `addDriveFile`,
 poking at shared state directly, so the seam where a real backend
 replaces `localStorage` is one file, not forty call sites.
 
+## Two stores, not one — because one physical limit doesn't move
+
+Everything above — customers, invoices, deals, every module's records,
+`DriveFile` metadata included — is small, structured, and needs to be
+everywhere instantly, which is exactly what `localStorage` (via
+`store.ts`) is for. But `localStorage` has a hard ceiling of roughly
+5–10MB *total*, shared across everything Ci stores, and can only hold
+strings — a real uploaded file, especially a large one, doesn't fit that
+shape at all: base64-encoding it into the same JSON blob as everything
+else would either blow the quota on one file or make every unrelated
+save slower as the string grows.
+
+`src/lib/vfs.ts` is the second store, built for that specific problem:
+`localforage`, backed by IndexedDB, holding actual `Blob`/`File` content
+keyed by the same id as its `DriveFile` metadata record. This is the one
+external dependency added for something `store.ts`'s "no dependency you
+don't need" 50 lines genuinely couldn't do — IndexedDB's storage quota
+scales with available disk rather than a fixed few megabytes, and its
+structured-clone-based API stores a `Blob` directly, never holding a
+multi-gigabyte file as a JS string the way a `JSON.stringify`-based store
+would have to. A `DriveFile` with `hasBlob: true` has its real bytes in
+`vfs.ts`; one without (everything CI Sign, CI Scan, and CI PDF file today)
+is metadata-only, same as before — the two coexist in the same list.
+
+The two stores are never merged into one abstraction on purpose: business
+records need to be everywhere at once and are cheap to keep that way;
+file content is exactly the opposite, large and only needed on demand,
+and the moment they'd share a persistence layer is the moment the small,
+fast one inherits the large one's problems. `uploadFileToDrive()` in
+`data.ts` writes to both (the metadata record via the normal store, the
+bytes via `vfs.ts`) and is the only place that has to know both exist.
+
 ## Ask CI is a real orchestrator, not a description of one
 
 `src/lib/ask-ci.ts` is a deliberately deterministic (pattern-matched, not

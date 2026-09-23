@@ -27,7 +27,7 @@ the code, always current).
 | CI Mail | ✅ Live — inbox wired to shared customer data |
 | CI Calendar | ✅ Live — real meetings, schedule new ones |
 | CI Contacts | ✅ Live — the shared customer list, add new contacts |
-| CI Drive | ✅ Live — file/folder browser, shows agent-filed documents |
+| CI Drive | ✅ Live — real file upload/download (IndexedDB, not just metadata), shows agent-filed documents |
 | CI CRM | ✅ Live — pipeline board, deals advance stages |
 | CI Customer Service | ✅ Live — real tickets, advance their status |
 | CI Tasks | ✅ Live — to-do list, add/complete, persisted |
@@ -69,7 +69,7 @@ the code, always current).
 | CI Design | ✅ Live — a real draggable canvas for banners/social posts (replaces Canva/Adobe-style tools) |
 | CI PDF | ✅ Live — convert/merge CI Drive files into real PDF records (replaces Acrobat) |
 | CI Workflow Engine | ✅ Live — user-authored "when X, do Y" rules that create real CI Tasks |
-| CI Admin Center | ✅ Live — desktop wallpaper, local data management |
+| CI Admin Center | ✅ Live — desktop wallpaper, live IndexedDB storage stats, local data management |
 | 41 more modules | ⬜ Registered, searchable, not yet built |
 
 All forty-nine live modules (over half the full map) read and write **one shared, persisted dataset**
@@ -149,6 +149,11 @@ long-running production traffic.
   Chromium/Safari desktop browser) puts a real icon in your dock, Start
   menu, or home screen — it opens full-screen with no browser chrome at
   all, and keeps working offline.
+- **Upload a real file in CI Drive.** Click "+ Upload file" and pick
+  anything — the actual bytes go into this browser's IndexedDB (`src/lib/
+  vfs.ts`), not a simulated record. Click the filename to download it back
+  byte-for-byte. Open **CI Admin Center** to see the real storage usage
+  the browser reports for it.
 - Type into **Ask CI** in the CI Home window:
   - _"Acme Ltd. hasn't paid, prepare a statement and draft a follow-up
     email"_ — reads Acme Ltd.'s real overdue invoices, drafts a statement,
@@ -193,9 +198,12 @@ src/
     categories.ts       The 10 top-level categories (+ Home)
     registry.ts         All 90 modules — the single source of truth for nav/search
     store.ts            Tiny reactive, localStorage-backed store (no dependency)
+    vfs.ts               The real Virtual File System: actual file bytes in
+                        IndexedDB (localforage), separate from localStorage —
+                        the one thing here that needed an actual dependency
     data.ts             The shared dataset every live module reads/writes,
                         plus selectors (getCustomerBundle) and mutations
-                        (decideApproval, addDriveFile, toggleTask...)
+                        (decideApproval, addDriveFile, uploadFileToDrive...)
     permissions.ts      Minimal RBAC stub (CI Identity / CI Permissions)
     ask-ci.ts           Orchestrator: reads real data, performs real writes,
                         gates outbound actions behind an approval

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppState, setWallpaper, resetDemoData } from "@/lib/data";
 import { WALLPAPERS } from "@/os/wallpapers";
+import { estimateVfsUsage, countStoredBlobs, clearAllBlobs, formatBytes, type StorageEstimate } from "@/lib/vfs";
 
 /**
  * OS-shell-level settings — appearance and local data — kept separate
@@ -12,10 +13,29 @@ import { WALLPAPERS } from "@/os/wallpapers";
 export default function AdminCenter() {
   const state = useAppState();
   const [confirmingReset, setConfirmingReset] = useState(false);
+  const [confirmingClearFiles, setConfirmingClearFiles] = useState(false);
+  const [estimate, setEstimate] = useState<StorageEstimate | null>(null);
+  const [blobCount, setBlobCount] = useState<number | null>(null);
+
+  async function refreshStorage() {
+    const [est, count] = await Promise.all([estimateVfsUsage(), countStoredBlobs()]);
+    setEstimate(est);
+    setBlobCount(count);
+  }
+
+  useEffect(() => {
+    refreshStorage();
+  }, []);
 
   function handleReset() {
     resetDemoData();
     setConfirmingReset(false);
+  }
+
+  async function handleClearFiles() {
+    await clearAllBlobs();
+    setConfirmingClearFiles(false);
+    refreshStorage();
   }
 
   return (
@@ -47,9 +67,50 @@ export default function AdminCenter() {
       </div>
 
       <div className="rounded-lg border border-ci-border bg-ci-panel p-4">
+        <p className="text-sm font-medium mb-1">File storage</p>
+        <p className="text-xs text-ci-muted mb-3">
+          Files uploaded through{" "}
+          <Link to="/modules/drive" className="text-ci-accent">
+            CI Drive
+          </Link>{" "}
+          store their actual content in this browser's IndexedDB, separate from everything else Ci persists — large
+          files never touch localStorage's tight quota.
+        </p>
+        <div className="text-xs text-ci-muted mb-3 space-y-0.5">
+          <p>{blobCount ?? "…"} file(s) with real content stored on this device.</p>
+          {estimate && (
+            <p>
+              {formatBytes(estimate.usageBytes)} used of an estimated {formatBytes(estimate.quotaBytes)} this browser
+              grants Ci — an estimate the browser reports, not a hard reservation.
+            </p>
+          )}
+        </div>
+        {!confirmingClearFiles ? (
+          <button
+            onClick={() => setConfirmingClearFiles(true)}
+            className="rounded-md border border-red-500/30 text-red-600 px-3 py-1.5 text-xs font-medium hover:bg-red-500/5"
+          >
+            Clear uploaded file content
+          </button>
+        ) : (
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-ci-muted">
+              Deletes the stored content of every uploaded file (their CI Drive entries stay, but downloads will fail). Sure?
+            </span>
+            <button onClick={handleClearFiles} className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-medium text-white">
+              Yes, clear
+            </button>
+            <button onClick={() => setConfirmingClearFiles(false)} className="rounded-md border border-ci-border px-3 py-1.5 text-xs text-ci-muted">
+              Cancel
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-lg border border-ci-border bg-ci-panel p-4">
         <p className="text-sm font-medium mb-1">Local data</p>
         <p className="text-xs text-ci-muted mb-3">
-          Everything in Ci — invoices, deals, files, tasks, every module's data — is stored in this browser's
+          Everything else in Ci — invoices, deals, tasks, every module's records — is stored in this browser's
           localStorage. It's real, and it persists across reloads, but it's local to this device until Ci has a
           real backend.
         </p>

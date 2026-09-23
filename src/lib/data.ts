@@ -1,4 +1,5 @@
 import { createStore, useStore } from "./store";
+import { saveFileBlob, getFileBlob, deleteFileBlob, downloadBlob, formatBytes } from "./vfs";
 import type {
   AppState,
   Customer,
@@ -455,6 +456,58 @@ export function addDriveFile(file: Omit<DriveFile, "id" | "modified"> & { modifi
   const newFile: DriveFile = { ...file, id: uid("file"), modified: file.modified ?? "Just now" };
   appStore.set((s) => ({ ...s, files: [newFile, ...s.files] }));
   return newFile;
+}
+
+function driveFileTypeFor(mimeType: string): DriveFile["type"] {
+  if (mimeType === "application/pdf") return "pdf";
+  if (mimeType.includes("spreadsheet") || mimeType === "text/csv") return "sheet";
+  if (mimeType.startsWith("text/") || mimeType.includes("word") || mimeType.includes("document")) return "doc";
+  return "file";
+}
+
+/**
+ * A real upload: the file's actual bytes go to IndexedDB (src/lib/vfs.ts) —
+ * never through this store, which only ever holds the metadata record —
+ * so a multi-gigabyte file never touches localStorage's tiny quota. The
+ * two writes aren't atomic (a page closed mid-upload could leave metadata
+ * with no blob), which is an acceptable, visible failure mode: the file
+ * shows up with a "content missing" download error rather than silently
+ * corrupting anything else Ci stores.
+ */
+export async function uploadFileToDrive(file: File, customerId?: string): Promise<DriveFile> {
+  const record = addDriveFile({
+    name: file.name,
+    type: driveFileTypeFor(file.type),
+    owner: "You",
+    customerId,
+    hasBlob: true,
+    mimeType: file.type || "application/octet-stream",
+    sizeBytes: file.size,
+  });
+  await saveFileBlob(record.id, file);
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-drive",
+    action: `Uploaded "${file.name}" (${formatBytes(file.size)})`,
+  });
+  return record;
+}
+
+export async function downloadDriveFile(file: DriveFile): Promise<{ ok: boolean; error?: string }> {
+  if (!file.hasBlob) return { ok: false, error: "This record has no stored file content." };
+  const blob = await getFileBlob(file.id);
+  if (!blob) return { ok: false, error: "File content is missing from local storage." };
+  downloadBlob(blob, file.name);
+  return { ok: true };
+}
+
+export async function deleteDriveFilePermanently(id: string): Promise<void> {
+  const file = appStore.get().files.find((f) => f.id === id);
+  if (!file) return;
+  if (file.hasBlob) await deleteFileBlob(id);
+  appStore.set((s) => ({ ...s, files: s.files.filter((f) => f.id !== id) }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-drive", action: `Permanently deleted "${file.name}"` });
 }
 
 /**
