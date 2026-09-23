@@ -5,6 +5,7 @@ import Drive from "@/modules/drive/Drive";
 import CRM from "@/modules/crm/CRM";
 import Tasks from "@/modules/tasks/Tasks";
 import Invoicing from "@/modules/invoicing/Invoicing";
+import Accounting from "@/modules/accounting/Accounting";
 import Approvals from "@/modules/approvals/Approvals";
 import Audit from "@/modules/audit/Audit";
 import Calendar from "@/modules/calendar/Calendar";
@@ -63,6 +64,7 @@ export const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
   "ci-crm": CRM,
   "ci-tasks": Tasks,
   "ci-invoicing": Invoicing,
+  "ci-accounting": Accounting,
   "ci-approval-center": Approvals,
   "ci-audit": Audit,
   "ci-calendar": Calendar,

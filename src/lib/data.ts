@@ -30,6 +30,10 @@ import type {
   FormSubmission,
   SignatureRequest,
   Expense,
+  JournalEntry,
+  JournalLine,
+  Cheque,
+  Currency,
 } from "./types";
 
 /**
@@ -99,9 +103,9 @@ const QUOTES: Quote[] = [
 ];
 
 const INVENTORY: InventoryItem[] = [
-  { id: "item-widget-a", sku: "WA-100", name: "Widget A", quantityOnHand: 40, reorderPoint: 20, unitPrice: 12 },
-  { id: "item-widget-b", sku: "WB-200", name: "Widget B", quantityOnHand: 15, reorderPoint: 20, unitPrice: 18 },
-  { id: "item-assembled-kit", sku: "AK-300", name: "Assembled Kit", quantityOnHand: 0, reorderPoint: 5, unitPrice: 65 },
+  { id: "item-widget-a", sku: "WA-100", name: "Widget A", quantityOnHand: 40, reorderPoint: 20, unitPrice: 12, avgCost: 7.5 },
+  { id: "item-widget-b", sku: "WB-200", name: "Widget B", quantityOnHand: 15, reorderPoint: 20, unitPrice: 18, avgCost: 11 },
+  { id: "item-assembled-kit", sku: "AK-300", name: "Assembled Kit", quantityOnHand: 0, reorderPoint: 5, unitPrice: 65, avgCost: 26 },
 ];
 
 const SALES: Sale[] = [];
@@ -230,6 +234,58 @@ const SIGNATURE_REQUESTS: SignatureRequest[] = [
 
 const EXPENSES: Expense[] = [];
 
+const JOURNAL_ENTRIES: JournalEntry[] = [
+  {
+    id: "jv-0001",
+    date: "2026-09-01",
+    reference: "September rent",
+    currency: "USD",
+    status: "posted",
+    lines: [
+      { accountCode: "6100", accountName: "Rent Expense", debit: 3200, credit: 0 },
+      { accountCode: "1000", accountName: "Cash & Bank", debit: 0, credit: 3200 },
+    ],
+  },
+  {
+    id: "jv-0002",
+    date: "2026-09-15",
+    reference: "Acme Ltd. — invoice #1042 collection",
+    currency: "USD",
+    status: "draft",
+    lines: [
+      { accountCode: "1000", accountName: "Cash & Bank", debit: 5350, credit: 0 },
+      { accountCode: "1100", accountName: "Accounts Receivable", debit: 0, credit: 5350 },
+    ],
+  },
+];
+
+const CHEQUES: Cheque[] = [
+  {
+    id: "chq-0001",
+    chequeNo: "004821",
+    type: "received",
+    party: "Acme Ltd.",
+    bank: "Byblos Bank",
+    issueDate: "2026-09-10",
+    dueDate: "2026-10-10",
+    amount: 5350,
+    currency: "USD",
+    status: "pending",
+  },
+  {
+    id: "chq-0002",
+    chequeNo: "112034",
+    type: "issued",
+    party: "Northwind Supplies",
+    bank: "BLOM Bank",
+    issueDate: "2026-09-05",
+    dueDate: "2026-09-05",
+    amount: 4300,
+    currency: "USD",
+    status: "cleared",
+  },
+];
+
 /**
  * The catalog CI Marketplace renders. Each id is checked by the exact
  * mutation function that performs the automation it names — turning one
@@ -278,6 +334,8 @@ const SEED: AppState = {
   formSubmissions: FORM_SUBMISSIONS,
   signatureRequests: SIGNATURE_REQUESTS,
   expenses: EXPENSES,
+  journalEntries: JOURNAL_ENTRIES,
+  cheques: CHEQUES,
   automations: AUTOMATIONS,
   governance: GOVERNANCE,
   dismissedNotificationIds: [],
@@ -400,18 +458,30 @@ export function decideApproval(id: string, decision: "approved" | "rejected") {
   }
 }
 
-export function receiveStock(itemId: string, quantity: number) {
+export function receiveStock(itemId: string, quantity: number, unitCost?: number) {
   const item = appStore.get().inventory.find((i) => i.id === itemId);
   if (!item) return;
+  // Weighted-average cost: blend what's already on the shelf with what just
+  // arrived, weighted by quantity — never a flat overwrite, so the cost
+  // basis stays true even when the same item was bought at different prices
+  // across multiple receipts.
+  const oldQty = item.quantityOnHand;
+  const oldCost = item.avgCost ?? item.unitPrice;
+  const inCost = unitCost ?? oldCost;
+  const newQty = oldQty + quantity;
+  const newAvgCost = newQty > 0 ? (oldQty * oldCost + quantity * inCost) / newQty : inCost;
+
   appStore.set((s) => ({
     ...s,
-    inventory: s.inventory.map((i) => (i.id === itemId ? { ...i, quantityOnHand: i.quantityOnHand + quantity } : i)),
+    inventory: s.inventory.map((i) =>
+      i.id === itemId ? { ...i, quantityOnHand: newQty, avgCost: Math.round(newAvgCost * 100) / 100 } : i
+    ),
   }));
   addAuditEvent({
     actor: "system",
     actorName: "Ci Business OS",
     moduleId: "ci-inventory",
-    action: `Received ${quantity} unit(s) of ${item.name} (${item.sku}) from an approved purchase order`,
+    action: `Received ${quantity} unit(s) of ${item.name} (${item.sku}) from an approved purchase order — avg cost now $${newAvgCost.toFixed(2)}`,
   });
 }
 
@@ -533,29 +603,69 @@ export function logTimeOff(employeeId: string, days: number) {
   });
 }
 
-export function completeProduction(id: string) {
+export function startProduction(id: string) {
+  const order = appStore.get().productionOrders.find((o) => o.id === id);
+  if (!order || (order.status !== "pending" && order.status !== "paused")) return;
+  appStore.set((s) => ({
+    ...s,
+    productionOrders: s.productionOrders.map((o) =>
+      o.id === id ? { ...o, status: "in-progress", startedAt: o.startedAt ?? now() } : o
+    ),
+  }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-manufacturing", action: `Started "${order.name}"` });
+}
+
+export function pauseProduction(id: string) {
+  const order = appStore.get().productionOrders.find((o) => o.id === id);
+  if (!order || order.status !== "in-progress") return;
+  appStore.set((s) => ({ ...s, productionOrders: s.productionOrders.map((o) => (o.id === id ? { ...o, status: "paused" } : o)) }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-manufacturing", action: `Paused "${order.name}"` });
+}
+
+export function cancelProduction(id: string) {
+  const order = appStore.get().productionOrders.find((o) => o.id === id);
+  if (!order || order.status === "completed") return;
+  appStore.set((s) => ({ ...s, productionOrders: s.productionOrders.map((o) => (o.id === id ? { ...o, status: "cancelled" } : o)) }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-manufacturing", action: `Cancelled "${order.name}"` });
+}
+
+/**
+ * Completing a run reconciles actual material use against the plan rather
+ * than assuming they match — real production wastes material, so `actuals`
+ * (itemId -> quantity really consumed) overrides the planned BOM quantity
+ * per input where supplied, the same distinction StockSales-style shop-floor
+ * systems draw between "what the BOM called for" and "what the floor used."
+ */
+export function completeProduction(id: string, actuals: Record<string, number> = {}) {
   const state = appStore.get();
   const order = state.productionOrders.find((o) => o.id === id);
-  if (!order || order.status !== "pending") return;
+  if (!order || !["pending", "in-progress", "paused"].includes(order.status)) return;
 
-  const canFulfill = order.inputs.every((input) => {
+  const resolved = order.inputs.map((input) => ({
+    ...input,
+    consumed: Math.max(0, actuals[input.itemId] ?? input.quantity),
+  }));
+  const canFulfill = resolved.every((input) => {
     const item = state.inventory.find((i) => i.id === input.itemId);
-    return item && item.quantityOnHand >= input.quantity;
+    return item && item.quantityOnHand >= input.consumed;
   });
   if (!canFulfill) return;
 
   appStore.set((s) => ({
     ...s,
     inventory: s.inventory.map((item) => {
-      const consumed = order.inputs.find((i) => i.itemId === item.id);
-      if (consumed) return { ...item, quantityOnHand: item.quantityOnHand - consumed.quantity };
+      const consumed = resolved.find((i) => i.itemId === item.id);
+      if (consumed) return { ...item, quantityOnHand: item.quantityOnHand - consumed.consumed };
       if (item.id === order.outputItemId) return { ...item, quantityOnHand: item.quantityOnHand + order.outputQuantity };
       return item;
     }),
-    productionOrders: s.productionOrders.map((o) => (o.id === id ? { ...o, status: "completed" } : o)),
+    productionOrders: s.productionOrders.map((o) =>
+      o.id === id ? { ...o, status: "completed", inputs: resolved, completedAt: now(), startedAt: o.startedAt ?? now() } : o
+    ),
   }));
 
   const outputItem = state.inventory.find((i) => i.id === order.outputItemId);
+  const variance = resolved.filter((i) => i.consumed !== i.quantity);
   addAuditEvent({
     actor: "user",
     actorName: "You",
@@ -566,8 +676,77 @@ export function completeProduction(id: string) {
     actor: "system",
     actorName: "Ci Business OS",
     moduleId: "ci-inventory",
-    action: `Consumed ${order.inputs.map((i) => `${i.quantity}x ${state.inventory.find((x) => x.id === i.itemId)?.name ?? i.itemId}`).join(", ")} for "${order.name}"`,
+    action: `Consumed ${resolved.map((i) => `${i.consumed}x ${state.inventory.find((x) => x.id === i.itemId)?.name ?? i.itemId}`).join(", ")} for "${order.name}"${
+      variance.length > 0
+        ? ` — actual differed from planned for ${variance.map((v) => state.inventory.find((x) => x.id === v.itemId)?.name ?? v.itemId).join(", ")}`
+        : ""
+    }`,
   });
+}
+
+/**
+ * Flexible-packaging BOM math: given a bag's geometry and the laminate
+ * layers that make it, returns the film area, weight per piece, total
+ * material weight per layer, and the metering (linear meters of film a
+ * production line needs to run) — the actual calculation a converting
+ * plant uses to plan a run, not a placeholder estimate.
+ */
+export interface BagMaterial {
+  name: string;
+  /** grams per cm² of film at this material's thickness — grammage factor */
+  factor: number;
+}
+
+export type BagKind = "doypack" | "centerSeal" | "sideSeal" | "flatBag";
+
+export interface BagMeteringResult {
+  effectiveFilmWidthCm: number;
+  weightPerPieceG: number;
+  totalWeightKg: number;
+  meteringMeters: number;
+  layers: { material: string; weightKg: number }[];
+}
+
+export function calculateBagMetering(
+  kind: BagKind,
+  lengthCm: number,
+  widthCm: number,
+  gussetCm: number,
+  quantity: number,
+  materials: BagMaterial[]
+): BagMeteringResult {
+  let areaCm2PerPiece: number;
+  let effectiveFilmWidthCm: number;
+
+  if (kind === "centerSeal") {
+    effectiveFilmWidthCm = (widthCm + gussetCm) * 2 + 3;
+    areaCm2PerPiece = effectiveFilmWidthCm * lengthCm;
+  } else if (kind === "sideSeal") {
+    effectiveFilmWidthCm = (widthCm + gussetCm) * 2 + 1.5;
+    areaCm2PerPiece = effectiveFilmWidthCm * lengthCm;
+  } else if (kind === "doypack") {
+    areaCm2PerPiece = lengthCm * 2 * widthCm + gussetCm * widthCm;
+    effectiveFilmWidthCm = widthCm;
+  } else {
+    areaCm2PerPiece = lengthCm * widthCm;
+    effectiveFilmWidthCm = widthCm;
+  }
+
+  const weightPerPieceG = materials.reduce((sum, m) => sum + areaCm2PerPiece * m.factor, 0);
+  const totalWeightKg = (weightPerPieceG * quantity) / 1000;
+  const meteringMeters = (effectiveFilmWidthCm * quantity) / 100;
+  const layers = materials.map((m) => ({
+    material: m.name,
+    weightKg: Math.round(((areaCm2PerPiece * m.factor * quantity) / 1000) * 10000) / 10000,
+  }));
+
+  return {
+    effectiveFilmWidthCm: Math.round(effectiveFilmWidthCm * 100) / 100,
+    weightPerPieceG: Math.round(weightPerPieceG * 10000) / 10000,
+    totalWeightKg: Math.round(totalWeightKg * 100) / 100,
+    meteringMeters: Math.round(meteringMeters * 100) / 100,
+    layers,
+  };
 }
 
 export type ContractStatus = "active" | "expiring-soon" | "expired";
@@ -697,11 +876,14 @@ export function addProject(name: string, dueDate: string) {
 export function decideQuote(id: string, decision: "sent" | "accepted" | "declined") {
   const state = appStore.get();
   const quote = state.quotes.find((q) => q.id === id);
-  if (!quote) return;
+  // A locked quote (already accepted or declined) is final — the same
+  // reason a confirmed proforma invoice can't be re-sent or re-decided.
+  if (!quote || quote.locked) return;
 
+  const locked = decision === "accepted" || decision === "declined";
   appStore.set((s) => ({
     ...s,
-    quotes: s.quotes.map((q) => (q.id === id ? { ...q, status: decision } : q)),
+    quotes: s.quotes.map((q) => (q.id === id ? { ...q, status: decision, locked } : q)),
   }));
 
   addAuditEvent({
@@ -1105,6 +1287,74 @@ export function exportCustomersCsv(state: AppState): string {
   const header = "name,email,company,tags";
   const rows = state.customers.map((c) => `${c.name},${c.email},${c.company},"${c.tags.join(";")}"`);
   return [header, ...rows].join("\n");
+}
+
+/**
+ * A journal entry is created in draft — editable, not yet real — and only
+ * takes effect on the ledger once posted. Posting is gated on debit ===
+ * credit, the same non-negotiable rule any double-entry ledger enforces;
+ * a journal that doesn't balance is refused rather than posted wrong.
+ */
+export function createJournalEntry(reference: string, currency: Currency, lines: JournalLine[]): JournalEntry {
+  const entry: JournalEntry = {
+    id: uid("jv"),
+    date: now().slice(0, 10),
+    reference,
+    currency,
+    lines,
+    status: "draft",
+  };
+  appStore.set((s) => ({ ...s, journalEntries: [entry, ...s.journalEntries] }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-accounting", action: `Created draft journal entry "${reference}"` });
+  return entry;
+}
+
+export function postJournalEntry(id: string): { ok: boolean; error?: string } {
+  const entry = appStore.get().journalEntries.find((j) => j.id === id);
+  if (!entry) return { ok: false, error: "Journal entry not found" };
+  if (entry.status !== "draft") return { ok: false, error: "Only draft entries can be posted" };
+  const debit = entry.lines.reduce((sum, l) => sum + l.debit, 0);
+  const credit = entry.lines.reduce((sum, l) => sum + l.credit, 0);
+  if (Math.round((debit - credit) * 100) !== 0) {
+    return { ok: false, error: `Not balanced — debit $${debit.toFixed(2)} vs. credit $${credit.toFixed(2)}` };
+  }
+  appStore.set((s) => ({ ...s, journalEntries: s.journalEntries.map((j) => (j.id === id ? { ...j, status: "posted" } : j)) }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-accounting", action: `Posted journal entry "${entry.reference}"` });
+  return { ok: true };
+}
+
+export function cancelJournalEntry(id: string) {
+  const entry = appStore.get().journalEntries.find((j) => j.id === id);
+  if (!entry || entry.status === "cancelled") return;
+  appStore.set((s) => ({ ...s, journalEntries: s.journalEntries.map((j) => (j.id === id ? { ...j, status: "cancelled" } : j)) }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-accounting", action: `Cancelled journal entry "${entry.reference}"` });
+}
+
+export function createCheque(cheque: Omit<Cheque, "id" | "status">): Cheque {
+  const record: Cheque = { ...cheque, id: uid("chq"), status: "pending" };
+  appStore.set((s) => ({ ...s, cheques: [record, ...s.cheques] }));
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-accounting",
+    action: `Recorded ${cheque.type} cheque #${cheque.chequeNo} — $${cheque.amount.toLocaleString()} ${cheque.currency}, due ${cheque.dueDate}`,
+  });
+  return record;
+}
+
+/** Post-dated cheques move pending → deposited → cleared, or returned
+ * (bounced) / cancelled at any point before clearing — the same ladder
+ * banks and accounting teams actually track them through. */
+export function updateChequeStatus(id: string, status: Cheque["status"]) {
+  const cheque = appStore.get().cheques.find((c) => c.id === id);
+  if (!cheque) return;
+  appStore.set((s) => ({ ...s, cheques: s.cheques.map((c) => (c.id === id ? { ...c, status } : c)) }));
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-accounting",
+    action: `Cheque #${cheque.chequeNo} marked ${status}`,
+  });
 }
 
 export function resetDemoData() {

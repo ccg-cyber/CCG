@@ -8,8 +8,8 @@ agents doing the cross-application work a person used to do by hand.
 This repository is the first slice of that: a real desktop — boot
 sequence, icons, draggable/resizable windows, a taskbar, a Start menu —
 not an admin dashboard with a sidebar. The full 90-module architecture is
-registered and reachable from it, 42 modules are built end-to-end against
-**one real shared dataset** (not 42 disconnected demos), and an "Ask CI"
+registered and reachable from it, 43 modules are built end-to-end against
+**one real shared dataset** (not 43 disconnected demos), and an "Ask CI"
 command bar actually drafts documents, files them in Drive, and opens a
 real approval — not a description of what it would do.
 
@@ -39,10 +39,10 @@ the code, always current).
 | CI Notifications | ✅ Live — shared, dismissible, same data Home reads |
 | CI Purchasing | ✅ Live — real POs, wired to the existing approval flow |
 | CI HR | ✅ Live — employees by department; not customer-centric data |
-| CI Inventory | ✅ Live — stock restocks itself when a PO is approved |
+| CI Inventory | ✅ Live — stock restocks itself when a PO is approved, weighted-average cost |
 | CI Marketing | ✅ Live — launches real emails to real CRM leads |
 | CI Payroll | ✅ Live — reads CI HR's employee data, computes real pay |
-| CI Manufacturing | ✅ Live — a real BOM that consumes and produces real stock |
+| CI Manufacturing | ✅ Live — real BOM, a start/pause/complete lifecycle, actual-vs-planned reconciliation, a flexible-packaging metering calculator |
 | CI Attendance | ✅ Live — real PTO balances on top of CI HR's employees |
 | CI Contracts | ✅ Live — expiry-driven status, computed, not hardcoded |
 | CI Legal | ✅ Live — reads CI Contracts' at-risk list, real policy reviews |
@@ -63,9 +63,10 @@ the code, always current).
 | CI Marketplace | ✅ Live — real on/off switches for the built-in automations |
 | CI Governance | ✅ Live — a spend threshold that changes real approval behavior |
 | CI Data Hub | ✅ Live — CSV import/export into CI Contacts' real list |
-| 48 more modules | ⬜ Registered, searchable, not yet built |
+| CI Accounting & Finance | ✅ Live — general ledger (draft/posted journals, balance-checked) + cheques |
+| 47 more modules | ⬜ Registered, searchable, not yet built |
 
-All forty-two live modules (nearly half the full map) read and write **one shared, persisted dataset**
+All forty-three live modules (nearly half the full map) read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four
@@ -205,7 +206,7 @@ src/
   pages/
     Home.tsx             CI Home's content — Ask CI, notifications, approvals,
                         the module grid — registered like any other module
-  modules/              Real implementations for the 42 live modules
+  modules/              Real implementations for the 43 live modules
 scripts/
   gen-modules-doc.mjs  Regenerates MODULES.md from the registry
 ```

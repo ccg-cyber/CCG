@@ -427,7 +427,7 @@ later (an API call from `CI API HUB`, say) costs nothing structurally.
    (`state.governance` read by a mutation function, edited through a real
    module screen) for one rule, a purchasing threshold; Autonomy Control
    is the same pattern applied to Ask CI's own approval gate.
-5. Promote the next handful of modules from `planned` to `live`. 42 of 90
+5. Promote the next handful of modules from `planned` to `live`. 43 of 90
    are done — nearly half the map. Natural next candidates: **CI
    Workflow Engine** (the "system" actor pattern and CI Marketplace's
    automation toggles are both hand-written today; Workflow Engine is
@@ -435,8 +435,67 @@ later (an API call from `CI API HUB`, say) costs nothing structurally.
    rule instead of it requiring a code change), **CI Industry Packs**
    (CI Marketplace toggles automations one at a time; a pack would be a
    named bundle of settings — targets, thresholds, automations — applied
-   together), and **CI Identity** (priority 2 above, now overdue: every
+   together — see the next section for a real industry's workflows to
+   base one on), and **CI Identity** (priority 2 above, now overdue: every
    module still trusts the single hardcoded `CURRENT_USER`).
+
+## A real factory ERP as a reference, not a demo to copy
+
+`ccg-cyber/vacuum-bags-erp` is a real, in-production ERP for a Lebanese
+flexible-packaging manufacturer — Sales, Stock, Production (MES + QC),
+Delivery, Payroll, Accounting, running on FastAPI + SQLite. It isn't part
+of Ci Business OS and never will be directly, but its owner asked us to
+learn from its actual daily-use workflows before this system's own ERP
+modules go further than a first slice — real businesses' processes are a
+better source of truth than a hypothetical spec. A few patterns from it
+are already ported in:
+
+- **CI Manufacturing** — production orders now move through a real
+  lifecycle (`pending → in-progress → paused → completed/cancelled`,
+  `startProduction`/`pauseProduction`/`completeProduction`/
+  `cancelProduction` in `data.ts`) instead of a single pending→completed
+  flip. Completion reconciles **actual vs. planned material use**
+  (`ProductionOrder.inputs[].consumed`) rather than assuming they match —
+  real production wastes material, and the audit log now says so when
+  actual and planned differ. This mirrors `work-orders/{id}/complete`'s
+  `bom_actual` reconciliation in the reference app exactly.
+- **CI Manufacturing's metering calculator** (`calculateBagMetering` in
+  `data.ts`) — a genuine flexible-packaging BOM formula: given a bag's
+  geometry (doypack, center-seal, side-seal, gusset) and its laminate
+  layers, it computes film area, weight per piece, total material weight,
+  and metering (linear meters a production line runs) — ported from the
+  reference app's `/api/v1/metering/calculate`, simplified to one material
+  layer per calculation rather than a full multi-layer stack.
+- **CI Inventory** — `receiveStock` now recomputes a weighted-average cost
+  (`InventoryItem.avgCost`) on every receipt, blended by quantity, instead
+  of only tracking a flat `unitPrice`. This is the same moving-average
+  costing `db.inventory_stock_in` computes in the reference app (there,
+  additionally inside a write lock for concurrent safety — not needed
+  here since there's exactly one writer, the browser tab).
+- **CI Sales** — `Quote.locked` now gets set the moment a quote is
+  accepted or declined, and `decideQuote` refuses any further decision on
+  a locked quote. This is the same draft → sent → confirmed(-locked) /
+  cancelled immutability the reference app's proforma invoices enforce
+  (`PI_LOCKED_STATUSES`) — once a real business decision is made on a
+  quote, its numbers don't get to drift afterward.
+- **CI Accounting & Finance** — promoted from `planned` to a real first
+  slice: a general ledger (`JournalEntry`, `draft → posted → cancelled`,
+  posting refused unless debit equals credit — the one rule a real ledger
+  never bends) and cheque tracking (`Cheque`, `pending → deposited →
+  cleared`, or `returned`/`cancelled` at any point before clearing) —
+  ported from the reference app's `/api/v1/accounting/journals` and
+  `/cheques`, including the post-dated-cheque lifecycle that's standard
+  Middle East business practice and has no equivalent in most
+  Western-market ERP templates.
+
+Still not ported, and worth returning to when CI Purchasing/CI Sales get
+another pass: the reference app's generic **Excel/CSV import pipeline**
+(parse → preview/auto-mapped-columns → confirm, reused for both a stock
+pack-list and an HR roster import — CI Data Hub's `importCustomersCsv`
+today is a narrower, single-purpose version of the same idea) and its
+**server-enforced per-role module access** (a URL-prefix → module map
+checked in middleware, returning a real 403 even if the UI is bypassed —
+`permissions.ts` here is still the stub priority 2 above calls out).
 
 ## Two flavors of control plane: automations and policy
 

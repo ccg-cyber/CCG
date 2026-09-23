@@ -193,6 +193,10 @@ export interface InventoryItem {
   quantityOnHand: number;
   reorderPoint: number;
   unitPrice: number;
+  /** Weighted-average purchase cost per unit — recomputed on every receipt as
+   * (oldQty*oldCost + receivedQty*receivedCost) / newQty, never overwritten
+   * outright, so it reflects the true blended cost of what's on the shelf. */
+  avgCost?: number;
 }
 
 export interface Sale {
@@ -214,10 +218,17 @@ export interface Campaign {
 export interface ProductionOrder {
   id: string;
   name: string;
-  inputs: { itemId: string; quantity: number }[];
+  /** `quantity` is the planned BOM requirement; `consumed` is filled in at
+   * completion with what was actually used — usually the same number, but
+   * real production runs waste material, so the two are tracked separately
+   * rather than assuming the plan and the actual are always equal. */
+  inputs: { itemId: string; quantity: number; consumed?: number }[];
   outputItemId: string;
   outputQuantity: number;
-  status: "pending" | "completed";
+  status: "pending" | "in-progress" | "paused" | "completed" | "cancelled";
+  machine?: string;
+  startedAt?: string;
+  completedAt?: string;
 }
 
 export interface Contract {
@@ -342,6 +353,46 @@ export interface Quote {
   description: string;
   amount: number;
   status: "draft" | "sent" | "accepted" | "declined";
+  /** Set once a decision is made (accepted or declined) — a locked quote's
+   * numbers can never change again, the same reason a confirmed invoice
+   * doesn't get its total edited after the fact. */
+  locked?: boolean;
+}
+
+export type Currency = "USD" | "LBP" | "EUR";
+
+export interface JournalLine {
+  accountCode: string;
+  accountName: string;
+  debit: number;
+  credit: number;
+}
+
+export interface JournalEntry {
+  id: string;
+  date: string;
+  reference: string;
+  currency: Currency;
+  lines: JournalLine[];
+  /** Draft entries can still be edited; posting checks debit === credit and
+   * then locks it, the way a real ledger never lets a posted entry drift —
+   * correcting a mistake means a new reversing entry, not editing history. */
+  status: "draft" | "posted" | "cancelled";
+}
+
+export interface Cheque {
+  id: string;
+  chequeNo: string;
+  type: "received" | "issued";
+  party: string;
+  bank: string;
+  issueDate: string;
+  dueDate: string;
+  amount: number;
+  currency: Currency;
+  /** Post-dated cheques move through this exact ladder in practice: banked
+   * on the date written, held until due, then cleared or bounced. */
+  status: "pending" | "deposited" | "cleared" | "returned" | "cancelled";
 }
 
 export interface AppState {
@@ -376,6 +427,8 @@ export interface AppState {
   formSubmissions: FormSubmission[];
   signatureRequests: SignatureRequest[];
   expenses: Expense[];
+  journalEntries: JournalEntry[];
+  cheques: Cheque[];
   /** CI Marketplace — which of the built-in cross-module automations are switched on. */
   automations: Record<string, boolean>;
   /** CI Governance — org-wide policy values other modules' logic reads. */

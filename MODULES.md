@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 42
+- ✅ Live: 43
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 48
+- ⬜ Planned: 47
 
 ---
 
@@ -72,7 +72,7 @@ CRM, ERP, finance, sales, HR, inventory, projects, operations.
 | **CI Customer Service** | ✅ Live | — | Tickets, SLAs, canned responses, knowledge base, AI support agents. |
 | **CI Marketing** | ✅ Live | — | Campaigns, contact lists, landing pages, segmentation, automation. |
 | **CI ERP Core** | ⬜ Planned | — | Companies, branches, currencies, taxes, fiscal periods, master data. |
-| **CI Accounting & Finance** | ⬜ Planned | — | General ledger, receivables/payables, banking, budgets, AI anomaly detection. |
+| **CI Accounting & Finance** | ✅ Live | — | General ledger, receivables/payables, banking, budgets, AI anomaly detection. |
 | **CI Invoicing** | ✅ Live | — | Estimates, invoices, credit notes, recurring billing, payment links. |
 | **CI Purchasing** | ✅ Live | — | Purchase requests, RFQs, supplier comparison, approvals, POs. |
 | **CI Inventory** | ✅ Live | — | SKUs, warehouses, stock movements, lot/serial, reorder points, valuation. |
