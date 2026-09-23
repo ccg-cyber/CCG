@@ -172,7 +172,7 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Thirty modules — a third of the full map — are wired up end-to-end against the one shared dataset:
+Thirty-three modules — over a third of the full map — are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
@@ -206,8 +206,11 @@ Thirty modules — a third of the full map — are wired up end-to-end against t
 | CI Logistics | Business | Real dispatch → in-transit → delivered ladder against real customers |
 | CI Assets | IT | Live depreciation formula; assignable to real CI HR employees |
 | CI Knowledge | Intelligence | First non-transactional module — durable content, not a status ladder |
+| CI Chat | Communicate | First synchronous module — persisted channels and messages |
+| CI Forms | Work | First module other modules are *consumed through* — a submission creates a real ticket or candidate, not a stored blob |
+| CI Search | Files | Searches real records across all 33 live modules — distinct from the module-name search in the top bar |
 
-The other 60 are registered with real names, categories, descriptions and
+The other 57 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
@@ -264,6 +267,24 @@ authors ("when X in module A, do Y in module B"), but the requirement
 that the consequence is distinguishable from the action in the audit
 trail doesn't change.
 
+## A form is an entry point, not a data type
+
+CI Forms has no `Form` entity in `AppState` and no generic "submissions"
+table beyond a lightweight history list for its own screen. A form
+submission calls the exact same mutation function a human clicking a
+button elsewhere would call — `submitContactForm()` calls `createTicket()`,
+the same function CI Customer Service's own logic would use; a job
+application calls `addCandidate()`, the same one CI Recruit's "+ Add
+candidate" button would call if it had one. The form is a UI in front of
+an existing capability, not a new capability of its own.
+
+That's deliberate, and it's the same reasoning behind
+`CI ORCHESTRATOR`/Ask CI: neither a form nor a natural-language request
+should need its own private write path into the data. Both are just
+different front doors onto the same set of mutation functions every
+module already exposes — which is also why adding a third front door
+later (an API call from `CI API HUB`, say) costs nothing structurally.
+
 ## Stack
 
 - **Vite + React + TypeScript** — fast local iteration, no framework
@@ -298,13 +319,13 @@ trail doesn't change.
 4. **CI Autonomy Control** as an actual policy surface — today
    `needsApproval` is hardcoded per intent in `ask-ci.ts`; it should be a
    configurable rule a human sets, not a constant in the router.
-5. Promote the next handful of modules from `planned` to `live`. 30 of 90
-   are done — a third of the map. Natural next candidates: **CI Chat**
-   (every module so far assumes async communication — mail, notifications,
-   comments on a ticket; nothing is synchronous), **CI Forms** (would be
-   the first module other modules *consume*: a form submission could
-   create a CI Customer Service ticket or a CI Recruit candidate, the way
-   CI Recruit already creates a CI HR employee), and **CI Search** (with
-   30 modules and a real dataset behind them, a single search across
-   customers/invoices/tickets/articles is now worth building instead of
-   the per-module list views each module already has).
+5. Promote the next handful of modules from `planned` to `live`. 33 of 90
+   are done — over a third of the map. Natural next candidates:
+   **CI Sign** (CI Contracts tracks expiry but nothing represents actually
+   getting one signed — the natural companion to the "renew" flow already
+   built), **CI Meet** (CI Calendar schedules meetings but nothing
+   represents joining one — the synchronous counterpart CI Chat just
+   proved out), and **CI Scan** (CI Forms proved "a UI is a front door
+   onto existing mutations"; a scanned receipt or invoice feeding
+   `createTicket()` or a new `receiveStock()`-like function would be the
+   same pattern from a camera instead of a form).

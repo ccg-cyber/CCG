@@ -50,9 +50,12 @@ the code, always current).
 | CI Logistics | ✅ Live — real dispatch/delivery status ladder |
 | CI Assets | ✅ Live — live depreciation formula, assignable to CI HR employees |
 | CI Knowledge | ✅ Live — the first non-transactional module: durable content |
-| 60 more modules | ⬜ Registered, searchable, not yet built |
+| CI Chat | ✅ Live — real channels and messages, persisted |
+| CI Forms | ✅ Live — a submission creates a real ticket or a real candidate |
+| CI Search | ✅ Live — searches real records across all 33 modules, not just names |
+| 57 more modules | ⬜ Registered, searchable, not yet built |
 
-All thirty live modules (a third of the full map) read and write **one shared, persisted dataset**
+All thirty-three live modules (over a third of the full map) read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four
@@ -98,6 +101,9 @@ npm run build     # typecheck + production build
 - Launch a campaign in **CI Marketing** — it reads CI CRM's "New"-stage
   deals as the audience and actually adds a sent email per lead to CI
   Mail, so the recipient count you see is real, not a placeholder.
+- Submit the job application form in **CI Forms** — the applicant
+  immediately appears as a real candidate in **CI Recruit**, and is
+  findable through **CI Search** the moment you submit, with no reload.
 - Use the top search bar or the sidebar to jump into any of the 90
   modules — live ones show a working screen, everything else shows what
   it's scoped to become.

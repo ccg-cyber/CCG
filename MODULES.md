@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 30
+- ✅ Live: 33
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 60
+- ⬜ Planned: 57
 
 ---
 
@@ -31,7 +31,7 @@ Documents, spreadsheets, presentations, PDFs, notes, forms, tasks.
 | **CI Present** | ⬜ Planned | PowerPoint | Presentations, themes, automatic slide generation, brand enforcement. |
 | **CI PDF** | ⬜ Planned | Acrobat | View, convert, merge, split, OCR, redact, sign and extract from PDFs. |
 | **CI Notes** | ⬜ Planned | — | Quick notes, notebooks, clippings, voice-to-note, handwriting OCR. |
-| **CI Forms** | ⬜ Planned | — | Form builder, surveys, conditional logic, automatic workflow triggering. |
+| **CI Forms** | ✅ Live | — | Form builder, surveys, conditional logic, automatic workflow triggering. |
 | **CI Tasks** | ✅ Live | — | To-dos, assignments, priorities, deadlines, recurring tasks, approvals. |
 
 ## Communicate
@@ -43,7 +43,7 @@ Mail, calendar, chat, meetings, contacts, notifications.
 | **CI Mail** | ✅ Live | Outlook | Multi-account mail, rules, shared mailboxes, smart replies, phishing detection. |
 | **CI Calendar** | ✅ Live | — | Scheduling, rooms/resources, availability, booking links, meeting prep. |
 | **CI Contacts** | ✅ Live | — | People, companies, relationship history, dedupe, customer/supplier links. |
-| **CI Chat** | ⬜ Planned | Teams / Slack | DMs, channels, threads, mentions, searchable history, AI summaries. |
+| **CI Chat** | ✅ Live | Teams / Slack | DMs, channels, threads, mentions, searchable history, AI summaries. |
 | **CI Meet** | ⬜ Planned | — | Video meetings, captions, transcription, action items, auto summaries. |
 | **CI Communications** | ⬜ Planned | — | SMS, business messaging, notifications, unified conversation history. |
 | **CI Notifications** | ✅ Live | — | Central notification engine: priority, snooze, digest, escalation. |
@@ -55,7 +55,7 @@ Storage, search, scanning, e-signature, archiving.
 | Module | Status | Replaces | Description |
 |---|---|---|---|
 | **CI Drive** | ✅ Live | OneDrive / Dropbox | Files, folders, sharing, permissions, version history, team spaces. |
-| **CI Search** | ⬜ Planned | — | One semantic search across mail, files, PDFs, chats, records and systems. |
+| **CI Search** | ✅ Live | — | One semantic search across mail, files, PDFs, chats, records and systems. |
 | **CI Scan** | ⬜ Planned | — | Camera/scanner capture, OCR, receipt detection, automatic filing. |
 | **CI Sign** | ⬜ Planned | DocuSign | E-signatures, approval chains, audit trails, reusable templates. |
 | **CI Archive** | ⬜ Planned | — | Long-term retention, immutable records, legal hold policies. |

@@ -271,6 +271,26 @@ export interface Article {
   updatedAt: string;
 }
 
+export interface ChatChannel {
+  id: string;
+  name: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  channelId: string;
+  from: string;
+  text: string;
+  time: string;
+}
+
+export interface FormSubmission {
+  id: string;
+  formName: string;
+  summary: string;
+  createdAt: string;
+}
+
 export interface Meeting {
   id: string;
   customerId?: string;
@@ -333,6 +353,9 @@ export interface AppState {
   shipments: Shipment[];
   assets: Asset[];
   articles: Article[];
+  channels: ChatChannel[];
+  chatMessages: ChatMessage[];
+  formSubmissions: FormSubmission[];
   /** Notifications a user has dismissed — notifications themselves are computed, not stored, so read state is the only thing that needs persisting. */
   dismissedNotificationIds: string[];
 }

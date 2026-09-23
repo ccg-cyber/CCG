@@ -25,6 +25,9 @@ import type {
   Shipment,
   Asset,
   Article,
+  ChatChannel,
+  ChatMessage,
+  FormSubmission,
 } from "./types";
 
 /**
@@ -205,6 +208,19 @@ const TARGETS: Record<string, number> = {
   "cust-blueharbor": 10000,
 };
 
+const CHANNELS: ChatChannel[] = [
+  { id: "chan-general", name: "general" },
+  { id: "chan-sales", name: "sales" },
+];
+
+const CHAT_MESSAGES: ChatMessage[] = [
+  { id: "chat-1", channelId: "chan-general", from: "Priya Nair", text: "Heads up — deploying the Q3 rollout changes this afternoon.", time: "2026-09-22T13:00:00Z" },
+  { id: "chat-2", channelId: "chan-general", from: "Sam Okafor", text: "Noted, I'll hold off on the maintenance window until tomorrow.", time: "2026-09-22T13:05:00Z" },
+  { id: "chat-3", channelId: "chan-sales", from: "Jordan Reyes", text: "Nord Retail Group's quote just got accepted 🎉", time: "2026-09-22T12:40:00Z" },
+];
+
+const FORM_SUBMISSIONS: FormSubmission[] = [];
+
 const SEED: AppState = {
   customers: CUSTOMERS,
   invoices: INVOICES,
@@ -231,6 +247,9 @@ const SEED: AppState = {
   shipments: SHIPMENTS,
   assets: ASSETS,
   articles: ARTICLES,
+  channels: CHANNELS,
+  chatMessages: CHAT_MESSAGES,
+  formSubmissions: FORM_SUBMISSIONS,
   dismissedNotificationIds: [],
 };
 
@@ -773,6 +792,124 @@ export function saveArticle(id: string, title: string, body: string) {
     articles: s.articles.map((a) => (a.id === id ? { ...a, title, body, updatedAt: now().slice(0, 10) } : a)),
   }));
   addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-knowledge", action: `Updated article "${title}"` });
+}
+
+export function postMessage(channelId: string, text: string) {
+  if (!text.trim()) return;
+  appStore.set((s) => ({
+    ...s,
+    chatMessages: [...s.chatMessages, { id: uid("chat"), channelId, from: "You", text: text.trim(), time: now() }],
+  }));
+}
+
+export function createTicket(customerId: string, subject: string, priority: "low" | "medium" | "high" = "medium") {
+  appStore.set((s) => ({
+    ...s,
+    tickets: [
+      ...s.tickets,
+      { id: uid("tick"), customerId, subject, status: "open", priority, createdAt: now(), lastUpdate: now() },
+    ],
+  }));
+}
+
+export function addCandidate(name: string, role: string, department: string, offerSalary: number) {
+  appStore.set((s) => ({
+    ...s,
+    candidates: [...s.candidates, { id: uid("cand"), name, role, department, offerSalary, stage: "applied" }],
+  }));
+}
+
+function recordFormSubmission(formName: string, summary: string) {
+  appStore.set((s) => ({
+    ...s,
+    formSubmissions: [{ id: uid("sub"), formName, summary, createdAt: now() }, ...s.formSubmissions],
+  }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-forms", action: `${formName}: ${summary}` });
+}
+
+/**
+ * CI Forms' whole point: a submission isn't stored as its own opaque
+ * blob, it becomes a real record in the module that owns that kind of
+ * data — a support ticket, a recruiting candidate — the same way CI
+ * Recruit's "hired" stage becomes a real CI HR employee.
+ */
+export function submitContactForm(name: string, email: string, company: string, message: string) {
+  const state = appStore.get();
+  let customer = state.customers.find((c) => c.email.toLowerCase() === email.toLowerCase());
+  if (!customer) {
+    customer = { id: uid("cust"), name, email, company: company || name, tags: ["inbound"] };
+    appStore.set((s) => ({ ...s, customers: [...s.customers, customer!] }));
+  }
+  createTicket(customer.id, message.slice(0, 80) || "Contact request", "medium");
+  recordFormSubmission("Contact request form", `Created a ticket for ${customer.name}`);
+}
+
+export function submitJobApplicationForm(name: string, role: string, department: string, offerSalary: number) {
+  addCandidate(name, role, department, offerSalary);
+  recordFormSubmission("Job application form", `Added ${name} to CI Recruit as a candidate`);
+}
+
+export interface SearchResult {
+  source: string;
+  href: string;
+  title: string;
+  detail: string;
+}
+
+/**
+ * A real search across the business data every live module writes to —
+ * distinct from the module-registry search in the top bar, which only
+ * finds modules by name. This finds records.
+ */
+export function searchAllRecords(state: AppState, query: string): SearchResult[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const results: SearchResult[] = [];
+  const push = (source: string, href: string, title: string, detail: string) => results.push({ source, href, title, detail });
+
+  for (const c of state.customers) {
+    if (c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.company.toLowerCase().includes(q)) {
+      push("CI Contacts", "/modules/contacts", c.name, c.email);
+    }
+  }
+  for (const i of state.invoices) {
+    if (i.number.includes(q)) push("CI Invoicing", "/modules/invoicing", `Invoice #${i.number}`, `${customerName(state, i.customerId)} · $${i.amount.toLocaleString()}`);
+  }
+  for (const e of state.emails) {
+    if (e.subject.toLowerCase().includes(q) || e.body.toLowerCase().includes(q)) push("CI Mail", "/modules/mail", e.subject, e.from);
+  }
+  for (const f of state.files) {
+    if (f.name.toLowerCase().includes(q)) push("CI Drive", "/modules/drive", f.name, f.owner);
+  }
+  for (const t of state.tasks) {
+    if (t.title.toLowerCase().includes(q)) push("CI Tasks", "/modules/tasks", t.title, t.done ? "done" : t.priority);
+  }
+  for (const t of state.tickets) {
+    if (t.subject.toLowerCase().includes(q)) push("CI Customer Service", "/modules/customer-service", t.subject, customerName(state, t.customerId));
+  }
+  for (const c of state.contracts) {
+    if (c.title.toLowerCase().includes(q)) push("CI Contracts", "/modules/contracts", c.title, customerName(state, c.customerId));
+  }
+  for (const e of state.employees) {
+    if (e.name.toLowerCase().includes(q) || e.role.toLowerCase().includes(q)) push("CI HR", "/modules/hr", e.name, e.role);
+  }
+  for (const a of state.articles) {
+    if (a.title.toLowerCase().includes(q) || a.body.toLowerCase().includes(q)) push("CI Knowledge", "/modules/knowledge", a.title, a.tags.join(", "));
+  }
+  for (const d of state.deals) {
+    if (d.name.toLowerCase().includes(q)) push("CI CRM", "/modules/crm", d.name, `${d.stage} · $${d.value.toLocaleString()}`);
+  }
+  for (const m of state.chatMessages) {
+    if (m.text.toLowerCase().includes(q)) {
+      const channel = state.channels.find((c) => c.id === m.channelId);
+      push("CI Chat", "/modules/chat", `#${channel?.name ?? m.channelId}`, `${m.from}: ${m.text}`);
+    }
+  }
+  for (const c of state.candidates) {
+    if (c.name.toLowerCase().includes(q) || c.role.toLowerCase().includes(q)) push("CI Recruit", "/modules/recruit", c.name, `${c.role} · ${c.stage}`);
+  }
+
+  return results.slice(0, 40);
 }
 
 export function resetDemoData() {

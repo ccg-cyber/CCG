@@ -31,6 +31,9 @@ import POS from "@/modules/pos/POS";
 import Logistics from "@/modules/logistics/Logistics";
 import Assets from "@/modules/assets/Assets";
 import Knowledge from "@/modules/knowledge/Knowledge";
+import Chat from "@/modules/chat/Chat";
+import Forms from "@/modules/forms/Forms";
+import Search from "@/modules/search/Search";
 
 /**
  * Registry module id -> its real component. This is the one place that
@@ -70,6 +73,9 @@ const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
   "ci-logistics": Logistics,
   "ci-assets": Assets,
   "ci-knowledge": Knowledge,
+  "ci-chat": Chat,
+  "ci-forms": Forms,
+  "ci-search": Search,
 };
 
 export default function ModulePage() {

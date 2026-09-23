@@ -10,7 +10,7 @@ import type { ModuleDefinition } from "./types";
  *   - "scaffolded"  has a route and placeholder screen
  *   - "planned"     registered so the shape of the OS is complete; not built
  *
- * 30 modules are wired up end-to-end so far, sharing one dataset
+ * 33 modules are wired up end-to-end so far, sharing one dataset
  * (src/lib/data.ts) rather than being isolated demos. The rest are
  * registered and navigable but not yet built — see MODULES.md for the
  * always-current live count and full breakdown by category.
@@ -42,7 +42,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-notes", slug: "notes", name: "CI Notes", category: "work", status: "planned",
     description: "Quick notes, notebooks, clippings, voice-to-note, handwriting OCR.",
     keywords: ["notes", "notebook", "memo"] },
-  { id: "ci-forms", slug: "forms", name: "CI Forms", category: "work", status: "planned",
+  { id: "ci-forms", slug: "forms", name: "CI Forms", category: "work", status: "live",
     description: "Form builder, surveys, conditional logic, automatic workflow triggering.",
     keywords: ["form", "survey", "questionnaire"] },
   { id: "ci-tasks", slug: "tasks", name: "CI Tasks", category: "work", status: "live",
@@ -59,7 +59,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-contacts", slug: "contacts", name: "CI Contacts", category: "communicate", status: "live",
     description: "People, companies, relationship history, dedupe, customer/supplier links.",
     keywords: ["contacts", "people", "address book"] },
-  { id: "ci-chat", slug: "chat", name: "CI Chat", replaces: "Teams / Slack", category: "communicate", status: "planned",
+  { id: "ci-chat", slug: "chat", name: "CI Chat", replaces: "Teams / Slack", category: "communicate", status: "live",
     description: "DMs, channels, threads, mentions, searchable history, AI summaries.",
     keywords: ["chat", "slack", "teams", "messaging"] },
   { id: "ci-meet", slug: "meet", name: "CI Meet", category: "communicate", status: "planned",
@@ -76,7 +76,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-drive", slug: "drive", name: "CI Drive", replaces: "OneDrive / Dropbox", category: "files", status: "live",
     description: "Files, folders, sharing, permissions, version history, team spaces.",
     keywords: ["drive", "storage", "files", "dropbox", "onedrive"] },
-  { id: "ci-search", slug: "search", name: "CI Search", category: "files", status: "planned",
+  { id: "ci-search", slug: "search", name: "CI Search", category: "files", status: "live",
     description: "One semantic search across mail, files, PDFs, chats, records and systems.",
     keywords: ["search", "find", "lookup"] },
   { id: "ci-scan", slug: "scan", name: "CI Scan", category: "files", status: "planned",
