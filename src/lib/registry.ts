@@ -10,7 +10,7 @@ import type { ModuleDefinition } from "./types";
  *   - "scaffolded"  has a route and placeholder screen
  *   - "planned"     registered so the shape of the OS is complete; not built
  *
- * 39 modules are wired up end-to-end so far, sharing one dataset
+ * 42 modules are wired up end-to-end so far, sharing one dataset
  * (src/lib/data.ts) rather than being isolated demos. The rest are
  * registered and navigable but not yet built — see MODULES.md for the
  * always-current live count and full breakdown by category.
@@ -225,13 +225,13 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-connect", slug: "connect", name: "CI Connect", category: "build", status: "planned",
     description: "Connectors to Microsoft, Google, banks, e-commerce, CRMs and more.",
     keywords: ["integrations", "connectors"] },
-  { id: "ci-data-hub", slug: "data-hub", name: "CI Data Hub", category: "build", status: "planned",
+  { id: "ci-data-hub", slug: "data-hub", name: "CI Data Hub", category: "build", status: "live",
     description: "Import/export, ETL, mapping, sync, dedup, master-data management.",
     keywords: ["etl", "data pipeline", "sync"] },
   { id: "ci-dev", slug: "dev", name: "CI Dev", category: "build", status: "planned",
     description: "Developer workspace: editor, repos, terminals, environments, AI coding.",
     keywords: ["developer", "code editor", "ide"] },
-  { id: "ci-marketplace", slug: "marketplace", name: "CI Marketplace", category: "build", status: "planned",
+  { id: "ci-marketplace", slug: "marketplace", name: "CI Marketplace", category: "build", status: "live",
     description: "Install additional modules, industry packs, connectors, agent skills.",
     keywords: ["marketplace", "extensions", "add-ons"] },
   { id: "ci-industry-packs", slug: "industry-packs", name: "CI Industry Packs", category: "build", status: "planned",
@@ -289,7 +289,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-audit", slug: "audit", name: "CI Audit", category: "control", status: "live",
     description: "Immutable history of who did what, when, and whether it was human or agent.",
     keywords: ["audit log", "history"] },
-  { id: "ci-governance", slug: "governance", name: "CI Governance", category: "control", status: "planned",
+  { id: "ci-governance", slug: "governance", name: "CI Governance", category: "control", status: "live",
     description: "Data classification, retention, AI policy, privacy, org-wide rules.",
     keywords: ["governance", "data policy"] },
   { id: "ci-autonomy-control", slug: "autonomy", name: "CI Autonomy Control", category: "control", status: "planned",

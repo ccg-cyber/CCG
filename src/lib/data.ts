@@ -230,6 +230,23 @@ const SIGNATURE_REQUESTS: SignatureRequest[] = [
 
 const EXPENSES: Expense[] = [];
 
+/**
+ * The catalog CI Marketplace renders. Each id is checked by the exact
+ * mutation function that performs the automation it names — turning one
+ * off doesn't disable a UI element, it changes what that function does.
+ */
+export const AUTOMATION_CATALOG = [
+  { id: "quote-accepted-advances-deal", name: "Accepted quote advances its CRM deal", description: "CI Sales → CI CRM: accepting a quote moves its linked deal to Won." },
+  { id: "po-approved-receives-stock", name: "Approved PO receives inventory", description: "CI Purchasing → CI Inventory: approving a linked PO adds its quantity to stock." },
+] as const;
+
+const AUTOMATIONS: Record<string, boolean> = {
+  "quote-accepted-advances-deal": true,
+  "po-approved-receives-stock": true,
+};
+
+const GOVERNANCE = { poAutoApproveThreshold: 0 };
+
 const SEED: AppState = {
   customers: CUSTOMERS,
   invoices: INVOICES,
@@ -261,6 +278,8 @@ const SEED: AppState = {
   formSubmissions: FORM_SUBMISSIONS,
   signatureRequests: SIGNATURE_REQUESTS,
   expenses: EXPENSES,
+  automations: AUTOMATIONS,
+  governance: GOVERNANCE,
   dismissedNotificationIds: [],
 };
 
@@ -374,7 +393,8 @@ export function decideApproval(id: string, decision: "approved" | "rejected") {
     // A PO tied to an inventory item isn't just paperwork — approving it
     // is the real-world event that puts stock on the shelf. CI Inventory
     // reflects that without anyone re-entering the receipt by hand.
-    if (decision === "approved" && po?.itemId && po.quantity) {
+    // Gated by CI Marketplace, same as the quote/deal automation above.
+    if (decision === "approved" && po?.itemId && po.quantity && appStore.get().automations["po-approved-receives-stock"]) {
       receiveStock(po.itemId, po.quantity);
     }
   }
@@ -446,15 +466,41 @@ export function runPayroll() {
 }
 
 export function createPurchaseOrder(supplierId: string, description: string, amount: number) {
-  const po: PurchaseOrder = { id: uid("po"), supplierId, description, amount, status: "pending" };
+  const state = appStore.get();
+  const underThreshold = amount <= state.governance.poAutoApproveThreshold;
+  const po: PurchaseOrder = { id: uid("po"), supplierId, description, amount, status: underThreshold ? "approved" : "pending" };
   appStore.set((s) => ({ ...s, purchaseOrders: [po, ...s.purchaseOrders] }));
+
+  if (underThreshold) {
+    // CI Governance's threshold means this never touches a human queue —
+    // it's approved the instant it's created, the same way a real spend
+    // policy lets small purchases through without a manager's sign-off.
+    addAuditEvent({
+      actor: "system",
+      actorName: "Ci Business OS",
+      moduleId: "ci-governance",
+      action: `Auto-approved PO ${po.id} ($${amount.toLocaleString()}) — under the $${state.governance.poAutoApproveThreshold.toLocaleString()} threshold`,
+    });
+    return;
+  }
+
   addApproval({
-    title: `Purchase order ${po.id} — $${amount.toLocaleString()} to ${customerName(appStore.get(), supplierId)}`,
+    title: `Purchase order ${po.id} — $${amount.toLocaleString()} to ${customerName(state, supplierId)}`,
     description,
     moduleId: "ci-purchasing",
     createdBy: "user",
     payload: { kind: "purchase-order", purchaseOrderId: po.id },
   });
+}
+
+export function setPoAutoApproveThreshold(value: number) {
+  appStore.set((s) => ({ ...s, governance: { ...s.governance, poAutoApproveThreshold: value } }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-governance", action: `Set PO auto-approve threshold to $${value.toLocaleString()}` });
+}
+
+export function setAutomationEnabled(id: string, enabled: boolean) {
+  appStore.set((s) => ({ ...s, automations: { ...s.automations, [id]: enabled } }));
+  addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-marketplace", action: `${enabled ? "Enabled" : "Disabled"} automation "${id}"` });
 }
 
 export function addEmployee(name: string, role: string, department: string, baseSalary: number) {
@@ -667,8 +713,9 @@ export function decideQuote(id: string, decision: "sent" | "accepted" | "decline
 
   // Accepting a quote is a business event, not just a status flip — the
   // linked CRM deal should reflect it without a human re-entering the
-  // same fact in a second module.
-  if (decision === "accepted" && quote.dealId) {
+  // same fact in a second module. Gated by CI Marketplace: turning this
+  // automation off means the human keeps that step for themselves.
+  if (decision === "accepted" && quote.dealId && appStore.get().automations["quote-accepted-advances-deal"]) {
     moveDealStage(quote.dealId, "Won");
     addAuditEvent({
       actor: "system",
@@ -1013,6 +1060,51 @@ export function restoreFromArchive(id: string) {
   if (!file) return;
   appStore.set((s) => ({ ...s, files: s.files.map((f) => (f.id === id ? { ...f, archived: false } : f)) }));
   addAuditEvent({ actor: "user", actorName: "You", moduleId: "ci-archive", action: `Restored "${file.name}" from archive` });
+}
+
+/**
+ * CI Data Hub's import doesn't write to a staging table of its own — it
+ * calls into the same customer list CI Contacts, CI Forms and CI Website
+ * all read and write, skipping rows whose email already exists rather
+ * than creating a duplicate.
+ */
+export function importCustomersCsv(csvText: string): { imported: number; skipped: number } {
+  const state = appStore.get();
+  const existingEmails = new Set(state.customers.map((c) => c.email.toLowerCase()));
+  const rows = csvText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => line.split(",").map((cell) => cell.trim()));
+
+  const newCustomers: Customer[] = [];
+  let skipped = 0;
+  for (const [name, email, company] of rows) {
+    if (!name || !email) continue;
+    if (existingEmails.has(email.toLowerCase())) {
+      skipped++;
+      continue;
+    }
+    existingEmails.add(email.toLowerCase());
+    newCustomers.push({ id: uid("cust"), name, email, company: company || name, tags: ["imported"] });
+  }
+
+  if (newCustomers.length > 0) {
+    appStore.set((s) => ({ ...s, customers: [...s.customers, ...newCustomers] }));
+  }
+  addAuditEvent({
+    actor: "user",
+    actorName: "You",
+    moduleId: "ci-data-hub",
+    action: `Imported ${newCustomers.length} customer(s) from CSV (${skipped} skipped as duplicates)`,
+  });
+  return { imported: newCustomers.length, skipped };
+}
+
+export function exportCustomersCsv(state: AppState): string {
+  const header = "name,email,company,tags";
+  const rows = state.customers.map((c) => `${c.name},${c.email},${c.company},"${c.tags.join(";")}"`);
+  return [header, ...rows].join("\n");
 }
 
 export function resetDemoData() {

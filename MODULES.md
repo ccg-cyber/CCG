@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 39
+- ✅ Live: 42
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 51
+- ⬜ Planned: 48
 
 ---
 
@@ -130,9 +130,9 @@ No-code database, app builder, automation, integrations.
 | **CI Workflow Engine** | ⬜ Planned | — | Business process stages, rules, escalation, delegation, cross-module flows. |
 | **CI API Hub** | ⬜ Planned | — | External APIs, OAuth connections, webhooks, credentials, quotas, logs. |
 | **CI Connect** | ⬜ Planned | — | Connectors to Microsoft, Google, banks, e-commerce, CRMs and more. |
-| **CI Data Hub** | ⬜ Planned | — | Import/export, ETL, mapping, sync, dedup, master-data management. |
+| **CI Data Hub** | ✅ Live | — | Import/export, ETL, mapping, sync, dedup, master-data management. |
 | **CI Dev** | ⬜ Planned | — | Developer workspace: editor, repos, terminals, environments, AI coding. |
-| **CI Marketplace** | ⬜ Planned | — | Install additional modules, industry packs, connectors, agent skills. |
+| **CI Marketplace** | ✅ Live | — | Install additional modules, industry packs, connectors, agent skills. |
 | **CI Industry Packs** | ⬜ Planned | — | Pre-built packages for retail, hospitality, medical admin, construction and more. |
 
 ## Intelligence
@@ -164,7 +164,7 @@ Admin, approvals, permissions, audit, governance.
 | **CI Permissions** | ⬜ Planned | — | Fine-grained RBAC/ABAC across every module, including agent actions. |
 | **CI Admin Center** | ⬜ Planned | — | Company setup, branches, subscriptions, branding, policies, integrations. |
 | **CI Audit** | ✅ Live | — | Immutable history of who did what, when, and whether it was human or agent. |
-| **CI Governance** | ⬜ Planned | — | Data classification, retention, AI policy, privacy, org-wide rules. |
+| **CI Governance** | ✅ Live | — | Data classification, retention, AI policy, privacy, org-wide rules. |
 | **CI Autonomy Control** | ⬜ Planned | — | What CI may do automatically, what needs approval, what it must never do. |
 | **CI Activity / Trace** | ⬜ Planned | — | Readable timeline of every step CI and its agents took to reach a result. |
 

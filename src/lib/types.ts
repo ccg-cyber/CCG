@@ -376,6 +376,10 @@ export interface AppState {
   formSubmissions: FormSubmission[];
   signatureRequests: SignatureRequest[];
   expenses: Expense[];
+  /** CI Marketplace — which of the built-in cross-module automations are switched on. */
+  automations: Record<string, boolean>;
+  /** CI Governance — org-wide policy values other modules' logic reads. */
+  governance: { poAutoApproveThreshold: number };
   /** Notifications a user has dismissed — notifications themselves are computed, not stored, so read state is the only thing that needs persisting. */
   dismissedNotificationIds: string[];
 }

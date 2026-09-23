@@ -59,9 +59,12 @@ the code, always current).
 | CI Archive | ✅ Live — a filtered view of CI Drive; archiving moves files here |
 | CI Assistant | ✅ Live — Ask CI's own address, the same component as on Home |
 | CI Website | ✅ Live — a public lead form calling the same mutation CI Forms uses |
-| 51 more modules | ⬜ Registered, searchable, not yet built |
+| CI Marketplace | ✅ Live — real on/off switches for the built-in automations |
+| CI Governance | ✅ Live — a spend threshold that changes real approval behavior |
+| CI Data Hub | ✅ Live — CSV import/export into CI Contacts' real list |
+| 48 more modules | ⬜ Registered, searchable, not yet built |
 
-All thirty-nine live modules (over 40% of the full map) read and write **one shared, persisted dataset**
+All forty-two live modules (nearly half the full map) read and write **one shared, persisted dataset**
 (`src/lib/data.ts`, backed by `localStorage`) keyed around real customer
 records — so a deal in CRM, an invoice in Invoicing, a thread in Mail, and
 a file in Drive for "Acme Ltd." are the *same* Acme Ltd., not four
@@ -110,6 +113,13 @@ npm run build     # typecheck + production build
 - Submit the job application form in **CI Forms** — the applicant
   immediately appears as a real candidate in **CI Recruit**, and is
   findable through **CI Search** the moment you submit, with no reload.
+- Turn off "Approved PO receives inventory" in **CI Marketplace**, then
+  approve the seeded PO-2201 in **CI Approval Center** — CI Inventory's
+  stock stays put, proving the toggle changes real behavior, not just a
+  label. Turn it back on and the same approval will receive stock again.
+- Set a threshold in **CI Governance**, then create a new purchase order
+  under it in **CI Purchasing** — it's approved instantly, with no trip
+  through CI Approval Center at all.
 - Use the top search bar or the sidebar to jump into any of the 90
   modules — live ones show a working screen, everything else shows what
   it's scoped to become.

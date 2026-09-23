@@ -172,7 +172,7 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Thirty-nine modules — over 40% of the full map — are wired up end-to-end against the one shared dataset:
+Forty-two modules — nearly half the full map — are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
@@ -215,8 +215,11 @@ Thirty-nine modules — over 40% of the full map — are wired up end-to-end aga
 | CI Archive | Files | A filtered view of CI Drive's own files — archiving there changes what Drive itself shows |
 | CI Assistant | Intelligence | Ask CI given its own address — the same component embedded on Home, not a copy |
 | CI Website | Create | A third front door onto submitContactForm() — the public-site path costs nothing structurally |
+| CI Marketplace | Build | Real on/off switches for the built-in cross-module automations — verified to actually change behavior |
+| CI Governance | Control | A spend threshold read by createPurchaseOrder() itself, not a display of a policy nobody enforces |
+| CI Data Hub | Build | CSV import/export straight into CI Contacts' real list — a fourth front door, after Forms, Website and manual entry |
 
-The other 51 are registered with real names, categories, descriptions and
+The other 48 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
@@ -322,20 +325,51 @@ later (an API call from `CI API HUB`, say) costs nothing structurally.
    with a model call into `CI INTELLIGENCE CORE` — the data layer, the
    approval gate, and every module it calls into are already real and
    don't need to change.
-4. **CI Autonomy Control** as an actual policy surface — today
-   `needsApproval` is hardcoded per intent in `ask-ci.ts`; it should be a
-   configurable rule a human sets, not a constant in the router.
-5. Promote the next handful of modules from `planned` to `live`. 39 of 90
-   are done — over 40% of the map. Natural next candidates: **CI
-   Marketplace** (CI Industry Packs and CI Marketplace are the only two
-   modules whose entire job is presenting *other* modules — a natural
-   pairing with the registry-as-data architecture itself), **CI
-   Governance** (CI Autonomy Control's `needsApproval` policy, once it
-   exists per priority 4 above, needs somewhere a human actually sets and
-   reviews it), and **CI Data Hub** (every module's seed data was typed by
-   hand into `data.ts`; a real import path — CSV in, records out through
-   the same mutation functions Forms and Scan already prove out — is the
-   next honest step before priority 1's real backend).
+4. **CI Autonomy Control** as an actual policy surface for Ask CI
+   specifically — today `needsApproval` is still hardcoded per intent in
+   `ask-ci.ts`. CI Governance now proves the pattern this needs
+   (`state.governance` read by a mutation function, edited through a real
+   module screen) for one rule, a purchasing threshold; Autonomy Control
+   is the same pattern applied to Ask CI's own approval gate.
+5. Promote the next handful of modules from `planned` to `live`. 42 of 90
+   are done — nearly half the map. Natural next candidates: **CI
+   Workflow Engine** (the "system" actor pattern and CI Marketplace's
+   automation toggles are both hand-written today; Workflow Engine is
+   where a human authors a new "when X in module A, do Y in module B"
+   rule instead of it requiring a code change), **CI Industry Packs**
+   (CI Marketplace toggles automations one at a time; a pack would be a
+   named bundle of settings — targets, thresholds, automations — applied
+   together), and **CI Identity** (priority 2 above, now overdue: every
+   module still trusts the single hardcoded `CURRENT_USER`).
+
+## Two flavors of control plane: automations and policy
+
+CI Marketplace and CI Governance both let a human change another
+module's behavior without touching code, but they're deliberately
+different shapes, because they answer different questions:
+
+- **CI Marketplace** (`state.automations: Record<string, boolean>`)
+  answers "should this cross-module side effect happen at all." Each
+  entry in `AUTOMATION_CATALOG` names an `if` check already sitting
+  inside a mutation function — `decideQuote()` checks
+  `automations["quote-accepted-advances-deal"]` before calling
+  `moveDealStage()`, `decideApproval()` checks
+  `automations["po-approved-receives-stock"]` before calling
+  `receiveStock()`. Turning one off doesn't remove a feature; it makes a
+  human keep a step that was being done for them.
+- **CI Governance** (`state.governance`) answers "where's the line,"
+  not "on or off." `poAutoApproveThreshold` is a number
+  `createPurchaseOrder()` compares an amount against, and crossing it
+  changes which code path a new PO takes entirely — auto-approved with a
+  `system`-actor audit entry below the line, a normal `CI Approval
+  Center` request above it.
+
+Both are proof that "a human sets a rule here, a mutation function
+somewhere else reads it" is a general pattern this codebase can keep
+reusing — not something built once for these two cases. `CI WORKFLOW
+ENGINE` and `CI AUTONOMY CONTROL` are where it goes next: the same shape,
+generalized from a fixed catalog of hardcoded checks to rules a human
+authors at runtime.
 
 ## A bug the verification process actually caught
 

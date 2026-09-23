@@ -40,6 +40,9 @@ import Scan from "@/modules/scan/Scan";
 import Archive from "@/modules/archive/Archive";
 import Assistant from "@/modules/assistant/Assistant";
 import Website from "@/modules/website/Website";
+import Marketplace from "@/modules/marketplace/Marketplace";
+import Governance from "@/modules/governance/Governance";
+import DataHub from "@/modules/data-hub/DataHub";
 
 /**
  * Registry module id -> its real component. This is the one place that
@@ -88,6 +91,9 @@ const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
   "ci-archive": Archive,
   "ci-assistant": Assistant,
   "ci-website": Website,
+  "ci-marketplace": Marketplace,
+  "ci-governance": Governance,
+  "ci-data-hub": DataHub,
 };
 
 export default function ModulePage() {
