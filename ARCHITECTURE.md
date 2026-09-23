@@ -144,6 +144,42 @@ window content (registered in `MODULE_COMPONENTS` like every other
 module — there's no special-cased home page anymore, just a module that
 happens to auto-open first).
 
+## Two shells, not one shrunk to fit — and an install, not just a tab
+
+A floating, draggable, resizable window is a desktop-mouse idea. No
+handheld device has ever shipped that metaphor — not Palm OS, not the
+Sony Ericsson P800, not iOS, not Android — because you can't drag a
+titlebar with a thumb on a 6-inch screen and there's no reason to want
+to. Below `COMPACT_BREAKPOINT` (720px, in `Desktop.tsx`), the app doesn't
+shrink the desktop down; it swaps to a completely different shell built
+for the constraint: **`CompactShell.tsx`**. One app fills the screen at a
+time. A back button (`‹ Home`) returns to a home-screen icon grid — the
+same `WindowManagerContext` state, just rendered differently: the
+foreground module is whichever window is `activeId` and not `minimized`;
+"Back" doesn't close it, it minimizes it, so it keeps running in the
+background and reappears instantly in a "Running" strip on the home
+screen, the way switching apps on a real phone never actually quits them.
+Both shells read the exact same window-manager state and the exact same
+`MODULE_COMPONENTS` — a module built once runs correctly in a floating
+860×580 window and in a full-screen phone view, because it was already
+required to work as small as 360×240.
+
+The other half of "you shouldn't need to exit" is literal, not just a
+feeling: Ci is installable. `public/manifest.webmanifest` plus the
+`apple-mobile-web-app-capable` / `msapplication-*` meta tags in
+`index.html` mean "Add to Home Screen" on iOS/Android or "Install" in any
+Chromium or Safari desktop browser puts a real icon in the dock, Start
+menu, or home screen — launching with **zero browser chrome**, no address
+bar, no tabs, indistinguishable at a glance from a native app. A minimal
+network-first service worker (`public/sw.js`) caches what it fetches so a
+second launch is instant and the shell still opens offline, while never
+pinning you to a stale build — it always tries the network first and only
+falls back to cache when there isn't one. This is the honest version of
+"one OS-feeling app on Windows, Mac, and mobile": Ci cannot replace the
+kernel underneath any of those, but it can be the one icon you open and
+never need to leave, on all three, which is the actual thing being asked
+for.
+
 ## One shared dataset, not nine mocks that share names
 
 `src/lib/data.ts` holds the one dataset every live module reads and

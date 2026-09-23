@@ -64,16 +64,17 @@ modules from becoming 90 tangled ones.
 
 Changes to `src/lib/types.ts`, `permissions.ts`, `ask-ci.ts`,
 `categories.ts`, or the OS shell (`src/os/` — `Desktop.tsx`,
-`Window.tsx`, `WindowManagerContext.tsx`, `Taskbar.tsx`, `StartMenu.tsx`,
-`ModuleWindowContent.tsx`, `BootScreen.tsx`) affect every module at once.
-Call this out explicitly in the PR description — what changes for
-existing live modules, and why it doesn't break the placeholder windows
-for the other ~48.
+`Window.tsx`, `WindowManagerContext.tsx`, `CompactShell.tsx`,
+`Taskbar.tsx`, `StartMenu.tsx`, `ModuleWindowContent.tsx`,
+`BootScreen.tsx`) affect every module at once. Call this out explicitly
+in the PR description — what changes for existing live modules, and why
+it doesn't break the placeholder windows for the other ~48.
 
 A module's own component (`src/modules/<slug>/<Name>.tsx`) should never
 assume it's running full-page — it renders inside a resizable window
-that can be as small as 360×240, so design for that, not for a browser
-tab.
+that can be as small as 360×240 on desktop, **and** fullscreen at phone
+width inside `CompactShell.tsx` (no window chrome, no drag/resize handle,
+scrollable body only) — so design for both, not for a browser tab.
 
 ## Commit and PR conventions
 

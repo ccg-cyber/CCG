@@ -129,6 +129,15 @@ long-running production traffic.
   or browse by category. This replaces both the old sidebar tree and a
   separate search box with one launcher, the way a real OS's app launcher
   is both at once.
+- **On a phone-width screen**, the floating windows disappear entirely —
+  below 720px it's a different shell (`src/os/CompactShell.tsx`): a
+  home-screen icon grid, one app fullscreen at a time, a back button, and
+  a "Running" strip for whatever you left open in the background. No
+  desktop metaphor forced onto a screen too small for it.
+- **Install it.** "Add to Home Screen" (iOS/Android) or "Install" (any
+  Chromium/Safari desktop browser) puts a real icon in your dock, Start
+  menu, or home screen — it opens full-screen with no browser chrome at
+  all, and keeps working offline.
 - Type into **Ask CI** in the CI Home window:
   - _"Acme Ltd. hasn't paid, prepare a statement and draft a follow-up
     email"_ — reads Acme Ltd.'s real overdue invoices, drafts a statement,
@@ -185,7 +194,10 @@ src/
     WindowManagerContext.tsx  Real window state: position, size, z-order,
                         minimized/maximized (reducer, not CSS tricks)
     Window.tsx           Draggable, resizable window frame
-    Desktop.tsx          Wallpaper, desktop icons, the open-window render loop
+    Desktop.tsx          Wallpaper, desktop icons, the open-window render
+                        loop, and the breakpoint that switches to CompactShell
+    CompactShell.tsx      Phone-width shell: fullscreen app + back button +
+                        home-screen icon grid, instead of floating windows
     Taskbar.tsx          Open windows, live clock, notification count
     StartMenu.tsx        Browse-by-category + type-to-find, in one launcher
     ModuleWindowContent.tsx  What renders inside a window: the real module,

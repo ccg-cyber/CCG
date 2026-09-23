@@ -5,7 +5,23 @@ import Window from "./Window";
 import Taskbar from "./Taskbar";
 import StartMenu from "./StartMenu";
 import ModuleWindowContent from "./ModuleWindowContent";
+import CompactShell from "./CompactShell";
 import { getModule, getModuleById } from "@/lib/registry";
+
+/** Below this width, the floating-window desktop metaphor stops making
+ * sense — nothing with a screen this size (Palm, the P800, a phone today)
+ * shows draggable overlapping windows. CompactShell takes over instead. */
+const COMPACT_BREAKPOINT = 720;
+
+function useCompact() {
+  const [compact, setCompact] = useState(() => window.innerWidth < COMPACT_BREAKPOINT);
+  useEffect(() => {
+    const onResize = () => setCompact(window.innerWidth < COMPACT_BREAKPOINT);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  return compact;
+}
 
 /** A curated, flagship set of icons on the desktop itself — the modules
  * someone opens daily, immediately visible without going through Start. */
@@ -29,6 +45,7 @@ function DesktopInner() {
   const [startOpen, setStartOpen] = useState(false);
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const openedHomeRef = useRef(false);
+  const compact = useCompact();
 
   // URL is a way *in* (a link, a bookmark, a shared /modules/:slug URL
   // opens that window) — not the source of truth for what's open. Several
@@ -49,6 +66,8 @@ function DesktopInner() {
   function deskSize() {
     return { w: window.innerWidth, h: window.innerHeight - 52 };
   }
+
+  if (compact) return <CompactShell />;
 
   return (
     <div
