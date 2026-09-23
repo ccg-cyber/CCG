@@ -1,7 +1,4 @@
-import { useParams, Link } from "react-router-dom";
-import { getModule } from "@/lib/registry";
-import { CATEGORIES } from "@/lib/categories";
-import StatusBadge from "@/components/StatusBadge";
+import Home from "@/pages/Home";
 import Docs from "@/modules/docs/Docs";
 import Mail from "@/modules/mail/Mail";
 import Drive from "@/modules/drive/Drive";
@@ -50,9 +47,16 @@ import DataHub from "@/modules/data-hub/DataHub";
  * (src/modules/<slug>/<Name>.tsx) — every module's implementation lives
  * at exactly the path its slug predicts, so finding or adding one never
  * requires searching: CI Purchasing is src/modules/purchasing/Purchasing.tsx,
- * full stop.
+ * full stop. CI Home is the one exception to the folder convention — it
+ * predates the module system as the shell's own dashboard — so it's
+ * listed here as src/pages/Home.tsx rather than src/modules/home/Home.tsx.
+ *
+ * Consumed by the OS shell (src/os/ModuleWindowContent.tsx): every module,
+ * home included, opens as a window through this same map — there's no
+ * special-cased "home page" route anymore.
  */
-const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
+export const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
+  "ci-home": Home,
   "ci-docs": Docs,
   "ci-mail": Mail,
   "ci-drive": Drive,
@@ -95,48 +99,3 @@ const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
   "ci-governance": Governance,
   "ci-data-hub": DataHub,
 };
-
-export default function ModulePage() {
-  const { slug } = useParams();
-  const module = slug ? getModule(slug) : undefined;
-
-  if (!module) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <p className="text-ci-muted">Module not found.</p>
-        <Link to="/" className="text-ci-accent text-sm">
-          Back to Home
-        </Link>
-      </div>
-    );
-  }
-
-  const category = CATEGORIES.find((c) => c.id === module.category);
-  const ModuleScreen = MODULE_COMPONENTS[module.id];
-
-  return (
-    <div className="mx-auto max-w-6xl px-4 py-8 space-y-6">
-      <div>
-        <p className="text-xs text-ci-muted mb-1">{category?.label}</p>
-        <div className="flex items-center gap-3">
-          <h1 className="text-xl font-semibold">{module.name}</h1>
-          <StatusBadge status={module.status} />
-        </div>
-        <p className="text-sm text-ci-muted mt-1 max-w-2xl">{module.description}</p>
-        {module.replaces && <p className="text-xs text-ci-muted/70 mt-1">Replaces: {module.replaces}</p>}
-      </div>
-
-      {ModuleScreen ? (
-        <ModuleScreen />
-      ) : (
-        <div className="rounded-xl border border-dashed border-ci-border bg-ci-panel p-8 text-center max-w-2xl">
-          <p className="text-sm text-ci-muted">
-            {module.name} is registered in the Ci Business OS module map but not yet built. It slots into the{" "}
-            <strong className="text-ci-text">{category?.label}</strong> category, following the same shell,
-            permission model and audit trail as every live module.
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}

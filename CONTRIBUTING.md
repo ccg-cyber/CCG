@@ -49,10 +49,10 @@ in Ask CI's keyword matching, with a placeholder screen.
    anyone should be able to find a module's implementation from its name
    alone, without grep. Keep it a self-contained component — it should not
    assume anything about the shell beyond what's in `src/lib/`.
-2. Register it in `MODULE_COMPONENTS` in `src/pages/ModulePage.tsx`.
+2. Register it in `MODULE_COMPONENTS` in `src/lib/moduleComponents.tsx`.
 3. Flip the module's `status` in the registry: `"planned"` →
-   `"scaffolded"` (route exists, placeholder UI) → `"live"` (real,
-   working UI).
+   `"scaffolded"` (opens as a window with placeholder content) → `"live"`
+   (real, working UI).
 4. Regenerate `MODULES.md`.
 
 A module reaching for shared state (a customer record CRM and Mail both
@@ -63,10 +63,17 @@ modules from becoming 90 tangled ones.
 ## Core / shell changes
 
 Changes to `src/lib/types.ts`, `permissions.ts`, `ask-ci.ts`,
-`categories.ts`, or the shell components (`Sidebar`, `TopBar`, `App.tsx`)
-affect every module at once. Call this out explicitly in the PR
-description — what changes for existing live modules, and why it doesn't
-break the placeholder pages for the other ~84.
+`categories.ts`, or the OS shell (`src/os/` — `Desktop.tsx`,
+`Window.tsx`, `WindowManagerContext.tsx`, `Taskbar.tsx`, `StartMenu.tsx`,
+`ModuleWindowContent.tsx`, `BootScreen.tsx`) affect every module at once.
+Call this out explicitly in the PR description — what changes for
+existing live modules, and why it doesn't break the placeholder windows
+for the other ~48.
+
+A module's own component (`src/modules/<slug>/<Name>.tsx`) should never
+assume it's running full-page — it renders inside a resizable window
+that can be as small as 360×240, so design for that, not for a browser
+tab.
 
 ## Commit and PR conventions
 

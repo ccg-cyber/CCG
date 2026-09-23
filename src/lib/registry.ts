@@ -312,6 +312,10 @@ export function getModule(slug: string): ModuleDefinition | undefined {
   return MODULES.find((m) => m.slug === slug);
 }
 
+export function getModuleById(id: string): ModuleDefinition | undefined {
+  return MODULES.find((m) => m.id === id);
+}
+
 export function modulesByCategory(category: string): ModuleDefinition[] {
   return MODULES.filter((m) => m.category === category);
 }

@@ -72,19 +72,77 @@ where `<slug>` is the exact `slug` field from its `registry.ts` entry and
 `Demo`, `Page`, `Component`, or `View` suffix: these are the product's
 real screens, and naming them as anything provisional would be a lie the
 codebase tells about itself. The mapping is registered once, in
-`MODULE_COMPONENTS` in `src/pages/ModulePage.tsx`, so finding or adding a
-module's implementation never requires searching — the slug is the
-address.
+`MODULE_COMPONENTS` in `src/lib/moduleComponents.tsx`, so finding or
+adding a module's implementation never requires searching — the slug is
+the address.
 
-## One shell, not 90 apps
+## One machine, not 90 apps — the shell is an operating system
 
-Every module renders inside the same shell (`src/App.tsx`): same sidebar,
-same top command bar, same user session, same permission check. A module
-is a component dropped into `ModulePage`, not a separate deployable with
-its own login screen. That's what makes cross-module answers possible —
-`ModulePage` and every module component share the same registry, the same
-`CURRENT_USER`, and (as real modules replace demos) the same underlying
-data store.
+The shell went through two designs. The first (`src/pages/Home.tsx` as a
+routed "/" page, a permanent sidebar, a top search bar, each module as its
+own full-page route) was honest about the data but wrong about the feel:
+it read as an admin dashboard — a sidebar, cards, a page per section —
+because that's the shape every SaaS back-office tool takes, and this
+isn't supposed to be another one of those. "Business OS" was a name, not
+yet an experience.
+
+The shell now is a real desktop, in `src/os/`:
+
+- **`BootScreen.tsx`** — a boot sequence that plays once per real page
+  load (mounted unconditionally by `App.tsx`; client-side navigation
+  within the OS never re-triggers it, the same way switching windows on a
+  real machine doesn't reboot it). A progress bar, a scrolling status log,
+  click or any key to skip. The point isn't decoration — it's the first
+  five seconds telling you that you're entering something, not that a
+  webpage is loading.
+- **`WindowManagerContext.tsx`** — a reducer holding real window state:
+  position, size, z-order, minimized/maximized, keyed by a stable id per
+  open module instance. Opening an already-open module focuses it rather
+  than duplicating it; closing, minimizing, maximizing, dragging and
+  resizing are all real reducer actions, not CSS tricks. Deliberately
+  *not* persisted to `src/lib/store.ts` — window layout is ephemeral UI
+  chrome, not business data, and resets on reload the way a real OS's
+  window positions don't survive a full power-cycle either.
+- **`Window.tsx`** — the actual draggable, resizable frame: mouse-driven
+  drag on the titlebar, a resize handle, minimize/maximize/close buttons,
+  double-click-titlebar-to-maximize. No drag/resize library — plain
+  `mousedown`/`mousemove`/`mouseup` listeners attached to `window` for the
+  duration of the gesture, consistent with the rest of the stack's "no
+  dependency you don't need" discipline.
+- **`Desktop.tsx`** — the wallpaper, a curated column of desktop icons
+  (double-click to open, matching real OS semantics), and the render loop
+  over open windows. It also owns the one piece of routing logic left: a
+  `useLocation()` effect that opens a window when the URL matches
+  `/modules/:slug` (so old links, `Link`s inside module components, and
+  bookmarks all still work) and opens `CI Home` by default the first time
+  the OS reaches `/`. The URL is a way *in* — a link opens a window — not
+  a source of truth for everything that's open; several windows can be
+  open under one address bar entry, the same tradeoff any browser-based
+  multi-window surface makes.
+- **`Taskbar.tsx`** and **`StartMenu.tsx`** — replace the old sidebar and
+  top search bar with one pattern instead of two: Start is both "browse
+  every module by category" and "type to find one," the way a real OS
+  launcher is, rather than a permanent tree plus a separate search box.
+  The taskbar lists open windows (click to focus, click again to
+  minimize — standard taskbar semantics) and carries the one piece of
+  system chrome that's always visible regardless of what's open: a live
+  clock and an unread/pending-approval count.
+- **`ModuleWindowContent.tsx`** — what actually renders inside a window's
+  body. This is a near-verbatim port of what the old `ModulePage.tsx`
+  did (module recap header + `MODULE_COMPONENTS[module.id]`, or the
+  honest "not built yet" placeholder for the 48 still `planned`) — the
+  *content* logic didn't need to change at all, only its container. Every
+  module component in `src/modules/` is untouched by this rewrite; the
+  same 42 built modules run today, just inside window chrome instead of
+  a routed page.
+
+`src/pages/ModulePage.tsx`, `src/components/Sidebar.tsx` and
+`src/components/TopBar.tsx` are gone — replaced, not kept as an
+alternate "classic" mode, because a shell that half-feels like an OS
+isn't the thing being built. `src/pages/Home.tsx` survives as `CI Home`'s
+window content (registered in `MODULE_COMPONENTS` like every other
+module — there's no special-cased home page anymore, just a module that
+happens to auto-open first).
 
 ## One shared dataset, not nine mocks that share names
 
@@ -303,9 +361,11 @@ later (an API call from `CI API HUB`, say) costs nothing structurally.
   decision that way.
 - **Tailwind** for styling — utility classes keep 90 module screens
   visually consistent without a hand-maintained component library yet.
-- **React Router** for client-side routing — one route (`/modules/:slug`)
-  serves all 90 modules by reading the registry, rather than 90 hand-written
-  routes.
+- **React Router**, used narrowly — no `<Routes>`/`<Route>` matching
+  anymore, just `useLocation()` inside `Desktop.tsx` so a `/modules/:slug`
+  URL or a `Link` still opens the right window. The desktop itself is one
+  component tree, not route-swapped pages, which is what lets several
+  modules stay open — and stay real windows — at once.
 - No backend yet. Everything is in-memory/mock data. The next real
   milestone is a persistence layer (`CI DATABASE` / `CI DATA HUB`) that
   `CI CORE` and every module read/write through, so "one company database"
