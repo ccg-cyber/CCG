@@ -402,6 +402,7 @@ const SEED: AppState = {
   automations: AUTOMATIONS,
   governance: GOVERNANCE,
   dismissedNotificationIds: [],
+  uiPreferences: { wallpaper: "default" },
 };
 
 export const appStore = createStore<AppState>("ci-os-app-state-v1", SEED);
@@ -1653,6 +1654,10 @@ export function runWorkflows(): number {
   }
 
   return newTasks.length;
+}
+
+export function setWallpaper(key: string) {
+  appStore.set((s) => ({ ...s, uiPreferences: { ...s.uiPreferences, wallpaper: key } }));
 }
 
 export function resetDemoData() {

@@ -4,9 +4,9 @@ _Generated from `src/lib/registry.ts` by `scripts/gen-modules-doc.mjs`. Do not e
 
 90 modules across 11 categories. Status counts:
 
-- ✅ Live: 48
+- ✅ Live: 49
 - 🟡 Scaffolded: 0
-- ⬜ Planned: 42
+- ⬜ Planned: 41
 
 ---
 
@@ -162,7 +162,7 @@ Admin, approvals, permissions, audit, governance.
 | **CI Identity** | ⬜ Planned | — | Users, groups, roles, SSO, MFA, passkeys, sessions, auth policies. |
 | **CI Vault** | ⬜ Planned | — | Passwords, API keys, certificates, secure notes, controlled agent access. |
 | **CI Permissions** | ⬜ Planned | — | Fine-grained RBAC/ABAC across every module, including agent actions. |
-| **CI Admin Center** | ⬜ Planned | — | Company setup, branches, subscriptions, branding, policies, integrations. |
+| **CI Admin Center** | ✅ Live | — | Company setup, branches, subscriptions, branding, policies, integrations. |
 | **CI Audit** | ✅ Live | — | Immutable history of who did what, when, and whether it was human or agent. |
 | **CI Governance** | ✅ Live | — | Data classification, retention, AI policy, privacy, org-wide rules. |
 | **CI Autonomy Control** | ⬜ Planned | — | What CI may do automatically, what needs approval, what it must never do. |

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useWindowManager } from "./WindowManagerContext";
 import ModuleWindowContent from "./ModuleWindowContent";
+import WindowErrorBoundary from "./WindowErrorBoundary";
+import { ModuleIcon } from "./moduleIcons";
 import { getModuleById, searchModules } from "@/lib/registry";
 import { visibleNotifications } from "@/lib/notifications";
 import { useAppState } from "@/lib/data";
@@ -17,12 +19,6 @@ const HOME_ICONS = [
   "ci-home", "ci-mail", "ci-crm", "ci-drive", "ci-tasks",
   "ci-approval-center", "ci-calendar", "ci-invoicing", "ci-assistant",
 ];
-
-const ICONS: Record<string, string> = {
-  "ci-home": "🏠", "ci-docs": "📄", "ci-mail": "✉️", "ci-crm": "🧭",
-  "ci-drive": "🗂️", "ci-tasks": "✅", "ci-approval-center": "✔️",
-  "ci-assistant": "💬", "ci-calendar": "📅", "ci-invoicing": "🧾",
-};
 
 export default function CompactShell() {
   const { windows, activeId, openWindow, minimizeWindow, closeWindow, focusWindow } = useWindowManager();
@@ -57,7 +53,9 @@ export default function CompactShell() {
           </button>
         </div>
         <div className="flex-1 overflow-auto">
-          <ModuleWindowContent moduleId={active.moduleId} />
+          <WindowErrorBoundary key={active.id} moduleName={mod?.name ?? "This app"} onClose={() => closeWindow(active.id)}>
+            <ModuleWindowContent moduleId={active.moduleId} />
+          </WindowErrorBoundary>
         </div>
       </div>
     );
@@ -113,8 +111,8 @@ export default function CompactShell() {
                     data-testid={`app-icon-${id}`}
                     className="flex flex-col items-center gap-1.5 text-center"
                   >
-                    <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ci-panel text-2xl">
-                      {ICONS[id] ?? "🗔"}
+                    <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ci-panel text-ci-accent">
+                      <ModuleIcon moduleId={id} className="h-6 w-6" />
                     </span>
                     <span className="text-[11px] text-ci-text leading-tight">{mod.name.replace("CI ", "")}</span>
                   </button>

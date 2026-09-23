@@ -274,7 +274,7 @@ later as a readable timeline. Not implemented yet in this slice, but the
 
 ## What's actually live vs. mapped
 
-Forty-eight modules — well over half the full map — are wired up end-to-end against the one shared dataset:
+Forty-nine modules — well over half the full map — are wired up end-to-end against the one shared dataset:
 
 | Module | Category | Proves |
 |---|---|---|
@@ -326,8 +326,9 @@ Forty-eight modules — well over half the full map — are wired up end-to-end 
 | CI Design | Create | A real draggable canvas — Adobe/Canva-style parity, elements persist through the same mutation seam as everything else |
 | CI PDF | Work | Works directly on CI Drive's own `type: "pdf"` field — no separate document type to keep in sync |
 | CI Workflow Engine | Build | A human-authored rule engine: real, deduplicated cross-module automation with no code change per rule |
+| CI Admin Center | Control | Desktop wallpaper and local-data reset — device-level settings, split from CI ERP Core's company-level master data |
 
-The other 42 are registered with real names, categories, descriptions and
+The other 41 are registered with real names, categories, descriptions and
 keywords — visible in the sidebar and searchable — but show a "not built
 yet" placeholder instead of a screen. That is intentional: the full map
 should exist and be navigable before every room has furniture in it.
@@ -411,15 +412,18 @@ later (an API call from `CI API HUB`, say) costs nothing structurally.
   decision that way.
 - **Tailwind** for styling — utility classes keep 90 module screens
   visually consistent without a hand-maintained component library yet.
+- **`lucide-react`** for icons (`src/os/moduleIcons.tsx`) — the one
+  icon-library dependency in the shell, deliberately, because emoji
+  (what desktop icons and the phone home-screen grid used before) render
+  as a genuinely different glyph across platforms and fonts, which a
+  vector icon set doesn't.
 - **React Router**, used narrowly — no `<Routes>`/`<Route>` matching
   anymore, just `useLocation()` inside `Desktop.tsx` so a `/modules/:slug`
   URL or a `Link` still opens the right window. The desktop itself is one
   component tree, not route-swapped pages, which is what lets several
   modules stay open — and stay real windows — at once.
-- No backend yet. Everything is in-memory/mock data. The next real
-  milestone is a persistence layer (`CI DATABASE` / `CI DATA HUB`) that
-  `CI CORE` and every module read/write through, so "one company database"
-  stops being a metaphor.
+- No backend yet — see "Deployable on a company's own server" below for
+  the concrete plan, not just "add a backend" as a line item.
 
 ## Deployable on a company's own server, not a hosted demo
 
@@ -508,7 +512,7 @@ line item.
    (`state.governance` read by a mutation function, edited through a real
    module screen) for one rule, a purchasing threshold; Autonomy Control
    is the same pattern applied to Ask CI's own approval gate.
-4. Promote the next handful of modules from `planned` to `live`. 48 of 90
+4. Promote the next handful of modules from `planned` to `live`. 49 of 90
    are done — over half the map. **CI Workflow Engine** and **CI PDF** are
    now both live (see below); natural next candidates: **CI Industry
    Packs** (CI Marketplace toggles automations one at a time; a pack would
@@ -634,3 +638,33 @@ this leaves for the roadmap: **exercising every UI affordance at least
 once, not just the paths a given batch's work touches, is part of what
 "verified" needs to mean going forward** — a passing build and a
 correct-looking screenshot are necessary, not sufficient.
+
+## A second bug, and the fix that generalizes past it
+
+A later schema change (new top-level `AppState` fields — `erp`,
+`presentations`, `journalEntries`, and others added the same day) crashed
+the *entire* app to a blank white screen for any returning visitor whose
+browser had state saved from before that change: `src/lib/store.ts`
+returned whatever was in `localStorage` as-is, so a module reading a
+field that didn't exist yet in a visitor's saved state (`state.erp
+.companyName`, `undefined.companyName`) threw mid-render — and because
+nothing in the tree caught it, React unmounted everything, not just that
+module's window. `src/lib/store.ts`'s fix (shallow-merge persisted state
+onto the current `SEED` so a missing field always arrives with a real
+default) closed that specific hole.
+
+But it's still just one hole closed, not the general problem solved:
+*any* future bug in *any* module's render — a null a mutation function
+didn't guard, a bad array access, anything — would still take the whole
+OS down with it, because there was no error boundary anywhere in the
+tree. **`WindowErrorBoundary.tsx`** is the general fix: every window's
+content (`Desktop.tsx` and `CompactShell.tsx` both wrap
+`ModuleWindowContent` in one, keyed by window id so a fresh instance gets
+a fresh boundary) is now isolated — a crash there shows that window a
+plain "this app hit an error, close it and reopen" fallback with a real
+close button, while every other open window, the taskbar, and the rest
+of the OS keep running untouched. Verified by deliberately throwing
+inside CI ERP Core's render and confirming the rest of the desktop (Home
+window, CI Mail opened fresh afterward, taskbar) was completely
+unaffected — this is the difference between "we fixed the bug we found"
+and "we fixed the class of bug."

@@ -508,4 +508,6 @@ export interface AppState {
   governance: { poAutoApproveThreshold: number };
   /** Notifications a user has dismissed — notifications themselves are computed, not stored, so read state is the only thing that needs persisting. */
   dismissedNotificationIds: string[];
+  /** CI Admin Center — OS-shell-level appearance, not business data, but it lives here so it survives reloads the same way everything else does. */
+  uiPreferences: { wallpaper: string };
 }

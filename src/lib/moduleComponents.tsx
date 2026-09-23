@@ -10,6 +10,7 @@ import ERP from "@/modules/erp/ERP";
 import Present from "@/modules/present/Present";
 import PDF from "@/modules/pdf/PDF";
 import Workflow from "@/modules/workflow/Workflow";
+import AdminCenter from "@/modules/admin/AdminCenter";
 import Design from "@/modules/design/Design";
 import Approvals from "@/modules/approvals/Approvals";
 import Audit from "@/modules/audit/Audit";
@@ -74,6 +75,7 @@ export const MODULE_COMPONENTS: Record<string, React.ComponentType> = {
   "ci-present": Present,
   "ci-pdf": PDF,
   "ci-workflow-engine": Workflow,
+  "ci-admin-center": AdminCenter,
   "ci-design": Design,
   "ci-approval-center": Approvals,
   "ci-audit": Audit,

@@ -283,7 +283,7 @@ export const MODULES: ModuleDefinition[] = [
   { id: "ci-permissions", slug: "permissions", name: "CI Permissions", category: "control", status: "planned",
     description: "Fine-grained RBAC/ABAC across every module, including agent actions.",
     keywords: ["rbac", "permissions", "access control"] },
-  { id: "ci-admin-center", slug: "admin", name: "CI Admin Center", category: "control", status: "planned",
+  { id: "ci-admin-center", slug: "admin", name: "CI Admin Center", category: "control", status: "live",
     description: "Company setup, branches, subscriptions, branding, policies, integrations.",
     keywords: ["admin", "settings", "tenant"] },
   { id: "ci-audit", slug: "audit", name: "CI Audit", category: "control", status: "live",

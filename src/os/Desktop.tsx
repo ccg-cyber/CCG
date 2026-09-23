@@ -6,7 +6,11 @@ import Taskbar from "./Taskbar";
 import StartMenu from "./StartMenu";
 import ModuleWindowContent from "./ModuleWindowContent";
 import CompactShell from "./CompactShell";
+import WindowErrorBoundary from "./WindowErrorBoundary";
+import { ModuleIcon } from "./moduleIcons";
+import { WALLPAPERS, DEFAULT_WALLPAPER } from "./wallpapers";
 import { getModule, getModuleById } from "@/lib/registry";
+import { useAppState } from "@/lib/data";
 
 /** Below this width, the floating-window desktop metaphor stops making
  * sense — nothing with a screen this size (Palm, the P800, a phone today)
@@ -27,16 +31,6 @@ function useCompact() {
  * someone opens daily, immediately visible without going through Start. */
 const DESKTOP_ICONS = ["ci-home", "ci-docs", "ci-mail", "ci-crm", "ci-drive", "ci-tasks", "ci-approval-center", "ci-assistant"];
 
-const ICONS: Record<string, string> = {
-  "ci-home": "🏠",
-  "ci-docs": "📄",
-  "ci-mail": "✉️",
-  "ci-crm": "🧭",
-  "ci-drive": "🗂️",
-  "ci-tasks": "✅",
-  "ci-approval-center": "✔️",
-  "ci-assistant": "💬",
-};
 
 function DesktopInner() {
   const { windows, activeId, openWindow, closeWindow, focusWindow, minimizeWindow, toggleMaximize, moveWindow, resizeWindow } =
@@ -46,6 +40,8 @@ function DesktopInner() {
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const openedHomeRef = useRef(false);
   const compact = useCompact();
+  const uiState = useAppState();
+  const wallpaperCss = WALLPAPERS[uiState.uiPreferences.wallpaper]?.css ?? WALLPAPERS[DEFAULT_WALLPAPER].css;
 
   // URL is a way *in* (a link, a bookmark, a shared /modules/:slug URL
   // opens that window) — not the source of truth for what's open. Several
@@ -75,7 +71,7 @@ function DesktopInner() {
   return (
     <div
       className="absolute inset-0 overflow-hidden select-none"
-      style={{ background: "radial-gradient(circle at 20% -10%, #e9edf9 0%, #f4f5f8 45%, #f4f5f8 100%)" }}
+      style={{ background: wallpaperCss }}
       onMouseDown={() => setSelectedIcon(null)}
     >
       <div className="absolute top-4 left-4 flex flex-col gap-1">
@@ -95,7 +91,9 @@ function DesktopInner() {
                 selectedIcon === id ? "bg-black/8 ring-1 ring-black/15" : ""
               }`}
             >
-              <span className="text-2xl leading-none">{ICONS[id] ?? "🗔"}</span>
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/70 shadow-sm text-ci-accent">
+                <ModuleIcon moduleId={id} className="h-5 w-5" />
+              </span>
               <span className="text-[11px] text-ci-text leading-tight">{mod.name.replace("CI ", "")}</span>
             </button>
           );
@@ -121,7 +119,9 @@ function DesktopInner() {
             onMove={(x, y) => moveWindow(w.id, x, y)}
             onResize={(width, height) => resizeWindow(w.id, width, height)}
           >
-            <ModuleWindowContent moduleId={w.moduleId} />
+            <WindowErrorBoundary key={w.id} moduleName={mod.name} onClose={() => closeWindow(w.id)}>
+              <ModuleWindowContent moduleId={w.moduleId} />
+            </WindowErrorBoundary>
           </Window>
         );
       })}
