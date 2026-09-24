@@ -22,3 +22,16 @@ body {
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* Shared entrance keyframes — referenced by inline `animation` styles
+   wherever a screen or list needs to fade/settle in rather than pop in
+   instantly (CI Mobile's hub, its full-screen app transitions). Kept as
+   plain CSS rather than a library: two keyframes is not a dependency. */
+@keyframes ci-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes ci-fade-up {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
