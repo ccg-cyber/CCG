@@ -1,37 +1,29 @@
 import { useEffect, useState } from "react";
 
-const BOOT_LINES = [
-  "CI CORE ...................... loading",
-  "CI IDENTITY ................... ok",
-  "CI DATA HUB ................... mounted",
-  "CI ORCHESTRATOR ............... online",
-  "42 / 90 modules ............... ready",
-  "Starting Ci Desktop Environment",
-];
-
-const STEP_MS = 240;
+const FILL_MS = 1100;
 
 /**
- * The moment the user asked for: you should feel like a machine is
- * starting up, not like a page is loading. App.tsx only mounts this on a
- * genuine cold start — no session to resume (see
- * WindowManagerContext.hasRestorableSession) — so it plays once, the
+ * A real OS's boot screen doesn't scroll a log past you — Windows shows a
+ * logo and a few dots, macOS shows a logo and a thin progress bar, both
+ * silent otherwise. The previous version's terminal-style "CI CORE
+ * ...loading" lines read as a dev console, not a product — this is the
+ * quieter, more literal version: the actual app icon, and a progress bar,
+ * nothing performing "hacker" for the sake of it.
+ *
+ * App.tsx only mounts this on a genuine cold start — no session to resume
+ * (see WindowManagerContext.hasRestorableSession) — so it plays once, the
  * first time, not every time the browser/PWA happens to reload the page.
- * Client-side navigation within the OS never re-triggers it either way,
- * the same way opening an app on a real desktop doesn't reboot the
- * machine. Click, or any key, skips straight to the desktop.
+ * Click, or any key, skips straight to the desktop.
  */
 export default function BootScreen({ onDone }: { onDone: () => void }) {
-  const [revealed, setRevealed] = useState(0);
   const [filled, setFilled] = useState(false);
+  const [showSkipHint, setShowSkipHint] = useState(false);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
     const fillTimer = setTimeout(() => setFilled(true), 50);
-    const interval = setInterval(() => {
-      setRevealed((r) => (r >= BOOT_LINES.length ? r : r + 1));
-    }, STEP_MS);
-    const doneTimer = setTimeout(finish, STEP_MS * BOOT_LINES.length + 500);
+    const hintTimer = setTimeout(() => setShowSkipHint(true), 900);
+    const doneTimer = setTimeout(finish, FILL_MS + 350);
 
     function onKey() {
       finish();
@@ -40,7 +32,7 @@ export default function BootScreen({ onDone }: { onDone: () => void }) {
 
     return () => {
       clearTimeout(fillTimer);
-      clearInterval(interval);
+      clearTimeout(hintTimer);
       clearTimeout(doneTimer);
       window.removeEventListener("keydown", onKey);
     };
@@ -49,7 +41,7 @@ export default function BootScreen({ onDone }: { onDone: () => void }) {
 
   function finish() {
     setFading((wasFading) => {
-      if (!wasFading) setTimeout(onDone, 500);
+      if (!wasFading) setTimeout(onDone, 400);
       return true;
     });
   }
@@ -57,24 +49,29 @@ export default function BootScreen({ onDone }: { onDone: () => void }) {
   return (
     <div
       onClick={finish}
-      className={`fixed inset-0 z-[2000] bg-black flex flex-col items-center justify-center gap-6 cursor-pointer transition-opacity duration-500 ${
+      className={`fixed inset-0 z-[2000] bg-black flex flex-col items-center justify-center gap-5 cursor-pointer transition-opacity duration-400 ${
         fading ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
-      <div className="h-12 w-12 rounded-lg bg-gradient-to-br from-ci-accent to-ci-accent2" />
-      <div className="font-mono tracking-[0.35em] text-xs text-white/60">CI BUSINESS OS</div>
-      <div className="w-64 h-1 rounded bg-white/10 overflow-hidden">
+      <img
+        src="/icon-512.png"
+        alt=""
+        className="h-20 w-20 rounded-2xl"
+        style={{ animation: "ci-fade-up 0.5s ease-out both" }}
+      />
+      <div className="w-40 h-[3px] rounded-full bg-white/10 overflow-hidden">
         <div
-          className="h-full bg-gradient-to-r from-ci-accent to-ci-accent2 transition-[width] ease-out"
-          style={{ width: filled ? "100%" : "0%", transitionDuration: `${STEP_MS * BOOT_LINES.length}ms` }}
+          className="h-full bg-white/80 transition-[width] ease-in-out"
+          style={{ width: filled ? "100%" : "0%", transitionDuration: `${FILL_MS}ms` }}
         />
       </div>
-      <div className="font-mono text-[11px] text-white/40 space-y-1 min-h-[110px] w-72">
-        {BOOT_LINES.slice(0, revealed).map((line, i) => (
-          <div key={i}>{line}</div>
-        ))}
+      <div
+        className={`text-[11px] text-white/30 tracking-wide transition-opacity duration-500 ${
+          showSkipHint ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        Click, or press any key, to continue
       </div>
-      <div className="font-mono text-[10px] text-white/25 tracking-wider">click, or press any key, to continue</div>
     </div>
   );
 }
