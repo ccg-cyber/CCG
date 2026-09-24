@@ -7,7 +7,7 @@ import StartMenu from "./StartMenu";
 import ModuleWindowContent from "./ModuleWindowContent";
 import CompactShell from "./CompactShell";
 import WindowErrorBoundary from "./WindowErrorBoundary";
-import { ModuleIcon } from "./moduleIcons";
+import { ModuleIcon, moduleIconStyle } from "./moduleIcons";
 import { WALLPAPERS, DEFAULT_WALLPAPER } from "./wallpapers";
 import { getModule, getModuleById } from "@/lib/registry";
 import { useAppState } from "@/lib/data";
@@ -78,6 +78,7 @@ function DesktopInner() {
         {DESKTOP_ICONS.map((id) => {
           const mod = getModuleById(id);
           if (!mod) return null;
+          const style = moduleIconStyle(mod.category);
           return (
             <button
               key={id}
@@ -90,7 +91,9 @@ function DesktopInner() {
                 selectedIcon === id ? "bg-black/8 ring-1 ring-black/15" : "hover:bg-black/5"
               }`}
             >
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/80 shadow-sm text-ci-accent transition-transform duration-150 group-hover:scale-110 group-hover:shadow-md group-active:scale-95">
+              <span
+                className={`flex h-9 w-9 items-center justify-center rounded-xl shadow-sm transition-transform duration-150 group-hover:scale-110 group-hover:shadow-md group-active:scale-95 ${style.bg} ${style.text}`}
+              >
                 <ModuleIcon moduleId={id} className="h-5 w-5" />
               </span>
               <span className="text-[11px] text-ci-text leading-tight">{mod.name.replace("CI ", "")}</span>

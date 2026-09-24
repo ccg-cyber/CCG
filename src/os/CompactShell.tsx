@@ -3,7 +3,7 @@ import { Bell, CheckCircle2, ChevronRight } from "lucide-react";
 import { useWindowManager, type OSWindow } from "./WindowManagerContext";
 import ModuleWindowContent from "./ModuleWindowContent";
 import WindowErrorBoundary from "./WindowErrorBoundary";
-import { ModuleIcon } from "./moduleIcons";
+import { ModuleIcon, moduleIconStyle } from "./moduleIcons";
 import { getModuleById, searchModules } from "@/lib/registry";
 import { visibleNotifications } from "@/lib/notifications";
 import { useAppState, currentUserName } from "@/lib/data";
@@ -29,19 +29,8 @@ const SECTIONS: { label: string; icons: string[] }[] = [
   { label: "Intelligence & Control", icons: ["ci-assistant", "ci-approval-center"] },
 ];
 
-const CATEGORY_STYLE: Record<string, { bg: string; text: string }> = {
-  home: { bg: "bg-ci-accent/10", text: "text-ci-accent" },
-  work: { bg: "bg-sky-500/10", text: "text-sky-600" },
-  communicate: { bg: "bg-violet-500/10", text: "text-violet-600" },
-  files: { bg: "bg-amber-500/10", text: "text-amber-600" },
-  business: { bg: "bg-emerald-500/10", text: "text-emerald-600" },
-  intelligence: { bg: "bg-fuchsia-500/10", text: "text-fuchsia-600" },
-  control: { bg: "bg-rose-500/10", text: "text-rose-600" },
-};
-
 function iconStyle(moduleId: string) {
-  const category = getModuleById(moduleId)?.category ?? "home";
-  return CATEGORY_STYLE[category] ?? CATEGORY_STYLE.home;
+  return moduleIconStyle(getModuleById(moduleId)?.category);
 }
 
 function greeting(): string {

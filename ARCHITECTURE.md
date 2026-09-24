@@ -474,6 +474,43 @@ different front doors onto the same set of mutation functions every
 module already exposes — which is also why adding a third front door
 later (an API call from `CI API HUB`, say) costs nothing structurally.
 
+## A PIN gate for a demo living at a public URL
+
+os.cierp.uk is reachable by anyone with the link, and unlike everything
+else in this document, that's not a gap to design around — it's a gate to
+put in front of it, cheaply, right now. `src/os/LockScreen.tsx` renders
+after boot and before the desktop: a real-looking lock screen (a live
+clock, a blurred dark gradient, an 8-digit PIN with a numeric keypad and
+physical-keyboard support) that has to be cleared once per device before
+`App.tsx` ever mounts `Desktop`.
+
+Be clear about what this is not: the correct PIN is a literal string
+inside `LockScreen.tsx`, shipped in the bundled JS same as every other
+constant in this app. Anyone who opens devtools can read it in ten
+seconds. This is a "don't stumble onto it and start clicking around"
+gate for a demo, not authentication — the same category of thing as an
+unlisted URL, dressed up to look and feel like a real OS sign-in instead
+of a `window.prompt()`. Real auth is `CI IDENTITY` (#55), and it needs a
+real backend the same way OAuth connectors do — see "Deployable on a
+company's own server" below. Once unlocked, that device stays unlocked
+(a `localStorage` flag) rather than asking again every reload.
+
+## Icons as identity, not decoration
+
+`src/os/moduleIcons.tsx`'s `MODULE_ICONS` map used to cover the dozen
+modules pinned as Desktop/CompactShell shortcuts; everything else — every
+Start-menu row, every search result — fell back to a generic window-glyph
+icon. That's fine for a handful of unbuilt modules, but with 49 live and
+41 mapped modules, "most icons are the same fallback glyph" reads as
+unfinished chrome, not a deliberate placeholder. Every one of the 90
+module ids in `registry.ts` now maps to its own icon chosen for what the
+module actually does — CI Sheets gets a spreadsheet glyph, CI Scan and
+CI OCR get visibly different scan icons rather than sharing one — and
+`moduleIconStyle()` tints every icon by its category (the same seven-ish
+colors CompactShell's hub sections use), shared by Desktop's icon column,
+the Start menu, and the phone hub, so a color means the same category
+everywhere in Ci rather than varying per screen.
+
 ## Stack
 
 - **Vite + React + TypeScript** — fast local iteration, no framework

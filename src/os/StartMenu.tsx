@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CATEGORIES } from "@/lib/categories";
 import { modulesByCategory, searchModules } from "@/lib/registry";
+import { ModuleIcon, moduleIconStyle } from "./moduleIcons";
 
 /**
  * Replaces both the old sidebar's category tree and the old top bar's
@@ -41,22 +42,29 @@ export default function StartMenu({
 
         {results ? (
           <div className="space-y-1">
-            {results.map((m) => (
-              <button
-                key={m.id}
-                onClick={() => pick(m.id)}
-                className="w-full flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-ci-panel2 text-left"
-              >
-                <span>{m.name}</span>
-                {m.status === "live" && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />}
-              </button>
-            ))}
+            {results.map((m) => {
+              const s = moduleIconStyle(m.category);
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => pick(m.id)}
+                  className="w-full flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm hover:bg-ci-panel2 text-left"
+                >
+                  <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${s.bg} ${s.text}`}>
+                    <ModuleIcon moduleId={m.id} className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="flex-1 truncate">{m.name}</span>
+                  {m.status === "live" && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />}
+                </button>
+              );
+            })}
             {results.length === 0 && <p className="text-xs text-ci-muted px-2 py-2">No modules match.</p>}
           </div>
         ) : (
           CATEGORIES.filter((c) => c.id !== "home").map((cat) => {
             const mods = modulesByCategory(cat.id);
             if (mods.length === 0) return null;
+            const s = moduleIconStyle(cat.id);
             return (
               <div key={cat.id} className="mb-3">
                 <p className="text-[11px] font-semibold uppercase tracking-wider text-ci-muted px-2 mb-1">{cat.label}</p>
@@ -64,9 +72,12 @@ export default function StartMenu({
                   <button
                     key={m.id}
                     onClick={() => pick(m.id)}
-                    className="w-full flex items-center justify-between rounded-md px-2 py-1.5 text-sm hover:bg-ci-panel2 text-left"
+                    className="w-full flex items-center gap-2.5 rounded-md px-2 py-1.5 text-sm hover:bg-ci-panel2 text-left"
                   >
-                    <span>{m.name}</span>
+                    <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md ${s.bg} ${s.text}`}>
+                      <ModuleIcon moduleId={m.id} className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="flex-1 truncate">{m.name}</span>
                     {m.status === "live" && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0" />}
                   </button>
                 ))}
