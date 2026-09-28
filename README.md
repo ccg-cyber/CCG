@@ -1,4 +1,4 @@
-# CCG — Consultant Computing Group  
+# CCG™ — Consultant Computing Group  
 ### Enterprise Technology Solutions • IT Support • Consulting  
 Powered by Ci — Crispin Intelligence™  
 Home of **CiERP™ — Ci for Every Real Problem**
@@ -106,7 +106,7 @@ For security matters or sensitive communications, please contact CCG privately u
 
 ## 7. About the Name
 
-**CCG — Consultant Computing Group**  
+**CCG™ — Consultant Computing Group**  
 Our official name, and the heart of what we do: consulting and computing for organizations that need to get it right.
 
 **The legacy: Charbel Crispin Geagea**  
@@ -118,7 +118,7 @@ The thinking behind every CCG solution. The name also points to **continuous imp
 **CiERP™ — Ci for Every Real Problem**  
 Examine → Resolve → Prevent. Planning resources is just the easy part.
 
-**Crispin Cyber Group**  
+**Crispin Cyber Group™**  
 The security side of CCG, and the name behind our GitHub home, **ccg-cyber**. It stands for protecting systems, data, and operations at every layer.
 
 ---
@@ -127,6 +127,7 @@ The security side of CCG, and the name behind our GitHub home, **ccg-cyber**. It
 
 **Ci™ — Intelligence Refined**  
 **CCG™ — Engineering with Precision**  
-**CiERP™ — Every Real Problem**
+**CiERP™ — Every Real Problem**  
+**Crispin Cyber Group™ — Security at Every Layer**
 
 Delivering clarity, stability, and high-performance technology for modern organizations.
