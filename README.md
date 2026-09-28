@@ -1,6 +1,7 @@
 # CCG — Consultant Computing Group  
 ### Enterprise Technology Solutions • IT Support • Consulting  
-Powered by Ci — Crispin Intelligence™
+Powered by Ci — Crispin Intelligence™  
+Home of **CiERP — Ci for Every Real Problem**
 
 CCG delivers high-performance technology solutions for organizations that require reliability, security, and precision.  
 We combine deep technical expertise with modern engineering standards to support businesses in every aspect of IT infrastructure, systems, and digital operations.
@@ -28,7 +29,22 @@ Every engagement is guided by the CCG engineering mindset:
 
 ---
 
-## 2. What CCG Provides
+## 2. CiERP — Ci for Every Real Problem
+
+Many people read "ERP" and think *Enterprise Resource Planning*.  
+At CCG, **ERP means Every Real Problem**. Planning resources is just one small part of it.
+
+CiERP is how Ci and CCG handle any real problem, whether technical, operational, or strategic, using the same approach every time:
+
+- **Examine** — Understand the real problem, not only its symptoms  
+- **Resolve** — Fix it cleanly, reliably, and securely  
+- **Prevent** — Strengthen the system so it does not come back  
+
+**CiERP — Every Real Problem. Planning resources is just the easy part.**
+
+---
+
+## 3. What CCG Provides
 
 ### **• Enterprise IT Support**  
 Comprehensive assistance for systems, networks, and operations.
@@ -50,7 +66,7 @@ Tailored engineering for business-specific requirements.
 
 ---
 
-## 3. Purpose of This Repository
+## 4. Purpose of This Repository
 
 This repository serves as CCG’s public technical hub.  
 Here you will find:
@@ -65,7 +81,7 @@ All content reflects the CCG commitment to quality, clarity, and disciplined eng
 
 ---
 
-## 4. Contributing
+## 5. Contributing
 
 CCG follows strict contribution standards to maintain engineering excellence.  
 Please review:
@@ -77,7 +93,7 @@ Pull requests must follow the Ci × CCG structure and meet all technical criteri
 
 ---
 
-## 5. Support & Contact
+## 6. Support & Contact
 
 For enterprise support, visit:  
 **https://ccg.support**
@@ -88,9 +104,10 @@ For security matters or sensitive communications, please contact CCG privately u
 
 ---
 
-## 6. Ci × CCG Signature
+## 7. Ci × CCG Signature
 
 **Ci™ — Intelligence Refined**  
-**CCG™ — Engineering with Precision**
+**CCG™ — Engineering with Precision**  
+**CiERP — Every Real Problem**
 
 Delivering clarity, stability, and high-performance technology for modern organizations.
