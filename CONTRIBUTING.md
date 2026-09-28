@@ -1,4 +1,4 @@
-# Contributing to CCG — Crispin Consulting Group
+# Contributing to CCG — Consultant Computing Group
 # Powered by Ci — Crispin Intelligence™
 
 Every contribution to a CCG repository must reflect the precision, discipline, and minimalism that define the CCG engineering culture.
