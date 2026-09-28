@@ -1,7 +1,7 @@
 # CCG — Consultant Computing Group  
 ### Enterprise Technology Solutions • IT Support • Consulting  
 Powered by Ci — Crispin Intelligence™  
-Home of **CiERP — Ci for Every Real Problem**
+Home of **CiERP™ — Ci for Every Real Problem**
 
 CCG delivers high-performance technology solutions for organizations that require reliability, security, and precision.  
 We combine deep technical expertise with modern engineering standards to support businesses in every aspect of IT infrastructure, systems, and digital operations.
@@ -29,7 +29,7 @@ Every engagement is guided by the CCG engineering mindset:
 
 ---
 
-## 2. CiERP — Ci for Every Real Problem
+## 2. CiERP™ — Ci for Every Real Problem
 
 Many people read "ERP" and think *Enterprise Resource Planning*.  
 At CCG, **ERP means Every Real Problem**. Planning resources is just one small part of it.
@@ -115,8 +115,11 @@ CCG began with its founder's initials. The name grew into a company, and the fou
 **Ci — Crispin Intelligence™**  
 The thinking behind every CCG solution. The name also points to **continuous improvement**.
 
-**CiERP — Ci for Every Real Problem**  
+**CiERP™ — Ci for Every Real Problem**  
 Examine → Resolve → Prevent. Planning resources is just the easy part.
+
+**Crispin Cyber Group**  
+The security side of CCG, and the name behind our GitHub home, **ccg-cyber**. It stands for protecting systems, data, and operations at every layer.
 
 ---
 
@@ -124,6 +127,6 @@ Examine → Resolve → Prevent. Planning resources is just the easy part.
 
 **Ci™ — Intelligence Refined**  
 **CCG™ — Engineering with Precision**  
-**CiERP — Every Real Problem**
+**CiERP™ — Every Real Problem**
 
 Delivering clarity, stability, and high-performance technology for modern organizations.
