@@ -1,4 +1,4 @@
-# CCG Pull Request — Crispin Consulting Group
+# CCG Pull Request — Consultant Computing Group
 # Powered by Ci — Crispin Intelligence™
 
 ## 1. Summary
