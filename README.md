@@ -104,7 +104,23 @@ For security matters or sensitive communications, please contact CCG privately u
 
 ---
 
-## 7. Ci × CCG Signature
+## 7. About the Name
+
+**CCG — Consultant Computing Group**  
+Our official name, and the heart of what we do: consulting and computing for organizations that need to get it right.
+
+**The legacy: Charbel Crispin Geagea**  
+CCG began with its founder's initials. The name grew into a company, and the founder's standards stayed with it.
+
+**Ci — Crispin Intelligence™**  
+The thinking behind every CCG solution. The name also points to **continuous improvement**.
+
+**CiERP — Ci for Every Real Problem**  
+Examine → Resolve → Prevent. Planning resources is just the easy part.
+
+---
+
+## 8. Ci × CCG Signature
 
 **Ci™ — Intelligence Refined**  
 **CCG™ — Engineering with Precision**  
